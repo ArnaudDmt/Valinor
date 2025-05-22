@@ -1,0 +1,265 @@
+﻿%% This is a sample file demonstrating the use of IJCAS.cls,
+%% which is for the IJCAS (International Journal of Control, Automation, and Systems).
+%%
+%% 2004/03/08 by Karnes Kim
+%% 2011/07/26 by CDSL, SNU
+%%
+%% Support sites: http://www.ijcas.com
+%%
+%% This code is offered as-is - no warranty - user assumes all risk.
+%% Free to use, distribute and modify.
+%%
+
+%% The IJCAS class supports two column page basically. 
+%%So, you need not use two column option or command.
+\documentclass{IJCAS}
+
+%% include the useful LaTeX packages:
+\usepackage{url}
+\usepackage{array,tabularx}
+\usepackage{multicol} 
+\usepackage{multirow}
+
+%%%% Editorial Information
+%% Authors do not have to modify this section.
+\journalvolumn{VV}
+\journalnumber{X}
+\journalyear{YYYY}
+\setarticlestartpagenumber{1}
+%%%% End of Editorial Information
+
+%The environment for theorem, lemma, remark, corollary, proposition, and definition are already defined.
+
+
+%The following command is needed for line break of long equations.
+\allowdisplaybreaks
+
+
+\begin{document}
+
+\newcommand{\getErrorResult}[5]{\csname#1#2#3#4#5\endcsname}
+\input{Uploaded/metrics_results}
+
+
+% the \title command
+\title{VALINOR: a lightweight leg inertial odometry for humanoid robots}
+
+% the \author command
+% the \orcid{orcid number}
+\author{Arnaud Demont*\orcid{https://orcid.org/0009-0006-8325-8331}, Mehdi Benallegue\orcid{https://orcid.org/0000-0001-7537-9498}, and Abdelaziz Benallegue\orcid{}}
+
+% the abstract environment
+\begin{abstract}
+This article describes the preparation procedure for publication in the International Journal of Control, Automation, and Systems (IJCAS), and this template applies both for initial submission and the final camera-ready manuscript of the paper. When authors submit their work for review, it is necessary to follow these instructions. The abstract should not exceed 300 words for regular papers or 75 words for technical notes and correspondence without equations, references, and footnotes.
+\end{abstract}
+
+\begin{keywords}
+  Legged robots, proprioceptive odometry, state estimation, tilt estimation.
+\end{keywords}
+
+\maketitle
+
+\makeAuthorInformation{
+% Manuscript received January 10, 2025; revised March 10, 2025; accepted May 10, 2025. Recommended by Associate Editor Soon-Shin Lee under the direction of Editor Milton John.\\
+A. Demont, M. Benallegue and A. Benallegue are with the CNRS-AIST JRL (Joint Robotics Laboratory), IRL, National Institute of Advanced Industrial Science and Technology (AIST), 1-1-1 Umezono, Tsukuba, Ibaraki 305-8560 Japan. 
+
+A. Demont and A. Benallegue are also with Université Paris-Saclay, 3 rue Joliot Curie, Bâtiment Breguet, 91190 Gif-sur-Yvette, France, and Laboratoire d'Ingénierie des Systèmes de Versailles, 10-12 avenue de l'Europe, 78140 Vélizy, France. 
+
+e-mails: arnaud.demont@aist.go.jp, mehdi.benallegue@aist.go.jp, abdelaziz.benallegue@uvsq.fr.
+
+* Corresponding author.
+}
+
+\runningtitle{2025}{Arnaud Demont, Mehdi Benallegue and Abdelaziz Benallegue}{Manuscript Template for the International Journal of Control, Automation, and Systems: ICROS {\&} KIEE}{xxx}{xxxx}{x}
+
+
+
+
+\section{INTRODUCTION}
+
+Importance of tilt for prioprioceptive odometry. paper with learning for RI-EKF
+
+
+This document is a template for LATEX users. If you are reading a printed version of this document, please download an electronic file, IJCAS manuscript template.zip, from \urlstyle{rm}\url{https://ijcas.com}. You can use this template to prepare your manuscript. If you prefer to use MS Word template file, please download the IJCAS' Microsoft Word style and sample files from the same website. We recommend you to use LATEX for fast typesetting and publication schedule because the published file will be based on LATEX. But, we also accept Microsoft \textit{Word} files for the authors' convenience.
+
+It is necessary to adhere to these instructions when a manuscript is submitted for review. It is highly recommended to submit the manuscript in a \textit{two-column format using template.} \textit{The authors must strictly follow these instructions} to maintain the high standard of the journal. 
+
+A manuscript is divided into three parts: The first part includes the title, authors' names, abstract, and keywords. The second part is the paper's main body including the conclusion section, and the third part is the authors' profile section at the end.
+
+\subsection{Contributions}
+\begin{itemize}
+  \item Presentation of axis agnostic orientation combinations.
+  \item Lightweight combination of Leg Odometry with a highly accurate tilt estimate.
+  \item Experimental evaluation of the Tilt Observer.
+\end{itemize}
+
+\section{Preliminaries}
+
+\section{Axis agnostic orientation combinations}
+
+\section{Tilt Observer with proof of convergence}
+
+\section{Leg odometry}
+
+\subsection{Averaging of orientations}
+
+\subsection{Combining the orientations}
+Use of the axis agnostic representation to merge the estimated tilt with the Leg odometry's yaw, without any axis preference.
+
+\section{Experimental evaluation}
+
+
+\subsection{Walk on flat floor}
+Show table and plot of pose and vel. Focus on tilt.
+
+\subsection{Multi-contact}
+
+
+
+\begin{table*}[!b] 
+\vskip -0.75pc
+\setlength{\extrarowheight}{0.5ex}
+\setlength{\tabcolsep}{1pt}
+\caption{Mean and standard deviation (in parentheses) of errors computed during multi-contact motions. The 0.3 m Relative Error is represented. The best results for each metric are highlighted in bold.} \label{tab:multicontact-odometry-results}
+\begin{center}
+\vskip -1.25pc
+{\footnotesize
+    \begin{center}
+        \begin{tabu}to\linewidth{| X[c] || X[c] | X[c] | X[c] | X[c] | X[c] | X[c] | X[c] | X[c] | X[c] | X[c] |}
+            \hline
+            \multirow{4}{*}{}          &       \multicolumn{4}{c|}{Translation [m]}         &    \multicolumn{4}{c|}{Orientation $[^{\circ}]$}  &    \multicolumn{2}{c|}{Linear velocity $[\text{m.s}^{-1}]$}     \\     
+            \cline{2-11}
+                        &    \multicolumn{2}{c|}{Lateral}    &     \multicolumn{2}{c|}{Vertical}      &     \multicolumn{2}{c|}{\{roll, pitch\}}    &    \multicolumn{2}{c|}{yaw}    &   Lateral  &  Vertical \\ 
+                        &    \multicolumn{2}{c|}{ \{$\boldsymbol{x}, \boldsymbol{y}$\}}    &     \multicolumn{2}{c|}{$\boldsymbol{z}$}      &     \multicolumn{2}{c|}{}    &    \multicolumn{2}{c|}{}    &   \{$\boldsymbol{x}, \boldsymbol{y}$\}  &  $\boldsymbol{z}$ \\
+            \cline{2-11}
+                        &    $\text{ATE}_{\left\{\boldsymbol{x}, \boldsymbol{y}\right\}}$  &    $\text{RE}_{\left\{\boldsymbol{x}, \boldsymbol{y}\right\}}$   &    $\text{ATE}_{\boldsymbol{z}}$      &     $\text{RE}_{\boldsymbol{z}}$   &    $\text{ATE}_{\left\{\text{r, p}\right\}}$  & $\text{RE}_{\left\{\text{r, p}\right\}}$ &  $\text{ATE}_{\text{yaw}}$ &  $\text{RE}_{\text{yaw}}$  &   $\text{Vel}_{\left\{\boldsymbol{x}, \boldsymbol{y}\right\}}$  &  $\text{Vel}_{\boldsymbol{z}}$  \\
+            \hline     
+            
+            Valinor       &  \getErrorResult{Multicontact}{Kowithoutwrenchsensors}{AbserrorHrpeMulticontactA}{Transxy}{Meanabs}   &  \textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Relerror}{Transxy}{Meanabs}}  &  \textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{AbserrorHrpeMulticontactA}{Transz}{Meanabs}}  &  \textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Relerror}{Transz}{Meanabs}}   &  \textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{AbserrorHrpeMulticontactA}{Tilt}{Meanabs}}     &  \textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Relerror}{Tilt}{Meanabs}}    &   \textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{AbserrorHrpeMulticontactA}{Yaw}{Meanabs}}    &    \textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Relerror}{Yaw}{Meanabs}}     &  \getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Velerror}{EstimateXy}{Meanabs}    &   \textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Velerror}{EstimateZ}{Meanabs}}  \\ 
+            (Proposed) &   (\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{AbserrorHrpeMulticontactA}{Transxy}{Std})   &   (\textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Relerror}{Transxy}{Std}})   &  (\textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{AbserrorHrpeMulticontactA}{Transz}{Std}})  &     (\textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Relerror}{Transz}{Std}})    &       (\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{AbserrorHrpeMulticontactA}{Tilt}{Std})   &   (\textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Relerror}{Tilt}{Std}})   &      (\textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{AbserrorHrpeMulticontactA}{Yaw}{Std}})  &    (\textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Relerror}{Yaw}{Std}})   &  (\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Velerror}{EstimateXy}{Std})   &   (\textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Velerror}{EstimateZ}{Std}})  \\ 
+            \hline 
+
+            \multirow{2}{*}{RI-EKF \cite{1}}    &  \getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Transxy}{Meanabs}   &  \getErrorResult{Multicontact}{Hartley}{Relerror}{Transxy}{Meanabs}  &  \getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Transz}{Meanabs}  &  \getErrorResult{Multicontact}{Hartley}{Relerror}{Transz}{Meanabs}   &  \getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Tilt}{Meanabs}     &  \getErrorResult{Multicontact}{Hartley}{Relerror}{Tilt}{Meanabs}    &   \getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Yaw}{Meanabs}    &    \getErrorResult{Multicontact}{Hartley}{Relerror}{Yaw}{Meanabs}   &  \textbf{\getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateXy}{Meanabs}}    &   \getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateZ}{Meanabs}  \\ 
+            &   (\textbf{\getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Transxy}{Std}})   &   (\getErrorResult{Multicontact}{Hartley}{Relerror}{Transxy}{Std})   &  (\getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Transz}{Std})  &     (\getErrorResult{Multicontact}{Hartley}{Relerror}{Transz}{Std})    &       (\getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Tilt}{Std})   &   (\getErrorResult{Multicontact}{Hartley}{Relerror}{Tilt}{Std})   &      (\getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Yaw}{Std})  &    (\getErrorResult{Multicontact}{Hartley}{Relerror}{Yaw}{Std})    &  (\textbf{\getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateXy}{Std}})    &   (\getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateZ}{Std})  \\ 
+            \hline     
+        \end{tabu}
+    \end{center}
+}
+\end{center}
+\vskip -0.25pc
+\end{table*}
+
+\subsection{Computation times comparison}
+
+\subsection{Equation}
+
+The equations should be numbered serially throughout the paper. The equation number should be located to the far right of the line in parenthesis. Equations are shown left aligned on the column.
+
+\begin{theorem}
+Equations are made as follows:
+\begin{align} 
+&\label{eq:1} 
+\dot{x}=Ax+Bu, \\
+&\label{eq:2} 
+y=Cx+Du. 
+\end{align} 
+You must remove all the automatically-made indentations made after hitting the return key. 
+\end{theorem}
+\begin{proof}
+Each equation should be separated by a comma. Assuming that the Equation Editor is used, the settings for individual font sizes are
+
+Main equation: 10 pt (Times New Roman),
+
+Subscript/superscript: 7 pt (Times New Roman),
+
+Sub-subscript: 6 pt (Times New Roman),
+
+Symbol: 150\%,
+
+Sub-symbol: 100\%. 
+
+The equation number should be set with a right tap as shown in \eqref{eq:1}-\eqref{eq:2}. This is the end of the proof.
+\end{proof}
+
+
+
+\begin{remark}
+The journal office knows how to convert all equations into font 10 pt at once. Please inquire about this before preparing the final manuscript. This will be handy for you.
+\end{remark}
+
+
+
+\subsection{Equation/figure/table citation}
+
+Equations \eqref{eq:1}-\eqref{eq:2} stand for the system dynamics. Fig. \ref{fig:1} is the first figure. Table \ref{tab:1} is cited as such. In the paper, all authors are required to use the SI unit.
+
+
+\subsection{References}
+
+References should appear in a separate bibliography at the end of the paper, with items referred to by numerals in square brackets \cite{1,3,4,5}. Times New Roman 10 pt is used for references \cite{2}. References should be complete in the IJCAS style shown in the Reference section of this article. An article should include vol., no., pages, and year.
+
+
+
+\subsection{Author information}
+
+Brief biographies and either clear glossy photographs (25 mm $\times$ 30 mm) of the authors or TIF files of the figures should be submitted after the paper is accepted.
+
+
+
+\section{CONCLUSION}
+
+Opening: include a correction of the contact pose references. 
+
+
+
+\appendix
+
+The author(s) can insert an appendix with a meaningful title here.
+
+
+
+\section*{DECLARATIONS}
+
+\subsection*{Conflict of Interest}
+Always applicable and includes interests of a financial or personal nature. For example, ``The authors declare that there is no competing financial interest or personal relationship that could have appeared to influence the work reported in this paper.''
+
+\subsection*{Authors' Contributions}
+If there is one more author, please ensure that all authors' contributions are individually mentioned with their full names.
+
+\subsection*{Funding }
+It should be provided in the Declarations, separate from the Acknowledgements. If any of these declarations listed are not relevant to the content of your submission, please state that this declaration is ``Not Applicable''.
+
+
+
+
+\begin{reference}
+\bibitem{1} \doi{R. C. Baker and B. Charlie, ``Nonlinear unstable systems,'' \textit{International Journal of Control}, vol. 23, no. 4, pp. 123-145, 1989.}{10.1007s/s12555-xxx-xxxx-x}
+
+\bibitem{2} G.-D. Hong, ``Linear controllable systems,'' \textit{Nature}, vol. 135, no. 5, pp. 18-27, 1990. 
+
+\bibitem{3} K.-S. Hong and C. S. Kim, ``Linear stable systems,'' \textit{IEEE Transactions on Automatic Control}, vol. 33, no. 3, pp. 1234-1245, 1993. 
+
+\bibitem{4} Z. Shiler, S. Filter, and S. Dubowski, ``Time optimal paths and acceleration lines of robotic manipulators,'' \textit{Proc. of the 26th Conference on Decision and Control}, pp. 98-99, 1987.
+
+\bibitem{5}  M. Young, \textit{The Technical Writer's Handbook}, Mill Valley, Seoul, 1989.
+
+\bibitem{6}  Y. Feng, H. Wang, H. Lu, C. Chang, L. Luo, and F. Yang, ``A novel faster all-pair shortest path algorithm based on the matrix multiplication for GPUs,'' \textit{arXiv preprint} arXiv:2208.04514, 2022.
+
+\bibitem{7} ``Reinforcement learning,'' Wikipedia, [Online]. Available: \href{https://en.wikipedia.org/wiki/Reinforcement_learning}{https://en.wikipedia.org/wiki/Reinforcement\_learning}. [Accessed: March 24, 2025].
+\end{reference}
+
+
+% \biography{Uploaded/Arnaud.png}{Arnaud Demont}{received the M.S. degree in mechanical engineering with a specialization in mechatronics and systems from the National Institute of Applied Sciences of Lyon, France, and a second M.S. degree in automation and robotics in intelligent systems from the University of  Technology of Compiègne, France, in 2021 and 2023 respectively. He is currently pursuing the PhD degree of the Université Paris-Saclay, France, within the CRNS-AIST Joint Robotics Laboratory in Tsukuba, Japan. His research interests include state estimation for legged robots, multi-sensor fusion, and mobile robot perception and autonomous navigation.
+% }
+
+% \biography{Uploaded/Mehdi.png}{Mehdi Benallegue}{holds an engineering degree from the National Institute of Computer Science (INI) in Algeria, obtained in 2007. He earned a master's degree from the University of Paris 7, France, in 2008, and a Ph.D. from the University of Montpellier 2, France, in 2011. His research took him to the Franco-Japanese Robotics Laboratory in Tsukuba, Japan, and to INRIA Grenoble, France. He also worked as a postdoctoral researcher at the Collège de France and at LAAS CNRS in Toulouse, France. Currently, he is a Research Associate with CNRS AIST Joint robotics Laboratory in Tsukuba, Japan. His research interests include robot estimation and control, legged locomotion, biomechanics, neuroscience, and computational geometry.
+% }
+
+% \biography{Uploaded/Aziz.png}{Prof. Abdelaziz Benallegue}{received the B.S. degree in electronics engineering from Algiers National Polytechnic School, Algeria in 1986 and both the M.S. and Ph.D. degrees in automatic control and robotics from University of Pierre and Marie Curie, Paris 6 (currently Sorbonne University), France in 1987 and 1991 respectively. He was Associate professor in Automatic Control and Robotics at the University Pierre et Marie Curie, Paris 6 (currently Sorbonne University) from 1992 to 2002. In September 2002, he joined the University of Versailles St Quentin as full Professor assigned. He was a CNRS delegate at JRL-AIST, Japan for three years, between 2016 and 2022. His research activities are mainly related to linear and non-linear estimation and control theory (adaptive control, robust control, neural learning control, observers, multi-sensor fusion, etc.) with applications in robotics (humanoid robots, aerial robots, manipulator robots, etc.).
+% }
+
+\clearafterbiography
+\relax 
+
+\end{document}
+

@@ -1,0 +1,1525 @@
+@InProceedings{maravgakis2023probabilistic,
+  author       = {Maravgakis, Michael and Argiropoulos, Despina-Ekaterini and Piperakis, Stylianos and Trahanias, Panos},
+  booktitle    = {2023 IEEE International Conference on Robotics and Automation (ICRA)},
+  title        = {Probabilistic contact state estimation for legged robots using inertial information},
+  year         = {2023},
+  organization = {IEEE},
+  pages        = {12163--12169},
+}
+
+@InProceedings{lin2021legged,
+  author    = {Lin, Tzu-Yuan and Zhang, Ray and Yu, Justin and Ghaffari, Maani},
+  booktitle = {Proceedings of the 5th Conference on Robot Learning},
+  title     = {Legged Robot State Estimation using Invariant Kalman Filtering and Learned Contact Events},
+  year      = {2022},
+  editor    = {Faust, Aleksandra and Hsu, David and Neumann, Gerhard},
+  month     = {08--11 Nov},
+  pages     = {1057--1066},
+  publisher = {PMLR},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {164},
+  abstract  = {This work develops a learning-based contact estimator for legged robots that bypasses the need for physical sensors and takes multi-modal proprioceptive sensory data as input. Unlike vision-based state estimators, proprioceptive state estimators are agnostic to perceptually degraded situations such as dark or foggy scenes. While some robots are equipped with dedicated physical sensors to detect necessary contact data for state estimation, some robots do not have dedicated contact sensors, and the addition of such sensors is non-trivial without redesigning the hardware. The trained network can estimate contact events on different terrains. The experiments show that a contact-aided invariant extended Kalman filter can generate accurate odometry trajectories compared to a state-of-the-art visual SLAM system, enabling robust proprioceptive odometry.},
+  file      = {:Articles/legged_robot_state_estimation/LeggedRobotStateEstimationUsingInvariantKalmanFilteringAndLearnedContactEvents.pdf:PDF},
+}
+
+@Article{Li2022NonlinearStateEstimatioinFrameworkForHumanoids,
+  author   = {Jingchao Li and Zhaohui Yuan and Sheng Dong and Jingqin Zhang and Jianrui Zhang},
+  journal  = {Robotics and Autonomous Systems},
+  title    = {A nonlinear state estimation framework for humanoid robots},
+  year     = {2022},
+  issn     = {0921-8890},
+  pages    = {104100},
+  volume   = {153},
+  abstract = {This article proposes a novel nonlinear state estimation framework for humanoid robots based on the dynamics of the center of mass (CoM) and dual-loop Kalman filter(DLKF). It effectively fuses the information from inertial measurement unit(IMU), joint encoders, and foot sensitive resistors (FSRs), and provides state estimates for various gait generation algorithms and dynamic balance controllers with CoM or divergence component of motion (DCM) feedback. Compared to the widely used linear models such as the linear inverted pendulum model (LIPM), the nonlinear dynamics of CoM effectively reduce the process error. However, the humanoid robot is a highly complex dynamic system with multiple links and joints, the dynamics of CoM are also a simplification of the whole body dynamics. As a result, it brings non-zero-mean, non-Gaussian, and correlated process error, which the conventional extend Kalman filter (EKF) cannot handle. To this end, the DLKF is adopted to compensate the process error, thus the estimator is robust to the modeling error caused by simplifications. Furthermore, the invariant extended Kalman filter (IEKF) is used for floating base kinematics estimation, and the force/torque (F/T) sensor which is difficult to integrate on smaller or cheaper robots due to the size and cost is not used in our framework. Finally, our nonlinear state estimation framework improves the accuracy of CoM and DCM estimation in a virtual environment simulation using our self-developed Defensor hydraulic humanoid robot.},
+  doi      = {https://doi.org/10.1016/j.robot.2022.104100},
+  file     = {:Articles/ANonlinearStateEstimationFrameworkForHumanoidRobots.pdf:PDF},
+  keywords = {Humanoid robot state estimation, Dynamics of the center of mass, Dual-loop Kalman filter, Invariant extended Kalman filter},
+  url      = {https://www.sciencedirect.com/science/article/pii/S0921889022000549},
+}
+
+@InProceedings{Fourmy2021ContactForcesPreintegrationFactorGraphs,
+  author    = {Fourmy, Médéric and Flayols, Thomas and Léziart, Pierre-Alexandre and Mansard, Nicolas and Solà, Joan},
+  booktitle = {2021 IEEE International Conference on Robotics and Automation (ICRA)},
+  title     = {Contact Forces Preintegration for Estimation in Legged Robotics using Factor Graphs},
+  year      = {2021},
+  pages     = {1372-1378},
+  doi       = {10.1109/ICRA48506.2021.9561037},
+  file      = {:Articles/ContactForcesPreintegrationForEstimationInLeggedRoboticsUsingFactorGraphs.pdf:PDF},
+}
+
+@InProceedings{Ramadoss2021DiligentKIO,
+  author    = {Ramadoss, Prashanth and Romualdi, Giulio and Dafarra, Stefano and Andrade Chavez, Francisco Javier and Traversaro, Silvio and Pucci, Daniele},
+  booktitle = {2021 IEEE International Conference on Robotics and Automation (ICRA)},
+  title     = {DILIGENT-KIO: A Proprioceptive Base Estimator for Humanoid Robots using Extended Kalman Filtering on Matrix Lie Groups},
+  year      = {2021},
+  month     = {May},
+  pages     = {2904-2910},
+  abstract  = {This paper presents a contact-aided inertial-kinematic floating base estimation for humanoid robots considering an evolution of the state and observations over matrix Lie groups. This is achieved through the application of a geometrically meaningful estimator which is characterized by concentrated Gaussian distributions. The configuration of a floating base system like a humanoid robot usually requires the knowledge of an additional six degrees of freedom which describes its base position-and-orientation. This quantity usually cannot be measured and needs to be estimated. A matrix Lie group, encapsulating the position-and-orientation and linear velocity of the base link, feet positions-and-orientations and Inertial Measurement Units’ biases, is used to represent the state while relative positions-and-orientations of contact feet from forward kinematics are used as observations. The proposed estimator exhibits fast convergence for large initialization errors owing to choice of uncertainty parametrization. An experimental validation is done on the iCub humanoid platform.},
+  doi       = {10.1109/ICRA48506.2021.9561248},
+  issn      = {2577-087X},
+  keywords  = {Uncertainty;Measurement units;Humanoid robots;Estimation;Position measurement;Robot sensing systems;Filtering theory},
+}
+
+@InProceedings{Mifsud2015EstimationContactForcesAndKinematicsWithOnlyImu,
+  author    = {Mifsud, Alexis and Benallegue, Mehdi and Lamiraux, Florent},
+  booktitle = {2015 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  title     = {Estimation of contact forces and floating base kinematics of a humanoid robot using only Inertial Measurement Units},
+  year      = {2015},
+  pages     = {3374-3379},
+  doi       = {10.1109/IROS.2015.7353847},
+  file      = {:Articles/EstimationOfContactForcesAndFloatingBaseKinematicsOfAHumanoidRobotUsingOnlyInertialMeasurementUnits.pdf:PDF},
+}
+
+@Misc{gao2022invariant,
+  author        = {Yuan Gao and Chengzhi Yuan and Yan Gu},
+  title         = {Invariant Filtering for Legged Humanoid Locomotion on Dynamic Rigid Surfaces},
+  year          = {2022},
+  archiveprefix = {arXiv},
+  eprint        = {2201.10636},
+  file          = {:Articles/InvariantFilteringForLeggedHumanoidLocomotionOnADynamicRigidSurface.pdf:PDF},
+  primaryclass  = {cs.RO},
+}
+
+@InProceedings{teng2021legged,
+  author       = {Teng, Sangli and Mueller, Mark Wilfried and Sreenath, Koushil},
+  booktitle    = {2021 IEEE International Conference on Robotics and Automation (ICRA)},
+  title        = {Legged robot state estimation in slippery environments using invariant extended kalman filter with velocity update},
+  year         = {2021},
+  organization = {IEEE},
+  pages        = {3104--3110},
+}
+
+@InProceedings{Benallegue2018ExtForceEstimationWithNoTorqueMeas,
+  author    = {Benallegue, Mehdi and Gergondet, Pierre and Audrerr, Herve and Mifsud, Alexis and Morisawa, Mitsuharu and Lamiraux, Florent and Kheddar, Abderrahmane and Kanehiro, Fumio},
+  booktitle = {2018 IEEE International Conference on Robotics and Automation (ICRA)},
+  title     = {Model-Based External Force/Moment Estimation for Humanoid Robots with no Torque Measurement},
+  year      = {2018},
+  pages     = {3122-3129},
+  doi       = {10.1109/ICRA.2018.8460809},
+  file      = {:Articles/Model-BasedExternalForce_MomentEstimationForHumanoidRobotsWithNoTorqueMeasurement.pdf:PDF},
+}
+
+@Misc{khorshidi2023TorqueMeasInCentroidalEstim,
+  author        = {Shahram Khorshidi and Ahmad Gazar and Nicholas Rotella and Maximilien Naveau and Ludovic Righetti and Maren Bennewitz and Majid Khadiv},
+  title         = {On the Use of Torque Measurement in Centroidal State Estimation},
+  year          = {2023},
+  archiveprefix = {arXiv},
+  eprint        = {2202.12574},
+  file          = {:Articles/OnTheUseOfTorqueMeasurementInCentroidalStateEstimation.pdf:PDF},
+  primaryclass  = {cs.RO},
+}
+
+@InProceedings{Bailly2021OptimEstimCentroDynam,
+  author    = {Bailly, François and Carpentier, Justin and Souères, Philippe},
+  booktitle = {2021 IEEE International Conference on Robotics and Automation (ICRA)},
+  title     = {Optimal Estimation of the Centroidal Dynamics of Legged Robots},
+  year      = {2021},
+  pages     = {4912-4918},
+  doi       = {10.1109/ICRA48506.2021.9561993},
+  file      = {:Articles/OptimalEstimationOfTheCentroidalDynamicsOfLeggedRobots.pdf:PDF},
+}
+
+@Article{Camurri2020ProntoAM,
+  author  = {Marco Camurri and Milad Ramezani and Simona Nobili and Maurice F. Fallon},
+  journal = {Frontiers in Robotics and AI},
+  title   = {Pronto: A Multi-Sensor State Estimator for Legged Robots in Real-World Scenarios},
+  year    = {2020},
+  volume  = {7},
+  file    = {:Articles/ProntoAMulti-SensorStateEstimatorForLeggedRobotsInReal-WorldScenarios.pdf:PDF},
+}
+
+@Misc{Sola2017quaternion,
+  author        = {Joan Solà},
+  title         = {Quaternion kinematics for the error-state Kalman filter},
+  year          = {2017},
+  archiveprefix = {arXiv},
+  eprint        = {1711.02508},
+  file          = {:Articles/QuaternionKinematicsForTheError-StateKalmanFilter.pdf:PDF},
+  primaryclass  = {cs.RO},
+}
+
+@Misc{piperakis2022RobustContactStateEstimHumanoidGaits,
+  author        = {Stylianos Piperakis and Michael Maravgakis and Dimitrios Kanoulas and Panos Trahanias},
+  title         = {Robust Contact State Estimation in Humanoid Walking Gaits},
+  year          = {2022},
+  archiveprefix = {arXiv},
+  eprint        = {2208.00278},
+  file          = {:Articles/RobustContactStateEstimationInHumanoidWalkingGaits.pdf:PDF},
+  primaryclass  = {cs.RO},
+}
+
+@Article{Wisth2019FactGraphOpti,
+  author    = {David Wisth and Marco Camurri and Maurice Fallon},
+  journal   = {{IEEE} Robotics and Automation Letters},
+  title     = {Robust Legged Robot State Estimation Using Factor Graph Optimization},
+  year      = {2019},
+  month     = {oct},
+  number    = {4},
+  pages     = {4507--4514},
+  volume    = {4},
+  doi       = {10.1109/lra.2019.2933768},
+  file      = {:Articles/RobustLeggedRobotStateEstimationUsingFactorGraphOptimization.pdf:PDF},
+  publisher = {Institute of Electrical and Electronics Engineers ({IEEE})},
+  url       = {https://doi.org/10.1109%2Flra.2019.2933768},
+}
+
+@PhdThesis{Piperakis2020Thesis_NonLinStateEstimForHumanoidRobots,
+  author = {Piperakis, Stylianos},
+  title  = {Robust Nonlinear State Estimation for Humanoid Robots},
+  year   = {2020},
+  month  = {01},
+  doi    = {10.13140/RG.2.2.36598.96325},
+  file   = {:Articles/Robust_Nonlinear_State_Estimation_for_Hu.pdf:PDF},
+}
+
+@Article{Han2022SlopeWithoutImu,
+  author   = {Yun-Ho Han and Baek-Kyu Cho},
+  journal  = {Robotics and Autonomous Systems},
+  title    = {Slope walking of humanoid robot without IMU sensor on an unknown slope},
+  year     = {2022},
+  issn     = {0921-8890},
+  pages    = {104163},
+  volume   = {155},
+  abstract = {It is significantly challenging to develop biped robots, such as a humanoid robot, that can walk stably in complex environments, such as a rough terrain or slope. Additionally, various kinds of sensors are required. Force and torque (FT) and inertial measurement unit (IMU) sensors are necessary for a humanoid robot to achieve stable biped walking, and it is especially difficult to realize such locomotion without an IMU sensor in complex environments, such as a slope. Therefore, a new walking algorithm is needed so that a humanoid robot is able to walk well on a slope, even if the IMU sensor is damaged. This paper proposes a slope observer that can estimate the angle of the robot, angular velocity, and slope angle without an IMU sensor, as well as a controller for posture control and stabilization on a slope. The slope observer was developed based on a disturbance observer that can estimate the angle of the robot, angular velocity, and disturbance applied to the robot using only an FT sensor. The controller was designed as state feedback control based on the slope observer. Furthermore, the posture control was designed considering the slope angle such that the robot can always stand upright on the slope. The proposed slope observer and controller were verified with certain experiments performed in the lab, and the walking experiment of a real humanoid robot RoK-3 performed on the unknown slope. [https://youtu.be/x1PlzktlOpM]},
+  doi      = {https://doi.org/10.1016/j.robot.2022.104163},
+  file     = {:Articles/SlopeWalkingOfHumanoidRobotWithoutIMUSensorOnAnUnknownSlope.pdf:PDF},
+  keywords = {Humanoid robots, Slope observer, Balance control, Slope walking, RoK-3},
+  url      = {https://www.sciencedirect.com/science/article/pii/S0921889022000926},
+}
+
+@Misc{ramadoss2022StateEstimHumanMotionLocomotion,
+  author       = {Prashanth Ramadoss},
+  title        = {State Estimation for Human Motion and Humanoid Locomotion},
+  year         = {2022},
+  abstract     = {The future where the industrial shop-floors witness humans and robots working in unison and the
+domestic households becoming a shared space for both these agents is not very far. The scientific
+community has been accelerating towards that future by extending their research efforts in human-
+robot interaction towards human-robot collaboration. It is possible that the anthropomorphic nature
+of the humanoid robots could deem the most suitable for such collaborations in semi-structured,
+human-centered environments. Wearable sensing technologies for human agents and efficient human-
+aware control strategies for the humanoid robot will be key in achieving a seamless human-humanoid
+collaboration. This is where reliable state estimation strategies become crucial in making sense of the
+information coming from multiple distributed sensors attached to the human and those on the robot to
+augment the feedback controllers designed for the humanoid robot to aid their human counterparts.
+In this context, this thesis investigates the theory of Lie groups for designing state estimation
+techniques aimed towards humanoid locomotion and human motion estimation. The abstract nature
+of Lie theory provides a unified approach to handle the three-dimensional machinery and the complex
+geometry required for modeling free-floating, highly articulated multi-body systems. It enables
+suitably appropriate methods to perform rigorous calculus over complex nonlinear spaces and to
+handle the notion of uncertainties in such spaces, which are important for an estimator design.
+Methods for loosely-coupled and tightly-coupled sensor fusion for floating base estimation of
+a humanoid robot are presented through the theory of averaging and filtering on Lie groups. The
+problem of human motion estimation through wearable sensing technologies is tackled through a
+combination of dynamical systems’ theory-based Inverse Kinematics and filtering on Lie groups,
+demonstrated to be directly applicable also for humanoid state estimation. Experimental validations
+of the estimators for humanoid base estimation and human motion estimation have been carried out
+on simulated datasets and datasets collected from real-world experiments conducted on the iCub
+humanoid robot and Xsens Motion capture technology, respectively.},
+  booktitle    = {PhD Thesis},
+  eprint       = {2206.03833},
+  file         = {:Articles/StateEstimationForHumanMotionAndHumanoidLocomotion.pdf:PDF},
+  primaryclass = {cs.RO},
+  priority     = {prio2},
+}
+
+@Article{kim2022step,
+  author    = {Kim, Yeeun and Yu, Byeongho and Lee, Eungchang Mason and Kim, Joon-ha and Park, Hae-won and Myung, Hyun},
+  journal   = {IEEE Robotics and Automation Letters},
+  title     = {STEP: State estimator for legged robots using a preintegrated foot velocity factor},
+  year      = {2022},
+  number    = {2},
+  pages     = {4456--4463},
+  volume    = {7},
+  file      = {:Articles/STEPStateEstimatorForLeggedRobotsUsingAPreintegratedFootVelocityFactor.pdf:PDF},
+  publisher = {IEEE},
+}
+
+@Article{wisth2022vilens,
+  author    = {Wisth, David and Camurri, Marco and Fallon, Maurice},
+  journal   = {IEEE Transactions on Robotics},
+  title     = {VILENS: Visual, inertial, lidar, and leg odometry for all-terrain legged robots},
+  year      = {2022},
+  number    = {1},
+  pages     = {309--326},
+  volume    = {39},
+  file      = {:Articles/VILENSVisual_Inertial_LidarAndLegOdometry.pdf:PDF},
+  publisher = {IEEE},
+}
+
+@InProceedings{Romualdi2022WholeBodyControlEstimation,
+  author    = {Romualdi, Giulio and Villa, Nahuel A. and Dafarra, Stefano and Pucci, Daniele and Stasse, Olivier},
+  booktitle = {2022 IEEE-RAS 21st International Conference on Humanoid Robots (Humanoids)},
+  title     = {Whole-Body Control and Estimation of Humanoid Robots with Link Flexibility},
+  year      = {2022},
+  month     = {Nov},
+  pages     = {104-111},
+  abstract  = {This article presents a whole-body controller for humanoid robots affected by concentrated link flexibility. We characterize the link flexibility by introducing passive joints at the concentration of deflections, which separate the flexible links into two or more rigid bodies. In this way, we extend our robot model to take link deflections into account as underactuated extra degrees of freedom, allowing us to design a whole-body controller capable to anticipate deformations. Since in a real scenario, the deflection is not directly measurable, we present an observer aiming at estimating the flexible joint state, namely position, velocity, and torque, only considering the measured contact force and the state of actuated joint. We validate the overall approach in simulations with the humanoid robot TALOS, whose hip is mechanically flexible due to a localized mechanical weakness. Furthermore, the paper compares the proposed whole-body control strategy with state-of-the-art approaches. Finally, we analyze the performance of the estimator in the case of different values of hip elasticity.},
+  comment   = {Estimates flexible joints state: position, velocity, and torque, only considering the measured
+contact force and the state of actuated joint},
+  doi       = {10.1109/Humanoids53995.2022.10000157},
+  file      = {:Articles/Whole-BodyControlAndEstimationOfHumanoidRobotsWithLinkFlexibility.pdf:PDF},
+  issn      = {2164-0580},
+  priority  = {prio3},
+}
+
+@Misc{ramadoss2022wholebodyKineLieKF,
+  author        = {Prashanth Ramadoss and Lorenzo Rapetti and Yeshasvi Tirupachuri and Riccardo Grieco and Gianluca Milani and Enrico Valli and Stefano Dafarra and Silvio Traversaro and Daniele Pucci},
+  title         = {Whole-Body Human Kinematics Estimation using Dynamical Inverse Kinematics and Contact-Aided Lie Group Kalman Filter},
+  year          = {2022},
+  archiveprefix = {arXiv},
+  comment       = {Estimates the whole body kinematics of HUMANS},
+  eprint        = {2205.07835},
+  file          = {:Articles/Whole-BodyHumanKinematicsEstimationUsingDynamicalInverseKinematicsAndContact-AidedLieGroupKalmanFilter.pdf:PDF},
+  primaryclass  = {cs.RO},
+  priority      = {prio3},
+}
+
+@InProceedings{Rotella2014StateEstimationForHumanoid,
+  author    = {Rotella, Nicholas and Bloesch, Michael and Righetti, Ludovic and Schaal, Stefan},
+  booktitle = {2014 IEEE/RSJ International Conference on Intelligent Robots and Systems},
+  title     = {State estimation for a humanoid robot},
+  year      = {2014},
+  month     = {Sep.},
+  pages     = {952-958},
+  abstract  = {This paper introduces a framework for state estimation on a humanoid robot platform using only common proprioceptive sensors and knowledge of leg kinematics. The presented approach extends that detailed in prior work on a point-foot quadruped platform by adding the rotational constraints imposed by the humanoid's flat feet. As in previous work, the proposed Extended Kalman Filter accommodates contact switching and makes no assumptions about gait or terrain, making it applicable on any humanoid platform for use in any task. A nonlinear observability analysis is performed on both the point-foot and flat-foot filters and it is concluded that the addition of rotational constraints significantly simplifies singular cases and improves the observability characteristics of the system. Results on a simulated walking dataset demonstrate the performance gain of the flat-foot filter as well as confirm the results of the presented observability analysis.},
+  doi       = {10.1109/IROS.2014.6942674},
+  file      = {:Articles/StateEstimationForAHumanoidRobot.pdf:PDF},
+  issn      = {2153-0866},
+}
+
+@InProceedings{Qin2020NovelFootContactPropbEstimatorBiped,
+  author    = {Qin, Mingyue and Yu, Zhangguo and Chen, Xuechao and Huang, Qiang and Fu, Chenglong and Ming, Aiguo and Tao, Chunjing},
+  booktitle = {2020 IEEE International Conference on Mechatronics and Automation (ICMA)},
+  title     = {A Novel Foot Contact Probability Estimator for Biped Robot State Estimation},
+  year      = {2020},
+  month     = {Oct},
+  pages     = {1901-1906},
+  abstract  = {State estimation is an important part of biped robot control, but unreliable foot contact estimation would lead to inaccurate state estimation result. In this paper, to reduce the state estimation error caused by the inaccurate contact estimation, we propose a novel simplified contact probability estimator based on the force/torque sensor mounted on the foot. The contact probability is used to tune the covariance matrices of the extended Kalman filter, and the parameters of the probability estimator are optimized iteratively through minimizing the error between state estimation result and ground truth measurement. The experimental result on BHR-6P biped robot shows that the proposed method can effectively reduce the state estimation error.},
+  doi       = {10.1109/ICMA49215.2020.9233715},
+  issn      = {2152-744X},
+}
+
+@Article{Vigne2020StateEstimRobotMultipleFlexWithIMU,
+  author   = {Vigne, Matthieu and El Khoury, Antonio and Di Meglio, Florent and Petit, Nicolas},
+  journal  = {IEEE Robotics and Automation Letters},
+  title    = {State Estimation for a Legged Robot With Multiple Flexibilities Using IMUs: A Kinematic Approach},
+  year     = {2020},
+  issn     = {2377-3766},
+  month    = {Jan},
+  number   = {1},
+  pages    = {195-202},
+  volume   = {5},
+  abstract = {This letter presents a general state estimation method for legged robots having internal flexibilities. In details, the method is applicable to any robot with an arbitrary number of punctual deformations, during standing and walking phases on flat ground. Focused on balance applications, this estimator reconstructs the position relative to the contact foot, the absolute orientation and the world velocity of each robot body. It reconciles the rigid kinematics, given by joint encoders, with attitude measurements obtained from several IMUs, through a kinematic model incorporating the flexibilities. Compared to previous works, no dynamic model of the flexibilities is employed. For illustration, the estimator is successfully tested on the exoskeleton Atalante, both in static and while walking. It is then used in closed-loop to control the position of the flying foot during a quasi-static step.},
+  doi      = {10.1109/LRA.2019.2953006},
+  file     = {:Articles/StateEstimationForALeggedRobotWithMultipleFlexibilitiesUsingIMUsAKinematicApproach.pdf:PDF},
+}
+
+@InProceedings{buchanan2022LearningInertialOdometry,
+  author    = {Buchanan, Russell and Camurri, Marco and Dellaert, Frank and Fallon, Maurice},
+  booktitle = {Proceedings of the 5th Conference on Robot Learning},
+  title     = {Learning Inertial Odometry for Dynamic Legged Robot State Estimation},
+  year      = {2022},
+  editor    = {Faust, Aleksandra and Hsu, David and Neumann, Gerhard},
+  month     = {08--11 Nov},
+  pages     = {1575--1584},
+  publisher = {PMLR},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {164},
+  abstract  = {This paper introduces a novel proprioceptive state estimator for legged robots based on a learned displacement measurement from IMU data. Recent research in pedestrian tracking has shown that motion can be inferred from inertial data using convolutional neural networks. A learned inertial displacement measurement can improve state estimation in challenging scenarios where leg odometry is unreliable, such as slipping and compressible terrains. Our work learns to estimate a displacement measurement from IMU data which is then fused with traditional leg odometry. Our approach greatly reduces the drift of proprioceptive state estimation, which is critical for legged robots deployed in vision and lidar denied environments such as foggy sewers or dusty mines. We compared results from an EKF and an incremental fixed-lag factor graph estimator using data from several real robot experiments crossing challenging terrains. Our results show a reduction of relative pose error by 37% in challenging scenarios when compared to a traditional kinematic-inertial estimator without learned measurement. We also demonstrate a 22% reduction in error when used with vision systems in visually degraded environments such as an underground mine.},
+}
+
+@Article{Barrau2018InvariantKalmanFiltering,
+  author  = {Barrau, Axel and Bonnabel, Silvère},
+  journal = {Annual Review of Control, Robotics, and Autonomous Systems},
+  title   = {{I}nvariant {K}alman {F}iltering},
+  year    = {2018},
+  month   = {05},
+  volume  = {1},
+  doi     = {10.1146/annurev-control-060117-105010},
+  file    = {:Articles/Filtering/InvariantKalmanFiltering.pdf:PDF},
+}
+
+@Article{Hartley2017LeggedRS,
+  author  = {Ross Hartley and Josh Mangelson and Lu Gan and Maani Ghaffari Jadidi and Jeffrey M. Walls and Ryan M. Eustice and Jessy W. Grizzle},
+  journal = {2018 IEEE International Conference on Robotics and Automation (ICRA)},
+  title   = {Legged Robot State-Estimation Through Combined Forward Kinematic and Preintegrated Contact Factors},
+  year    = {2017},
+  pages   = {1-8},
+  file    = {:Articles/Odometry/LeggedRobotState-EstimationThroughCombinedForwardKinematicAndPreintegratedContactFactors.pdf:PDF},
+}
+
+@Article{dellaert2017factor,
+  author    = {Dellaert, Frank and Kaess, Michael and others},
+  journal   = {Foundations and Trends{\textregistered} in Robotics},
+  title     = {Factor graphs for robot perception},
+  year      = {2017},
+  number    = {1-2},
+  pages     = {1--139},
+  volume    = {6},
+  publisher = {Now Publishers, Inc.},
+}
+
+@Article{bloesch2013FusionLegKineAndImu,
+  author    = {Bloesch, Michael and Hutter, Marco and Hoepflinger, Mark A and Leutenegger, Stefan and Gehring, Christian and Remy, C David and Siegwart, Roland},
+  journal   = {Robotics},
+  title     = {State estimation for legged robots-consistent fusion of leg kinematics and {IMU}},
+  year      = {2013},
+  pages     = {17--24},
+  volume    = {17},
+  abstract  = {This paper introduces a state estimation framework
+for legged robots that allows estimating the full pose of the
+robot without making any assumptions about the geometrical
+structure of its environment. This is achieved by means of an
+Observability Constrained Extended Kalman Filter that fuses
+kinematic encoder data with on-board IMU measurements. By
+including the absolute position of all footholds into the filter
+state, simple model equations can be formulated which accurately
+capture the uncertainties associated with the intermittent ground
+contacts. The resulting filter simultaneously estimates the position
+of all footholds and the pose of the main body. In the algorithmic
+formulation, special attention is paid to the consistency of the
+linearized filter: it maintains the same observability properties
+as the nonlinear system, which is a prerequisite for accurate state
+estimation. The presented approach is implemented in simulation
+and validated experimentally on an actual quadrupedal robot.},
+  file      = {:Articles/State estimation/StateEstimationforLeggedRobots-ConsistentFusionofLegKinematicsandIMU:},
+  priority  = {prio2},
+  publisher = {MIT Press},
+}
+
+@Article{Hartley2020RIEKF,
+  author   = {Ross Hartley and Maani Ghaffari and Ryan M Eustice and Jessy W Grizzle},
+  journal  = {The International Journal of Robotics Research},
+  title    = {Contact-aided invariant extended Kalman filtering for robot state estimation},
+  year     = {2020},
+  number   = {4},
+  pages    = {402-430},
+  volume   = {39},
+  abstract = {Legged robots require knowledge of pose and velocity in order to maintain stability and execute walking paths. Current solutions either rely on vision data, which is susceptible to environmental and lighting conditions, or fusion of kinematic and contact data with measurements from an inertial measurement unit (IMU). In this work, we develop a contact-aided invariant extended Kalman filter (InEKF) using the theory of Lie groups and invariant observer design. This filter combines contact-inertial dynamics with forward kinematic corrections to estimate pose and velocity along with all current contact points. We show that the error dynamics follows a log-linear autonomous differential equation with several important consequences: (a) the observable state variables can be rendered convergent with a domain of attraction that is independent of the system’s trajectory; (b) unlike the standard EKF, neither the linearized error dynamics nor the linearized observation model depend on the current state estimate, which (c) leads to improved convergence properties and (d) a local observability matrix that is consistent with the underlying nonlinear system. Furthermore, we demonstrate how to include IMU biases, add/remove contacts, and formulate both world-centric and robo-centric versions. We compare the convergence of the proposed InEKF with the commonly used quaternion-based extended Kalman filter (EKF) through both simulations and experiments on a Cassie-series bipedal robot. Filter accuracy is analyzed using motion capture, while a LiDAR mapping experiment provides a practical use case. Overall, the developed contact-aided InEKF provides better performance in comparison with the quaternion-based EKF as a result of exploiting symmetries present in system.},
+  doi      = {10.1177/0278364919894385},
+  eprint   = {https://doi.org/10.1177/0278364919894385},
+  file     = {:Articles/ContactAidedInvariantExtendedKalmanFilteringforRobotStateEstimation.pdf:PDF},
+}
+
+@Article{Kong2021SaltedKalmanFilter,
+  author   = {Nathan J. Kong and J. Joe Payne and George Council and Aaron M. Johnson},
+  journal  = {Automatica},
+  title    = {The Salted Kalman Filter: Kalman filtering on hybrid dynamical systems},
+  year     = {2021},
+  issn     = {0005-1098},
+  pages    = {109752},
+  volume   = {131},
+  abstract = {Many state estimation and control algorithms require knowledge of how probability distributions propagate through dynamical systems. However, despite hybrid dynamical systems becoming increasingly important in many fields, there has been little work on utilizing the knowledge of how probability distributions map through hybrid transitions. Here, we make use of a propagation law that employs the saltation matrix (a first-order update to the sensitivity equation) to create the Salted Kalman Filter (SKF), a natural extension of the Kalman Filter and Extended Kalman Filter to hybrid dynamical systems. Away from hybrid events, the SKF is a standard Kalman filter. When a hybrid event occurs, the saltation matrix plays an analogous role as that of the system dynamics, subsequently inducing a discrete modification to both the prediction and update steps. The SKF outperforms a naive variational update – the Jacobian of the reset map – by having a reduced mean squared error in state estimation, especially immediately after a hybrid transition event. Compared against a hybrid particle filter, the particle filter outperforms the SKF in mean squared error only when a large number of particles are used, likely due to a more accurate accounting of the split distribution near a hybrid transition.},
+  doi      = {https://doi.org/10.1016/j.automatica.2021.109752},
+  file     = {:Articles/Filtering/TheSaltedKalmanFilterKalmanFilteringOnHybridDynamicalSystems.pdf:PDF},
+  keywords = {Hybrid systems, State estimation, Kalman Filters, Nonlinear systems},
+  url      = {https://www.sciencedirect.com/science/article/pii/S0005109821002727},
+}
+
+@InProceedings{Payne2022UncertaintyAwareSaltedKalmanFilter,
+  author       = {Payne, J Joe and Kong, Nathan J and Johnson, Aaron M},
+  booktitle    = {2022 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  title        = {The uncertainty aware salted kalman filter: State estimation for hybrid systems with uncertain guards},
+  year         = {2022},
+  organization = {IEEE},
+  pages        = {8821--8828},
+  abstract     = {In this paper, we present a method for updating
+robotic state belief through contact with uncertain surfaces and
+apply this update to a Kalman filter for more accurate state
+estimation. Examining how guard surface uncertainty affects
+the time spent in each mode, we derive a novel guard saltation
+matrix – which maps perturbations prior to hybrid events to
+perturbations after – accounting for additional variation in the
+resulting state. Additionally, we propose the use of parame-
+terized reset functions – capturing how unknown parameters
+change how states are mapped from one mode to the next – the
+Jacobian of which accounts for additional uncertainty in the
+resulting state. The accuracy of these mappings is shown by
+simulating sampled distributions through uncertain transition
+events and comparing the resulting covariances. Finally, we
+integrate these additional terms into the “uncertainty aware
+Salted Kalman Filter”, uaSKF, and show a peak reduction
+in average estimation error by 24-60% on a variety of test
+conditions and systems.},
+  file         = {:Articles/Filtering/TheUncertaintyAwareSaltedKalmanFilterStateEstimationforHybridSystemswithUncertainGuards:},
+}
+
+@InProceedings{Agrawal2022ProprioceptiveEstimWithKinemChainModeling,
+  author       = {Agrawal, Varun and Bertrand, Sylvain and Griffin, Robert and Dellaert, Frank},
+  booktitle    = {2022 IEEE-RAS 21st International Conference on Humanoid Robots (Humanoids)},
+  title        = {Proprioceptive State Estimation of Legged Robots with Kinematic Chain Modeling},
+  year         = {2022},
+  organization = {IEEE},
+  pages        = {178--185},
+  abstract     = {Legged robot locomotion is a challenging task due
+to a myriad of sub-problems, such as the hybrid dynamics of
+foot contact and the effects of the desired gait on the terrain.
+Accurate and efficient state estimation of the floating base
+and the feet joints can help alleviate much of these issues by
+providing feedback information to robot controllers. Current
+state estimation methods are highly reliant on a conjunction of
+visual and inertial measurements to provide real-time estimates,
+thus being handicapped in perceptually poor environments. In
+this work, we show that by leveraging the kinematic chain
+model of the robot via a factor graph formulation, we can
+perform state estimation of the base and the leg joints using
+primarily proprioceptive inertial data. We perform state estima-
+tion using a combination of preintegrated IMU measurements,
+forward kinematic computations, and contact detections in a
+factor-graph based framework, allowing our state estimate to
+be constrained by the robot model. Experimental results in
+simulation and on hardware show that our approach out-
+performs current proprioceptive state estimation methods by
+27% on average, while being generalizable to a variety of legged
+robot platforms. We demonstrate our results both quantitatively
+and qualitatively on a wide variety of trajectories.},
+  comment      = {Proprioceptive odometry with tight coupling using Factor Graphs.},
+  file         = {:Articles/Odometry/ProprioceptiveStateEstimationofLeggedRobotswithKinematicChainModeling:},
+}
+
+@Article{Yang2019ContactCentricLegOdometry,
+  author   = {Yang, Shuo and Kumar, Hans and Gu, Zhaoyuan and Zhang, Xiangyuan and Travers, Matthew and Choset, Howie},
+  journal  = {arXiv preprint arXiv:1911.05176},
+  title    = {State estimation for legged robots using contact-centric leg odometry},
+  year     = {2019},
+  abstract = {Our goal is to send legged robots into challenging,
+unstructured terrains that wheeled systems cannot traverse.
+Moreover, precise estimation of the robot’s position and orien-
+tation in rough terrain is especially difficult. To address this
+problem, we introduce a new state estimation algorithm which
+we term Contact-Centric Leg Odometry (COCLO). This new
+estimator uses a Square Root Unscented Kalman Filter (SR-
+UKF) to fuse multiple proprioceptive sensors available on a
+legged robot. In contrast to IMU-centric filtering approaches,
+COCLO formulates prediction and measurement models ac-
+cording to the contact status of legs. Additionally, COCLO
+has an indirect measurement model using joint velocities to
+estimate the robot body velocity. In rough terrain, when
+IMUs suffer from large amounts of noise, COCLO’s contact-
+centric approach outperforms previous IMU-centric methods.
+To demonstrate improved state estimation accuracy, we com-
+pare COCLO with Visual Inertial Navigation System (VINS), a
+state-of-the-art visual inertial odometry [13], in three different
+environments: flat ground, ramps, and stairs. COCLO achieves
+better estimation precision than VINS in all three environments
+and is robust to unstable motion. Finally, we also show that
+COCLO and a modified VINS can work in tandem to improve
+each other’s performance.},
+  file     = {:Articles/Odometry/StateEstimationforLeggedRobotsUsingContact-CentricLegOdometry.pdf:PDF},
+}
+
+@Article{Phogat2020_IEKF_On_Matrix_Lie_Groups,
+  author   = {Karmvir Singh Phogat and Dong Eui Chang},
+  journal  = {Automatica},
+  title    = {Invariant {E}xtended {K}alman {F}ilter on matrix {L}ie groups},
+  year     = {2020},
+  issn     = {0005-1098},
+  pages    = {108812},
+  volume   = {114},
+  abstract = {We derive symmetry preserving invariant extended Kalman filters (IEKF) on matrix Lie groups. These Kalman filters have an advantage over conventional extended Kalman filters as the error dynamics for such filters are independent of the group configuration which, in turn, provides a uniform estimate of the region of convergence. The proposed IEKF differs from existing techniques in literature on the account that it is derived using minimal tools from differential geometry that simplifies its representation and derivation to a large extent. The filter error dynamics is defined on the Lie algebra directly instead of identifying the Lie algebra with an Euclidean space or defining the error dynamics in local coordinates using exponential map, and the associated differential Riccati equations are described on the corresponding space of linear operators using tensor algebra. The proposed filter is implemented for the attitude dynamics of the rigid body, which is a benchmark problem in control, and its performance is compared against a conventional extended Kalman filter (EKF). Numerical experiments support that the IEKF is computationally less intensive and gives better performance than the EKF.},
+  doi      = {https://doi.org/10.1016/j.automatica.2020.108812},
+  file     = {:Articles/Filtering/InvariantExtendedKalmanFilterOnMatrixLieGroups.pdf:PDF},
+  groups   = {EKF},
+  keywords = {Extended Kalman filter, Lie groups, Differential Riccati equation},
+}
+
+@Article{Setoodeh2004AttitudeEstimSeparateBiasKalman,
+  author    = {Setoodeh, Peyman and Khayatian, Alireza and Frajah, Ebrahim},
+  journal   = {The Journal of Navigation},
+  title     = {Attitude Estimation By Separate-Bias {K}alman Filter-Based Data Fusion},
+  year      = {2004},
+  number    = {2},
+  pages     = {261–273},
+  volume    = {57},
+  abstract  = {Attitude estimation systems often use two or more different sensors to increase reliability and
+accuracy. Although gyroscopes do not have problems like limited range, interference, and
+line of sight obscuration, they suffer from slow drift. On the other hand, inclinometers
+are drift-free but they are sensitive to transverse accelerations and have slow dynamics.
+This paper presents an extended Kalman filter (EKF)-based data fusion algorithm which
+utilizes the complementary noise profiles of these two types of sensors to extend their limits.
+To avoid complexities of dynamic modelling of the platform and its interaction with the
+environment, gyro modelling will be used to implement indirect (error state) form of the
+Kalman filter. The great advantage of this approach is its independence from the structure of
+the platform and its applicability to any system with a similar set of sensors. Separate bias
+formulation of the Kalman filter will be used to reduce the computational complexity of the
+algorithm. In addition, a systematic approach based on wavelet decomposition will be util-
+ized to estimate noise covariances used in the Kalman filter formulation. This approach
+solves many of the convergence problems encountered in the implementation of EKF due to
+the choice of covariance matrices. Experimental implementation of the estimator shows the
+excellent performance of the filter.},
+  doi       = {10.1017/S037346330400270X},
+  file      = {:Articles/Filtering/Attitude_Estimation_By_Separate-Bias_Kalman_Filter.pdf:PDF},
+  publisher = {Cambridge University Press},
+}
+
+@Article{Lin2006HexapodDynamicalGaits,
+  author    = {Lin, Pei-Chun and Komsuoglu, Haldun and Koditschek, Daniel E},
+  journal   = {IEEE Transactions on Robotics},
+  title     = {Sensor data fusion for body state estimation in a hexapod robot with dynamical gaits},
+  year      = {2006},
+  number    = {5},
+  pages     = {932--943},
+  volume    = {22},
+  file      = {:Articles/Filtering/SensorDataFusionForBodyStateEstimationInAHexapodRobot.pdf:PDF},
+  publisher = {IEEE},
+}
+
+@InProceedings{Bourmaud2013DiscreteEkfLieGroups,
+  author    = {Bourmaud, Guillaume and Mégret, Rémi and Giremus, Audrey and Berthoumieu, Yannick},
+  booktitle = {21st European Signal Processing Conference (EUSIPCO 2013)},
+  title     = {Discrete {E}xtended {K}alman {F}ilter on {L}ie groups},
+  year      = {2013},
+  month     = {Sep.},
+  pages     = {1-5},
+  abstract  = {In this paper, we generalize the Discrete Extended Kalman Filter (D-EKF) to the case where the state and the observations evolve on Lie group manifolds. We propose a new filter called Discrete Extended Kalman Filter on Lie Groups (D-LG-EKF). It assumes that the posterior distribution of the state is a concentrated Gaussian distribution on Lie groups. Our formalism yields closed-form equations for both nonlinear discrete propagation and update of the distribution parameters based on the likelihood. We also show that the D-LG-EKF reduces to the traditional D-EKF if the state evolves on an Euclidean space. Our approach leads to a systematic methodology for the design of filters, which is illustrated by the application to a camera pose estimation problem. Results show that the D-LG-EKF outperforms both a constrained D-EKF and a D-EKF applied on the Lie algebra of the Lie group.},
+  file      = {:Articles/Filtering/DiscreteExtendedKalmanFilterOnLieGroups.pdf:PDF},
+  issn      = {2076-1465},
+}
+
+@InProceedings{Bonnabel2007LeftInvariantEkfAndAttitudeEstim,
+  author    = {Bonnabel, Silvere},
+  booktitle = {2007 46th IEEE Conference on Decision and Control},
+  title     = {Left-invariant extended Kalman filter and attitude estimation},
+  year      = {2007},
+  month     = {Dec},
+  pages     = {1027-1032},
+  abstract  = {We consider a left-invariant dynamics on a Lie group. One way to define driving and observation noises is to make them preserve the symmetries. We propose a left- invariant (i.e, intrinsic and thus symmetry-preserving) extended Kalman filter such that the left-invariant estimation error obeys a stochastic differential equation independent of the system trajectory. The theory is illustrated by an attitude estimation example.},
+  doi       = {10.1109/CDC.2007.4434662},
+  file      = {:Articles/Filtering/Left-invariantExtendedKalmanFilterAndAttitudeEstimation.pdf:PDF},
+  issn      = {0191-2216},
+}
+
+@Article{Barrau2017IEKF,
+  author   = {Barrau, Axel and Bonnabel, Silvere},
+  journal  = {IEEE Transactions on Automatic Control},
+  title    = {The {I}nvariant {E}xtended {K}alman {F}ilter as a Stable Observer},
+  year     = {2017},
+  issn     = {1558-2523},
+  month    = {April},
+  number   = {4},
+  pages    = {1797-1812},
+  volume   = {62},
+  abstract = {We analyze the convergence aspects of the invariant extended Kalman filter (IEKF), when the latter is used as a deterministic nonlinear observer on Lie groups, for continuous-time systems with discrete observations. One of the main features of invariant observers for left-invariant systems on Lie groups is that the estimation error is autonomous. In this paper we first generalize this result by characterizing the (much broader) class of systems for which this property holds. For those systems, the Lie logarithm of the error turns out to obey a linear differential equation. Then, we leverage this “log-linear” property of the error evolution, to prove for those systems the local stability of the IEKF around any trajectory, under the standard conditions of the linear case. One mobile robotics example and one inertial navigation example illustrate the interest of the approach. Simulations evidence the fact that the EKF is capable of diverging in some challenging situations, where the IEKF with identical tuning keeps converging.},
+  doi      = {10.1109/TAC.2016.2594085},
+  file     = {:Articles/Filtering/TheInvariantExtendedKalmanFilterAsAStableObserver.pdf:PDF},
+}
+
+@Article{Masuya2020ReviewStateEstimHumanoidRobots,
+  author  = {Ken Masuya and Ko Ayusawa},
+  journal = {Advanced Robotics},
+  title   = {A review of state estimation of humanoid robot targeting the center of mass, base kinematics, and external wrench},
+  year    = {2020},
+  pages   = {1380 - 1389},
+  volume  = {34},
+  file    = {:Articles/A_review_of_state_estimation_of_humanoid_robot_targeting_the_center_of_mass_base_kinematics_and_external_wrench.pdf:PDF},
+}
+
+@InProceedings{yang2023cerberus,
+  author       = {Yang, Shuo and Zhang, Zixin and Fu, Zhengyu and Manchester, Zachary},
+  booktitle    = {2023 IEEE International Conference on Robotics and Automation (ICRA)},
+  title        = {Cerberus: Low-drift visual-inertial-leg odometry for agile locomotion},
+  year         = {2023},
+  organization = {IEEE},
+  pages        = {4193--4199},
+}
+
+@InProceedings{bloesch2013LeggedRobbotsUnstableSlipperyTerrain,
+  author       = {Bloesch, Michael and Gehring, Christian and Fankhauser, P{\'e}ter and Hutter, Marco and Hoepflinger, Mark A and Siegwart, Roland},
+  booktitle    = {2013 IEEE/RSJ International Conference on Intelligent Robots and Systems},
+  title        = {State estimation for legged robots on unstable and slippery terrain},
+  year         = {2013},
+  organization = {IEEE},
+  pages        = {6058--6064},
+  file         = {:Articles/Filtering/StateEstimationforLeggedRobotsonUnstableandSlipperyTerrain.pdf:PDF},
+}
+
+@InProceedings{Nousias2016QuadrupedRollAndPitchEstimWithUKF,
+  author    = {Nousias, Sotirios and Papadopoulos, Evangelos},
+  booktitle = {2016 24th Mediterranean Conference on Control and Automation (MED)},
+  title     = {Quadruped robot roll and pitch estimation using an {U}nscented {K}alman {F}ilter},
+  year      = {2016},
+  month     = {June},
+  pages     = {731-736},
+  abstract  = {We present a novel algorithm for estimating a quadruped robot's pitch and roll angles. Assuming even terrain and an ideal bounding gait, we compute the roll and pitch angles to be fused with on-board Inertial Measurement Unit (IMU) measurements in an unscented Kalman filter (UKF). Simulation results illustrate the validity of the methodology developed. It is shown that the error in the estimation of both angles is much smaller compared to those in the literature.},
+  doi       = {10.1109/MED.2016.7535894},
+  file      = {:Articles/Odometry/QuadrupedRobotRollandPitchEstimationusing.pdf:PDF},
+}
+
+@Article{Cong2020contact_force_estim_and_application_in_impedance_control,
+  author   = {Cong, Zhang and Honglei, An and Wu, Chengye and Lang, Lin and Wei, Qing and Hongxu, Ma},
+  journal  = {IEEE Access},
+  title    = {Contact Force Estimation Method of Legged-Robot and Its Application in Impedance Control},
+  year     = {2020},
+  issn     = {2169-3536},
+  pages    = {161175-161187},
+  volume   = {8},
+  abstract = {Legged robots have extremely strong adaptability in different terrain environment and their stable walking in the wild is still a current research hotspot. Although they have shown great motion performance in recent years, most of them rely on high-performance sensors, especially force sensors settled on foot. However, it is impractical to select special forces sensors in the field environment, and the performance degradation and noise during the usage will bring fatal control defects. In order to solve this problem, we propose a foot contact force estimation method that does not require force sensors, and applies the estimated contact force to the impedance control of the legged robot to achieve the robot's active compliance control. The method of force estimation is based on the generalized momentum of the robot. It only needs to provide the position information of the joint and the information of the applied control torque. The designed feedforward and compensation terms effectively improve the speed and accuracy of the force estimation. We improved the response speed of the system to the contact force by improving the structure of the impedance control, and applied the estimated contact force to the impedance control to achieve the stable motion of the quadruped robot. Simulation experiments verify the effectiveness of the proposed force estimation method.},
+  doi      = {10.1109/ACCESS.2020.3021080},
+  file     = {:Articles/ContactForcesEstimation/ContactForceEstimationMethodOfLegged-RobotandItsApplicationinImpedanceControl.pdf:PDF},
+}
+
+@Article{Xu2016SixLeggedRobotStepObstaclesByIndirectForceEstimation,
+  author   = {{Xu}, Yilin and {Gao}, Feng and {Pan}, Yang and {Chai}, Xun},
+  journal  = {Chinese Journal of Mechanical Engineering},
+  title    = {{Method for six-legged robot stepping on obstacles by indirect force estimation}},
+  year     = {2016},
+  month    = jul,
+  number   = {4},
+  pages    = {669-679},
+  volume   = {29},
+  adsnote  = {Provided by the SAO/NASA Astrophysics Data System},
+  adsurl   = {https://ui.adsabs.harvard.edu/abs/2016ChJME..29..669X},
+  doi      = {10.3901/CJME.2016.0122.012},
+  file     = {:Articles/ContactForcesEstimation/MethodforSix-LeggedRobotSteppingonObstaclesbyIndirectForceEstimation.pdf:PDF},
+  keywords = {robot, parallel mechanism, force estimation, obstacle},
+}
+
+@Article{benallegue2020LyapunovStableOrientationEstimatorHumanoids,
+  author      = {Benallegue, Mehdi and Cisneros, Rafael and Benallegue, Abdelaziz and Chitour, Yacine and Morisawa, Mitsuharu and Kanehiro, Fumio},
+  journal     = {{IEEE Robotics and Automation Letters}},
+  title       = {{Lyapunov-Stable Orientation Estimator for Humanoid Robots}},
+  year        = {2020},
+  month       = Oct,
+  number      = {4},
+  pages       = {6371-6378},
+  volume      = {5},
+  abstract    = {In this paper, we present an observation scheme, with proven Lyapunov stability, for estimating a humanoid's floating base orientation. The idea is to use velocity aided attitude estimation, which requires to know the velocity of the system. This velocity can be obtained by taking into account the kinematic data provided by contact information with the environment and using the IMU and joint encoders. We demonstrate how this operation can be used in the case of a fixed or a moving contact, allowing it to be employed for locomotion. We show how to use this velocity estimation within a selected two-stage state tilt estimator: (i) the first which has a global and quick convergence (ii) and the second which has smooth and robust dynamics. We provide new specific proofs of almost global Lyapunov asymptotic stability and local exponential convergence for this observer. Finally, we assess its performance by employing a comparative simulation and by using it within a closed-loop stabilization scheme for HRP-5P and HRP-2KAI robots performing whole-body kinematic tasks and locomotion.},
+  doi         = {10.1109/LRA.2020.3013854},
+  file        = {:Articles/LyapunovStableOrientationEstimatorForHumanoidRobots.pdf:PDF},
+  hal_id      = {hal-02929331},
+  hal_version = {v1},
+  pdf         = {https://hal.science/hal-02929331/file/tiltHumanoidsJournal.pdf},
+  publisher   = {{IEEE }},
+}
+
+@InProceedings{benallegue2017tilt,
+  author       = {Benallegue, Mehdi and Benallegue, Abdelaziz and Chitour, Yacine},
+  booktitle    = {2017 IEEE-RAS 17th International Conference on Humanoid Robotics (Humanoids)},
+  title        = {Tilt estimator for 3D non-rigid pendulum based on a tri-axial accelerometer and gyrometer},
+  year         = {2017},
+  organization = {IEEE},
+  pages        = {830--835},
+  file         = {:Articles/Filtering/TiltEstimatorFor3DNon-rigidPendulumBasedOnATri-axialAccelerometerAndGyrometer.pdf:PDF},
+}
+
+@InProceedings{Focchi2013LocalReflexGenerationForQuadrupedObstacleNegotiation,
+  author    = {Michele Focchi and Victor Barasuol and Ioannis Havoutis and Jonas Buchli and Claudio Semini and Darwin Gordon Caldwell},
+  booktitle = {Nature-Inspired Mobile Robotics},
+  title     = {LOCAL REFLEX GENERATION FOR OBSTACLE NEGOTIATION IN QUADRUPEDAL LOCOMOTION},
+  year      = {2013},
+  file      = {:Articles/Contact detection/LocalReflexGenerationForObstacleNegotiationInQuadrupedalLocomotion.pdf:PDF},
+}
+
+@Article{Wu2016GrfSensingAndTerrainClassification,
+  author   = {Wu, X. Alice and Huh, Tae Myung and Mukherjee, Rudranarayan and Cutkosky, Mark},
+  journal  = {IEEE Robotics and Automation Letters},
+  title    = {Integrated Ground Reaction Force Sensing and Terrain Classification for Small Legged Robots},
+  year     = {2016},
+  issn     = {2377-3766},
+  month    = {July},
+  number   = {2},
+  pages    = {1125-1132},
+  volume   = {1},
+  abstract = {We present the design and implementation of a miniature tactile sensing array for ground reaction force measurements in small legged robots. Dynamic ground pressure data from the sensors were collected using a small two-legged runner and used to train a support vector machine (SVM) terrain classifier. Results show that tactile sensing data, in combination with information about the motor torque and robot gait, are sufficient to distinguish among hard, slippery, grassy and granular terrain types with >90% accuracy in a single stride. The most useful classifier features include stride frequency, peak motor torque, and peak and average tactile sensor readings.},
+  doi      = {10.1109/LRA.2016.2524073},
+  file     = {:Articles/Contact detection/IntegratedGroundReactionForceSensingandTerrainClassificationForSmallLeggedRobots.pdf:PDF},
+}
+
+@InProceedings{ito2000StandingPostureControlBasedOnGrf,
+  author       = {Ito, Satoshi and Kawasaki, Haruhisa},
+  booktitle    = {Proceedings. 2000{ }IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS 2000)(Cat. No. 00CH37113)},
+  title        = {A standing posture control based on ground reaction force},
+  year         = {2000},
+  organization = {IEEE},
+  pages        = {1340--1345},
+  volume       = {2},
+  file         = {:Articles/Contact detection/AStandingPostureControlBasedonGroundReactionForce.pdf:PDF},
+}
+
+
+
+
+
+
+@Article{Wang2017VelocityEstimAlgorithmForLeggedRobot,
+  author   = {Pengfei Wang and Jikai Liu and Fusheng Zha and Wei Guo and Xin Wang and Mantian Li and Lining Sun},
+  journal  = {Advances in Mechanical Engineering},
+  title    = {A velocity estimation algorithm for legged robot},
+  year     = {2017},
+  number   = {12},
+  pages    = {1687814017732736},
+  volume   = {9},
+  abstract = {To secure the data accuracy while reducing development cost of robot, in this article, we conducted fusion estimation of the information measured by strapdown inertial navigation system and the information solved by forward kinematics using extended Kalman filter and regarding the motion parameter error was proposed as state variable. On this basis, state equation and detecting equation can be established. In addition, this article made innovative attempt to compensate the optimal estimation of motion parameter error using feedback correction method, and finally obtained stable and accurate velocity estimation of robot. Being unrestricted by the number of robot’s leg, this method is suitable for both static gait and dynamic gait, and can overcome the impact from leg slipping. As for the verification of this method, in this article, a quadruped robot was employed for motion simulation and experimental verification, and results verified the correctness and feasibility of the proposed method.},
+  doi      = {10.1177/1687814017732736},
+  eprint   = {https://doi.org/10.1177/1687814017732736},
+  file     = {:Articles/State estimation/AVelocityEstimationAlgorithmForLeggedRobot.pdf:PDF},
+}
+
+@InProceedings{Flayols2017ExperimentalEvaluationOfSimpleEstimForHumanoidRobots,
+  author    = {Flayols, T. and Del Prete, A. and Wensing, P. and Mifsud, A. and Benallegue, M. and Stasse, O.},
+  booktitle = {2017 IEEE-RAS 17th International Conference on Humanoid Robotics (Humanoids)},
+  title     = {Experimental evaluation of simple estimators for humanoid robots},
+  year      = {2017},
+  month     = {Nov},
+  pages     = {889-895},
+  abstract  = {This paper introduces and evaluates a family of new simple estimators to reconstruct the pose and velocity of the floating base. The estimation of the floating-base state is a critical challenge to whole-body control methods that rely on full-state information in high-rate feedback. Although the kinematics of grounded limbs may be used to estimate the pose and velocity of the body, modelling errors from ground irregularity, foot slip, and structural flexibilities limit the utility of estimation from kinematics alone. These difficulties have motivated the development of sensor fusion methods to augment body-mounted IMUs with kinematic measurements. Existing methods often rely on extended Kalman filtering, which lack convergence guarantees and may present difficulties in tuning. This paper proposes two new simplifications to the floating-base state estimation problem that make use of robust off-the-shelf orientation estimators to bootstrap development. Experiments for in-place balance and walking with the HRP-2 show that the simplifications yield results on par with the accuracy reported in the literature for other methods. As further benefits, the structure of the proposed estimators prevents divergence of the estimates, simplifies tuning, and admits efficient computation. These benefits are envisioned to help accelerate the development of baseline estimators in future humanoids.},
+  doi       = {10.1109/HUMANOIDS.2017.8246977},
+  file      = {:Articles/State estimation/ExperimentalEvaluationofSimpleEstimatorsforHumanoidRobots.pdf:PDF},
+  issn      = {2164-0580},
+}
+
+@InProceedings{flacco2016ResidualBasedContactsEstimationHumanoidRobots,
+  author       = {Flacco, Fabrizio and Paolillo, Antonio and Kheddar, Abderrahmane},
+  booktitle    = {2016 IEEE-RAS 16th International Conference on Humanoid Robots (Humanoids)},
+  title        = {Residual-based contacts estimation for humanoid robots},
+  year         = {2016},
+  organization = {IEEE},
+  pages        = {409--415},
+  file         = {:Articles/ResidualBasedContactsEstimationForHumanoidRobots.pdf:PDF},
+}
+
+@InProceedings{manuelli2016ProprioceptiveExternalContactLocalizationWithParticleFilter,
+  author       = {Manuelli, Lucas and Tedrake, Russ},
+  booktitle    = {2016 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  title        = {Localizing external contact using proprioceptive sensors: The contact particle filter},
+  year         = {2016},
+  organization = {IEEE},
+  pages        = {5062--5069},
+  file         = {:Articles/LocalizingExternalContactUsingProprioceptiveSensorsTheContactParticleFilter.pdf:PDF},
+}
+
+@InProceedings{Kaneko2012DisturbanceObserverExtForceOnHumanoid,
+  author    = {Kaneko, Kenji and Kanehiro, Fumio and Morisawa, Mitsuharu and Yoshida, Eiichi and Laumond, Jean-Paul},
+  booktitle = {2012 12th IEEE International Workshop on Advanced Motion Control (AMC)},
+  title     = {Disturbance observer that estimates external force acting on humanoid robots},
+  year      = {2012},
+  month     = {March},
+  pages     = {1-6},
+  abstract  = {This paper presents an external force observer that estimates the external force acting on a biped humanoid robot, such as a collision force with a human or with an object. Since biped humanoid robots balance themselves on a limited area with foot soles, the detection of external force is important to realize for a stable balance controller for humanoid robots working in a real environment. In the proposed observer, the external force is estimated using inertial sensors and foot force sensors based on simple but efficient modeling of the forces applied to the robot. This paper also shows the experiments of the proposed external force observer using a real humanoid robot HRP-2. The experimental results show that the proposed observer has satisfactory performance to estimate the external force with sufficient response and accuracy.},
+  doi       = {10.1109/AMC.2012.6197026},
+  file      = {:Articles/DisturbanceObserverThatEstimatesExternalForcesActingOnHumanoidRobots.pdf:PDF},
+  issn      = {1943-6580},
+}
+
+@Article{Jin2021NewTrendStateEstimHybridDrivenMethods,
+  author         = {Jin, Xue-Bo and Robert Jeremiah, Ruben Jonhson and Su, Ting-Li and Bai, Yu-Ting and Kong, Jian-Lei},
+  journal        = {Sensors},
+  title          = {The New Trend of State Estimation: From Model-Driven to Hybrid-Driven Methods},
+  year           = {2021},
+  issn           = {1424-8220},
+  number         = {6},
+  volume         = {21},
+  abstract       = {State estimation is widely used in various automated systems, including IoT systems, unmanned systems, robots, etc. In traditional state estimation, measurement data are instantaneous and processed in real time. With modern systems’ development, sensors can obtain more and more signals and store them. Therefore, how to use these measurement big data to improve the performance of state estimation has become a hot research issue in this field. This paper reviews the development of state estimation and future development trends. First, we review the model-based state estimation methods, including the Kalman filter, such as the extended Kalman filter (EKF), unscented Kalman filter (UKF), cubature Kalman filter (CKF), etc. Particle filters and Gaussian mixture filters that can handle mixed Gaussian noise are discussed, too. These methods have high requirements for models, while it is not easy to obtain accurate system models in practice. The emergence of robust filters, the interacting multiple model (IMM), and adaptive filters are also mentioned here. Secondly, the current research status of data-driven state estimation methods is introduced based on network learning. Finally, the main research results for hybrid filters obtained in recent years are summarized and discussed, which combine model-based methods and data-driven methods. This paper is based on state estimation research results and provides a more detailed overview of model-driven, data-driven, and hybrid-driven approaches. The main algorithm of each method is provided so that beginners can have a clearer understanding. Additionally, it discusses the future development trends for researchers in state estimation.},
+  article-number = {2085},
+  comment        = {Review of the different state estimation methods including model and data-driven, but also hybrid methods. Gives the simplified algorithm of each method},
+  doi            = {10.3390/s21062085},
+  file           = {:Articles/State estimation/TheNewTrendOfStateEstimationFromModelDrivenToHybridDrivenMethods.pdf:PDF},
+  groups         = {New methods},
+  pubmedid       = {33809743},
+  url            = {https://www.mdpi.com/1424-8220/21/6/2085},
+}
+
+
+
+
+
+
+
+@Article{Feng2023ReviewStateEstimWithHybridModelsKalmanAndNeuralNetworks,
+  author    = {Shuo Feng and Xuegui Li and Shuai Zhang and Zhen Jian and Hanxu Duan and Zepeng Wang},
+  journal   = {Systems Science \& Control Engineering},
+  title     = {A review: state estimation based on hybrid models of Kalman filter and neural network},
+  year      = {2023},
+  number    = {1},
+  pages     = {2173682},
+  volume    = {11},
+  abstract  = {In this paper, hybrid models of Kalman filter and neural network for state estimation are reviewed of their corresponding academic achievements, the creation of which is a noteworthy development in state estimation. This paper aims to provide a summary of research progress on such hybrid models and emphasize their functions and advantages. First of all, the concept and feature are paid attention to about Kalman filter, and its transmutative modes are taken into consideration. Then several popular neural network algorithms are introduced in brief. Subsequently, research results on hybrid models are analysed and discussed comprehensively. Not only Kalman filter and neural network can be adopted in succession, but also can be mixed in structure. The mixed models can also be divided into two types, the equations or parameters of state–space model are trained by neural network for Kalman filter and the parameters of neural network are updated by Kalman filter. It is proved that the hybrid models outperform than single model of Kalman filter or neural network in accuracy and generalization. Last but not least, the effectiveness of state–space equations of Kalman filter can be established by neural network in nonlinear systems is verified.},
+  doi       = {10.1080/21642583.2023.2173682},
+  eprint    = {https://doi.org/10.1080/21642583.2023.2173682},
+  file      = {:Articles/State estimation/AReviewStateEstimationBasedOnHybridModelsOfKalmanFilterAndNeuralNetwork.pdf:PDF},
+  groups    = {New methods},
+  publisher = {Taylor & Francis},
+  url       = {https://doi.org/10.1080/21642583.2023.2173682},
+}
+
+@Article{Benallegue2015EstimHumanoidFlexDeformationUsingOnlyImuAndContact,
+  author    = {Mehdi Benallegue and Florent Lamiraux},
+  journal   = {Int. J. Humanoid Robotics},
+  title     = {Estimation and Stabilization of Humanoid Flexibility Deformation Using Only Inertial Measurement Units and Contact Information},
+  year      = {2015},
+  number    = {3},
+  pages     = {1550025:1--1550025:20},
+  volume    = {12},
+  bibsource = {dblp computer science bibliography, https://dblp.org},
+  biburl    = {https://dblp.org/rec/journals/ijhr/BenallegueL15.bib},
+  doi       = {10.1142/S0219843615500255},
+  file      = {:Articles/EstimationAndStabilizationOfHumanoidFlexibility.pdf:PDF},
+  timestamp = {Fri, 27 Mar 2020 08:42:04 +0100},
+}
+
+@InProceedings{Benallegue2015FusionWrenchSensorsImuAndProprioceptionForKineDynObs,
+  author    = {Mehdi Benallegue and Alexis Mifsud and Florent Lamiraux},
+  booktitle = {15th {IEEE-RAS} International Conference on Humanoid Robots, Humanoids 2015, Seoul, South Korea, November 3-5, 2015},
+  title     = {Fusion of force-torque sensors, inertial measurements units and proprioception for a humanoid kinematics-dynamics observation},
+  year      = {2015},
+  pages     = {664--669},
+  publisher = {{IEEE}},
+  bibsource = {dblp computer science bibliography, https://dblp.org},
+  biburl    = {https://dblp.org/rec/conf/humanoids/BenallegueML15.bib},
+  doi       = {10.1109/HUMANOIDS.2015.7363425},
+  file      = {:Articles/FusionOfForce-TorqueSensors.pdf:PDF},
+  timestamp = {Fri, 27 Mar 2020 08:51:26 +0100},
+}
+
+@Article{Orin2013Centroidal_Dynamics_Humanoid_Robot,
+  author  = {Orin, David and Goswami, Ambarish and Lee, Sung-Hee},
+  journal = {Autonomous Robots},
+  title   = {Centroidal dynamics of a humanoid robot},
+  year    = {2013},
+  month   = {10},
+  volume  = {35},
+  doi     = {10.1007/s10514-013-9341-4},
+  file    = {:Articles/CentroidalDynamicsOfAHumanoidRobot.pdf:PDF},
+}
+
+@InProceedings{Kaneko2015Hrp2Kai,
+  author    = {Kaneko, Kenji and Morisawa, Mitsuharu and Kajita, Shuuji and Nakaoka, Shin'ichiro and Sakaguchi, Takeshi and Cisneros, Rafael and Kanehiro, Fumio},
+  booktitle = {2015 IEEE-RAS 15th International Conference on Humanoid Robots (Humanoids)},
+  title     = {Humanoid robot HRP-2Kai — Improvement of HRP-2 towards disaster response tasks},
+  year      = {2015},
+  month     = {Nov},
+  pages     = {132-139},
+  abstract  = {This paper presents a humanoid robot HRP-2Kai, which is the improvement version of HRP-2 towards disaster response tasks. HRP-2 stands for a humanoid robotics platform-2, which was developed in phase two of the Japanese national project HRP (Humanoid Robotics Project, from 1998FY to 2002FY), while Kai means improvement in Japanese. In a year of the ninth year from releasing HRP-2, the Great East Japan Earthquake shook Japan on March 11, 2011. Since we reflected on that we were not able to deploy our robots for emergency response at that time, we started a study of the disaster response humanoid robots by improving HRP-2. Improvements are presented with its basic specification in this paper.},
+  doi       = {10.1109/HUMANOIDS.2015.7363526},
+}
+
+@Article{Kaneko2019Hrp5,
+  author   = {Kaneko, Kenji and Kaminaga, Hiroshi and Sakaguchi, Takeshi and Kajita, Shuuji and Morisawa, Mitsuharu and Kumagai, Iori and Kanehiro, Fumio},
+  journal  = {IEEE Robotics and Automation Letters},
+  title    = {Humanoid Robot HRP-5P: An Electrically Actuated Humanoid Robot With High-Power and Wide-Range Joints},
+  year     = {2019},
+  issn     = {2377-3766},
+  month    = {April},
+  number   = {2},
+  pages    = {1431-1438},
+  volume   = {4},
+  abstract = {This letter introduces the humanoid robot HRP-5P, which stands for Humanoid Robotics Platform-5 Prototype. We have been developing the HRP series humanoid robots since 2000, and HRP-5P is the latest version of the HRP series as of 2018. It is developed as a prototype for our next generation humanoid robotics platform, aiming to realize the use of practical humanoid robots in place of humans within large-scale assembly industries such as construction sites, aircraft facilities, and shipyards. To realize it, electrically actuated high-power joints with wide movable range have been newly designed. Also, the arm configuration has also been redesigned to improve the physical ability of working on actual sites. The mechanism and the electrical systems are presented with its basic specification in this letter.},
+  doi      = {10.1109/LRA.2019.2896465},
+}
+
+
+
+
+
+
+
+@Article{Bonnabel2008SymmetryPreservingObservers,
+  author   = {Bonnabel, SilvÈre and Martin, Philippe and Rouchon, Pierre},
+  journal  = {IEEE Transactions on Automatic Control},
+  title    = {Symmetry-Preserving Observers},
+  year     = {2008},
+  issn     = {1558-2523},
+  month    = {Dec},
+  number   = {11},
+  pages    = {2514-2526},
+  volume   = {53},
+  abstract = {This paper presents the theory of invariant observers, i.e, symmetry-preserving observers. We consider an observer to consist of a copy of the system and a correction term, and we propose a constructive method (based on the Cartan moving-frame method) to find all the symmetry-preserving correction terms. The construction relies on an invariant frame (a classical notion) and on an invariant output-error, a less standard notion precisely defined here. Using the theory we build three non-linear observers for three examples of engineering interest: a non-holonomic car, a chemical reactor, and an inertial navigation system. For each example, the design is based on physical symmetries and the convergence analysis relies on the use of invariant state-errors, a symmetry-preserving way to define the estimation error.},
+  doi      = {10.1109/TAC.2008.2006929},
+  file     = {:Articles/Filtering/Symmetry-preservingObservers.pdf:PDF;:Articles/A_review_of_state_estimation_of_humanoid_robot_targeting_the_center_of_mass_base_kinematics_and_external_wrench.pdf:PDF;:Articles/A_review_of_state_estimation_of_humanoid_robot_targeting_the_center_of_mass_base_kinematics_and_external_wrench.pdf:PDF;:Articles/Odometry/CerberusLow-DriftVisual-Inertial-LegOdometry.pdf:PDF;:Articles/Filtering/StateEstimationforLeggedRobotsonUnstableandSlipperyTerrain.pdf:PDF},
+}
+
+@Article{Blanco2021_SE3_Transformation_Parametrizations,
+  author     = {Jos{\'{e}} Luis Blanco{-}Claraco},
+  journal    = {CoRR},
+  title      = {A tutorial on SE(3) transformation parameterizations and on-manifold optimization},
+  year       = {2021},
+  volume     = {abs/2103.15980},
+  bibsource  = {dblp computer science bibliography, https://dblp.org},
+  biburl     = {https://dblp.org/rec/journals/corr/abs-2103-15980.bib},
+  booktitle  = {Tech. Rep.},
+  eprint     = {2103.15980},
+  eprinttype = {arXiv},
+  file       = {:Articles/TutorialS3Transformation.pdf:PDF},
+  timestamp  = {Wed, 07 Apr 2021 15:31:46 +0200},
+}
+
+@Article{mahony2008NonlinearComplementaryFiltersOnSO3,
+  author    = {Mahony, Robert and Hamel, Tarek and Pflimlin, Jean-Michel},
+  journal   = {IEEE Transactions on automatic control},
+  title     = {Nonlinear complementary filters on the special orthogonal group},
+  year      = {2008},
+  number    = {5},
+  pages     = {1203--1218},
+  volume    = {53},
+  comment   = {Complementary filters for attitude estimation. Very clear about all notations and operations.},
+  file      = {:Articles/NonlinearComplementaryFiltersOnTheSpecialOrthogonalGroup.pdf:PDF},
+  publisher = {IEEE},
+}
+
+@Article{benallegue2020VelocityAidedImuBasedAttitudeEstim,
+  author  = {Benallegue, Mehdi and Benallegue, Abdelaziz and Cisneros, Rafael and Chitour, Yacine},
+  journal = {arXiv preprint arXiv:2002.10205},
+  title   = {Velocity-Aided IMU-Based Attitude Estimation},
+  year    = {2020},
+  file    = {:Articles/VelocityAidedImuBasedAttitudeEstimation.pdf:PDF},
+}
+
+@Article{yoon2023InvariantSmootherDynamicContactEventInformation,
+  author    = {Yoon, Ziwon and Kim, Joon-Ha and Park, Hae-Won},
+  journal   = {IEEE Transactions on Robotics},
+  title     = {Invariant Smoother for Legged Robot State Estimation With Dynamic Contact Event Information},
+  year      = {2023},
+  file      = {:Articles/InvariantSmootherForLeggedRobotStateEstimationWithDynamicContactEventInformation.pdf:PDF},
+  publisher = {IEEE},
+}
+
+@Article{schperberg2024optistate,
+  author  = {Schperberg, Alexander and Tanaka, Yusuke and Mowlavi, Saviz and Xu, Feng and Balaji, Bharathan and Hong, Dennis},
+  journal = {arXiv preprint arXiv:2401.16719},
+  title   = {OptiState: State Estimation of Legged Robots using Gated Networks with Transformer-based Vision and Kalman Filtering},
+  year    = {2024},
+  file    = {:Articles/OptiStateStateEstimationLeggedRobotsUsingGatedNetworksWithTransformerBasedVisionAndKalmanFiltering.pdf:PDF},
+}
+
+@Book{roston1991deadReckoning,
+  author    = {Roston, Gerald P and Krotkov, Eric P},
+  publisher = {Department of Computer Science, Carnegie-Mellon University},
+  title     = {Dead Reckoning Navigation For Walking Robots.},
+  year      = {1991},
+  file      = {:Articles/DeadReckoningNaviagtionForWalkingRobots.pdf:PDF},
+}
+
+@Article{beravs2014magnetometerCalib,
+  author    = {Beravs, Tadej and Begu{\v{s}}, Samo and Podobnik, Janez and Munih, Marko},
+  journal   = {IEEE transactions on instrumentation and measurement},
+  title     = {Magnetometer calibration using Kalman filter covariance matrix for online estimation of magnetic field orientation},
+  year      = {2014},
+  number    = {8},
+  pages     = {2013--2020},
+  volume    = {63},
+  file      = {:Articles/MagnetometerCalibrationUsingKalmanFilterCovarianceMatrixForOnlineEstimationOfMagneticFieldOrientation.pdf:PDF},
+  publisher = {IEEE},
+}
+
+@Book{Gallier2000GeometricMethods,
+  author    = {Gallier, Jean},
+  publisher = {Springer-Verlag},
+  title     = {Geometric methods and applications: for computer science and engineering},
+  year      = {2000},
+  address   = {Berlin, Heidelberg},
+  isbn      = {0387950443},
+  comment   = {File found on the website of "National Academic Digital Library of Ethiopia"
+http://ndl.ethernet.edu.et/bitstream/123456789/38117/1/42.pdf},
+  file      = {:Articles/GeometricMethodsAndApplicationsForComputerScienceAndEngineering.pdf:PDF},
+  url       = {http://ndl.ethernet.edu.et/bitstream/123456789/38117/1/42.pdf},
+}
+
+@Article{kim2021LeggedRobotStateEstimWithDynamicContactEvent,
+  author    = {Kim, Joon-Ha and Hong, Seungwoo and Ji, Gwanghyeon and Jeon, Seunghun and Hwangbo, Jemin and Oh, Jun-Ho and Park, Hae-Won},
+  journal   = {IEEE Robotics and Automation Letters},
+  title     = {Legged robot state estimation with dynamic contact event information},
+  year      = {2021},
+  number    = {4},
+  pages     = {6733--6740},
+  volume    = {6},
+  file      = {:Articles/Legged_Robot_State_Estimation_With_Dynamic_Contact_Event_Information.pdf:PDF},
+  publisher = {IEEE},
+}
+
+@Article{he2024legged,
+  author  = {He, Zijian and Teng, Sangli and Lin, Tzu-Yuan and Ghaffari, Maani and Gu, Yan},
+  journal = {arXiv preprint arXiv:2403.16252},
+  title   = {Legged Robot State Estimation within Non-inertial Environments},
+  year    = {2024},
+  file    = {:Articles/LeggedRobotStateEstimationWithinNonInertialEnvironments.pdf:PDF},
+}
+
+@Article{leutenegger2013keyframe,
+  author    = {Leutenegger, Stefan and Furgale, Paul and Rabaud, Vincent and Chli, Margarita and Konolige, Kurt and Siegwart, Roland},
+  journal   = {Proceedings of Robotis Science and Systems (RSS) 2013},
+  title     = {Keyframe-based visual-inertial slam using nonlinear optimization},
+  year      = {2013},
+  comment   = {Uses keyframes for non-linear optimization in a Visual-Inertial SLAM. No filter used, the state results from an optimization problem with error terms coming from the vision and the IMU.},
+  file      = {:Articles/KeyframeBasedVisualInertialSLAMUsingNonlinearOptimization.pdf:PDF},
+  groups    = {SLAM},
+  publisher = {Robotics: Science and Systems},
+}
+
+@Article{qin2018vins,
+  author    = {Qin, Tong and Li, Peiliang and Shen, Shaojie},
+  journal   = {IEEE transactions on robotics},
+  title     = {Vins-mono: A robust and versatile monocular visual-inertial state estimator},
+  year      = {2018},
+  number    = {4},
+  pages     = {1004--1020},
+  volume    = {34},
+  file      = {:Articles/VINSMono_A_Robust_and_Versatile_Monocular_Visual-Inertial_State_Estimator.pdf:PDF},
+  publisher = {IEEE},
+}
+
+@Article{piperakis2018NonlinearStateEstimationForHumanoidRobotWalking,
+  author    = {Piperakis, Stylianos and Koskinopoulou, Maria and Trahanias, Panos},
+  journal   = {IEEE Robotics and Automation Letters},
+  title     = {Nonlinear state estimation for humanoid robot walking},
+  year      = {2018},
+  number    = {4},
+  pages     = {3347--3354},
+  volume    = {3},
+  file      = {:Articles/NonlinearStateEstimationForHumanoidRobotWalking.pdf:PDF},
+  publisher = {IEEE},
+}
+
+@InProceedings{Zhang2018QuantitativeTrajectoryEvaluation,
+  author    = {Zhang, Zichao and Scaramuzza, Davide},
+  booktitle = {2018 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  title     = {A Tutorial on Quantitative Trajectory Evaluation for Visual(-Inertial) Odometry},
+  year      = {2018},
+  month     = {Oct},
+  pages     = {7244-7251},
+  abstract  = {In this tutorial, we provide principled methods to quantitatively evaluate the quality of an estimated trajectory from visual(-inertial) odometry (VO/VIO), which is the foundation of benchmarking the accuracy of different algorithms. First, we show how to determine the transformation type to use in trajectory alignment based on the specific sensing modality (i.e., monocular, stereo and visual-inertial). Second, we describe commonly used error metrics (i.e., the absolute trajectory error and the relative error) and their strengths and weaknesses. To make the methodology presented for VO/VIO applicable to other setups, we also generalize our formulation to any given sensing modality. To facilitate the reproducibility of related research, we publicly release our implementation of the methods described in this tutorial.},
+  doi       = {10.1109/IROS.2018.8593941},
+  file      = {:Articles/ATutorialOnQuantitativeTrajectoryEvaluationForVisualInertialOdometry.pdf:PDF},
+  issn      = {2153-0866},
+  keywords  = {Trajectory;Cameras;Noise measurement;Tutorials;Sensors;Visualization},
+}
+
+@Article{hartley2018ContactAidedIEKFLegged,
+  author  = {Hartley, Ross and Jadidi, Maani Ghaffari and Grizzle, Jessy W and Eustice, Ryan M},
+  journal = {arXiv preprint arXiv:1805.10410},
+  title   = {Contact-aided invariant extended Kalman filtering for legged robot state estimation},
+  year    = {2018},
+  file    = {:Articles/ContactAidedInvariantExtendedKalmanFiltering.pdf:PDF},
+}
+
+@Book{Barfoot2017StateEstimationForRobotics,
+  author    = {Barfoot, Timothy D.},
+  publisher = {Cambridge University Press},
+  title     = {State Estimation for Robotics},
+  year      = {2017},
+  address   = {USA},
+  edition   = {1st},
+  isbn      = {1107159393},
+  abstract  = {A key aspect of robotics today is estimating the state, such as position and orientation, of a robot as it moves through the world. Most robots and autonomous vehicles depend on noisy data from sensors such as cameras or laser rangefinders to navigate in a three-dimensional world. This book presents common sensor models and practical advice on how to carry out state estimation for rotations and other state variables. It covers both classical state estimation methods such as the Kalman filter, as well as important modern topics such as batch estimation, the Bayes filter, sigmapoint and particle filters, robust estimation for outlier rejection, and continuous-time trajectory estimation and its connection to Gaussian-process regression. The methods are demonstrated in the context of important applications such as point-cloud alignment, pose-graph relaxation, bundle adjustment, and simultaneous localization and mapping. Students and practitioners of robotics alike will find this a valuable resource.},
+  file      = {:Articles/StateEstimationForRobotics.pdf:PDF},
+}
+
+@InProceedings{Chauchat2018InvariantSmoothingLieGroups,
+  author    = {Chauchat, Paul and Barrau, Axel and Bonnabel, Silvere},
+  booktitle = {2018 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  title     = {Invariant smoothing on Lie Groups},
+  year      = {2018},
+  month     = {Oct},
+  pages     = {1703-1710},
+  abstract  = {In this paper we propose a (non-linear) smoothing algorithm for group-affine observation systems, a recently introduced class of estimation problems on Lie groups that bear a particular structure. As most non-linear smoothing methods, the proposed algorithm is based on a maximum a posteriori estimator, determined by optimization. But owing to the specific properties of the considered class of problems, the involved linearizations are proved to have a form of independence with respect to the current estimates, leveraged to avoid (partially or sometimes totally) the need to relinearize. The method is validated on a robot localization example, both in simulations and on real experimental data.},
+  doi       = {10.1109/IROS.2018.8594068},
+  file      = {:Articles/InvariantSmoothingOnLieGroups.pdf:PDF},
+  issn      = {2153-0866},
+  keywords  = {Smoothing methods;Manifolds;Simultaneous localization and mapping;Kalman filters;Random variables;Estimation;Robot localization},
+}
+
+@Article{lengagne2013generationMultiContactMotion,
+  author    = {Lengagne, S{\'e}bastien and Vaillant, Joris and Yoshida, Eiichi and Kheddar, Abderrahmane},
+  journal   = {The International Journal of Robotics Research},
+  title     = {Generation of whole-body optimal dynamic multi-contact motions},
+  year      = {2013},
+  number    = {9-10},
+  pages     = {1104--1119},
+  volume    = {32},
+  publisher = {SAGE Publications Sage UK: London, England},
+}
+
+@InProceedings{Kakiuchi2017RHP-Friends,
+  author    = {Kakiuchi, Yohei and Kamon, Masayuki and Shimomura, Nobuyasu and Yukizaki, Sou and Takasugi, Noriaki and Nozawa, Shunichi and Okada, Kei and Inaba, Masayuki},
+  booktitle = {2017 IEEE/RSJ International Conference on Intelligent Robots and Systems (IROS)},
+  title     = {Development of life-sized humanoid robot platform with robustness for falling down, long time working and error occurrence},
+  year      = {2017},
+  month     = {Sep.},
+  pages     = {689-696},
+  abstract  = {In this paper, we described a new developed life-size humanoid robot. A purpose of the developed robot is to realize continuous operation for a long time and to improve an action autonomously. we considered three aspects of robustness, mechanical robustness, functional robustness and robustness of an action. Mechanical robustness was confirmed by the experiment that the robot fell down without mechanical failures and continued to work after falling down by using hard points. Functional robustness was designed to use power cable and to wear a suit which can be changed by required functionality. Robustness of an action was achieved as a standing up action using “StateNet”, which realized autonomous error recovery. Finally, we present a methodology to develop a humanoid robot platform which can continue to work in the real world.},
+  doi       = {10.1109/IROS.2017.8202226},
+  file      = {:Articles/Development_of_life-sized_humanoid_robot_platform_with_robustness_for_falling_down_long_time_working_and_error_occurrence.pdf:PDF},
+  issn      = {2153-0866},
+  keywords  = {Robustness;Torque;Actuators;Force;Humanoid robots;Electric breakdown},
+}
+
+@PhdThesis{mifsud2017These,
+  author      = {Mifsud, Alexis},
+  school      = {{Institut National Polytechnique de Toulouse - INPT}},
+  title       = {{Estimation et stabilisation de l'etat d'un robot humanoide compliant}},
+  year        = {2017},
+  month       = Oct,
+  type        = {Theses},
+  hal_id      = {tel-04223294},
+  hal_version = {v2},
+  keywords    = {Estimation ; Control ; Humanoid robotics ; Estimation ; Asservissement ; Robotique humanoide},
+  number      = {2017INPT0074},
+  pdf         = {https://theses.hal.science/tel-04223294v2/file/MIFSUD_Alexis.pdf},
+}
+
+@Article{664150,
+  author   = {Branicky, M.S.},
+  journal  = {IEEE Transactions on Automatic Control},
+  title    = {Multiple Lyapunov functions and other analysis tools for switched and hybrid systems},
+  year     = {1998},
+  issn     = {1558-2523},
+  month    = {April},
+  number   = {4},
+  pages    = {475-482},
+  volume   = {43},
+  abstract = {We introduce some analysis tools for switched and hybrid systems. We first present work on stability analysis. We introduce multiple Lyapunov functions as a tool for analyzing Lyapunov stability and use iterated function systems theory as a tool for Lagrange stability. We also discuss the case where the switched systems are indexed by an arbitrary compact set. Finally, we extend Bendixson's theorem to the case of Lipschitz continuous vector fields, allowing limit cycle analysis of a class of "continuous switched" systems.},
+  doi      = {10.1109/9.664150},
+  file     = {:Articles/Multiple_Lyapunov_functions_and_other_analysis_tools_for_switched_and_hybrid_systems.pdf:PDF},
+  keywords = {Switched systems;Control systems;Lyapunov method;Switches;Difference equations;Stability analysis;Limit-cycles;Automata;Differential equations;Lagrangian functions},
+}
+
+@Article{benallegue2023velocity,
+  author  = {Benallegue, Mehdi and Benallegue, Abdelaziz and Cisneros, Rafael and Chitour, Yacine},
+  journal = {IEEE Transactions on Automatic Control},
+  title   = {Velocity-Aided IMU-Based Tilt and Attitude Estimation},
+  year    = {2023},
+  number  = {10},
+  pages   = {5823--5836},
+  volume  = {68},
+  file    = {:Articles/VelocityAidedIMUBasedTiltAndAttitudeEstimation.pdf:PDF},
+}
+
+@Article{8298520,
+  author   = {Benallegue, Abdelaziz and Chitour, Yacine and Tayebi, Abdelhamid},
+  journal  = {IEEE Transactions on Automatic Control},
+  title    = {Adaptive Attitude Tracking Control of Rigid Body Systems With Unknown Inertia and Gyro-Bias},
+  year     = {2018},
+  issn     = {1558-2523},
+  month    = {Nov},
+  number   = {11},
+  pages    = {3986-3993},
+  volume   = {63},
+  abstract = {This paper presents a new adaptive attitude tracking controller for rigid body systems, with unknown inertia and unknown gyro-bias, using inertial vector measurements. The proposed control scheme guarantees almost global asymptotic convergence of the attitude and angular velocity to their desired values. Simulation results are provided to illustrate the effectiveness of the proposed approach.},
+  doi      = {10.1109/TAC.2018.2808443},
+  file     = {:Articles/BenallegueTac2018AdaptativeAttitudeTracking.pdf:PDF},
+  keywords = {Angular velocity;Velocity measurement;Attitude control;Quaternions;Convergence;Symmetric matrices;Heuristic algorithms;Inertial vector measurements;nonlinear adaptive control;rigid body},
+}
+
+@Article{Mikami2014IdentificationHRP2Dynamics,
+  author  = {Yuya Mikami and Thomas Moulard and Eiichi Yoshida and Gentiane Venture},
+  journal = {2014 IEEE/RSJ International Conference on Intelligent Robots and Systems},
+  title   = {Identification of HRP-2 foot's dynamics},
+  year    = {2014},
+  pages   = {927-932},
+  file    = {:Articles/IdentificationHRP2Dynamics.pdf:PDF},
+}
+
+@Article{markley2004MEKF,
+  author    = {Markley, F Landis},
+  journal   = {Dynamics and Control of Systems and Structures in Space},
+  title     = {Multiplicative vs. additive filtering for spacecraft attitude determination},
+  year      = {2004},
+  number    = {467-474},
+  pages     = {48},
+  file      = {:Articles/MultiplicativeVsAdditiveFiltSpacecraftAttitude.pdf:PDF},
+  publisher = {Citeseer},
+}
+
+@InProceedings{varin2020constrainedKfFrictContact,
+  author       = {Varin, Patrick and Kuindersma, Scott},
+  booktitle    = {Algorithmic Foundations of Robotics XIII: Proceedings of the 13th Workshop on the Algorithmic Foundations of Robotics 13},
+  title        = {A constrained kalman filter for rigid body systems with frictional contact},
+  year         = {2020},
+  organization = {Springer},
+  pages        = {474--490},
+  file         = {:Articles/AConstrainedKalmanFilterFrictionalContact.pdf:PDF},
+}
+
+@Article{Stewart2000RBDynWithCoulomb,
+  author  = {David E. Stewart and Jeffrey C. Trinkle},
+  journal = {Proceedings 2000 ICRA. Millennium Conference. IEEE International Conference on Robotics and Automation. Symposia Proceedings (Cat. No.00CH37065)},
+  title   = {An implicit time-stepping scheme for rigid body dynamics with Coulomb friction},
+  year    = {2000},
+  pages   = {162-169 vol.1},
+  volume  = {1},
+  file    = {:Articles/ImplicitTimeSteppingSchemeRBDynCoulomb.pdf:PDF},
+  url     = {https://api.semanticscholar.org/CorpusID:10920958},
+}
+
+@Article{article,
+  author  = {Fankhauser, Péter and Bloesch, Michael and Hutter, Marco},
+  journal = {IEEE Robotics and Automation Letters},
+  title   = {Probabilistic Terrain Mapping for Mobile Robots With Uncertain Localization},
+  year    = {2018},
+  month   = {05},
+  pages   = {3019-3026},
+  volume  = {3},
+  doi     = {10.1109/LRA.2018.2849506},
+}
+
+@Article{,
+  title  = {ConceptGraphs: Open-Vocabulary 3D Scene Graphs for Perception and Planning},
+  groups = {SemanticMaps},
+}
+
+@Article{,
+  title  = {Hydra: A Real-time Spatial Perception System for3D Scene Graph Construction and Optimization},
+  groups = {SemanticMaps},
+}
+
+@Article{,
+  title = {Clio: Real-Time Task-Driven Open-Set3D Scene Graphs},
+}
+
+@Article{Wieber2016ModelingControlLeggedRobots,
+  author  = {Wieber, Pierre-Brice and Tedrake, Russ and Kuindersma, Scott},
+  journal = {Springer Handbook of Robotics},
+  title   = {Modeling and Control of Legged Robots},
+  year    = {2016},
+  month   = {01},
+  pages   = {1203-1234},
+  doi     = {10.1007/978-3-319-32552-1_48},
+  isbn    = {9783319325507},
+}
+
+@Article{harada2006dynamicsBalanceHumanoid,
+  author    = {Harada, Kensuke and Kajita, Shuuji and Kaneko, Kenji and Hirukawa, Hirohisa},
+  journal   = {IEEE Transactions on Robotics},
+  title     = {Dynamics and balance of a humanoid robot during manipulation tasks},
+  year      = {2006},
+  number    = {3},
+  pages     = {568--575},
+  volume    = {22},
+  publisher = {IEEE},
+}
+
+@Article{alatise2020reviewChallengeAutonomous,
+  author    = {Alatise, Mary B and Hancke, Gerhard P},
+  journal   = {IEEE access},
+  title     = {A review on challenges of autonomous mobile robot and sensor fusion methods},
+  year      = {2020},
+  pages     = {39830--39846},
+  volume    = {8},
+  publisher = {IEEE},
+}
+
+@InProceedings{DeLuca2008RedundancyCollisionDectection,
+  author    = {De Luca, Alessandro and Ferrajoli, Lorenzo},
+  booktitle = {2008 IEEE/RSJ International Conference on Intelligent Robots and Systems},
+  title     = {Exploiting Robot Redundancy in Collision Detection and Reaction},
+  year      = {2008},
+  month     = {Sep.},
+  pages     = {3299-3305},
+  abstract  = {We present a method that allows automatic reaction of a robot to physical collisions, while preserving as much as possible the execution of a Cartesian task for which the robot is kinematically redundant. The work is motivated by human-robot interaction scenarios, where ensuring safety is of primary concern whereas preserving task performance is an appealing secondary goal. Unexpected collisions may occur anywhere along the manipulator structure. Their fast detection is realized using our previous momentum-based method, which does not require any external sensing. The reaction torque applied to the joints reduces the effective robot inertia seen at the contact and lets the robot safely move away from the collision area. If we wish, however, to continue the execution of a Cartesian trajectory, robot redundancy can be exploited by projecting the reaction torque into the null space of a dynamic task matrix so as not to affect the original end-effector motion. This leads to the use of the so-called dynamically consistent approach to redundancy resolution, which is further elaborated in the paper. A partial task relaxation strategy can also be devised, with the objective of keeping contact forces below a user-defined safety threshold. Simulation results are reported for the 7R KUKA/DLR lightweight robot arm.},
+  doi       = {10.1109/IROS.2008.4651204},
+  issn      = {2153-0866},
+  keywords  = {Robots;Collision avoidance;Joints;Robot sensing systems;Redundancy;Acceleration;Sensors},
+}
+
+@PhdThesis{flayols2018These,
+  author      = {Flayols, Thomas},
+  school      = {{INSA de Toulouse}},
+  title       = {{Exploitation du Retour de Force pour l'Estimation et le Contr{\^o}le des Robots Marcheurs}},
+  year        = {2018},
+  month       = Oct,
+  type        = {Theses},
+  hal_id      = {tel-01975078},
+  hal_version = {v2},
+  keywords    = {Estimation ; Whole body control ; Torque control ; Predictive control ; Optimal control ; Walking pattern generator ; Flexible contact ; Estimation ; Contr{\^o}le corps complet ; Commande en couple ; Commande pr{\'e}dictive ; Commande optimale ; G{\'e}n{\'e}rateur de marche ; Contact flexible},
+  number      = {2018ISAT0025},
+  pdf         = {https://theses.hal.science/tel-01975078v2/file/2018FLAYOLSThomas.pdf},
+  url         = {https://theses.hal.science/tel-01975078},
+}
+
+@Article{Tomovic1966FiniteStateBioengin,
+  author   = {Tomovic, R. and McGhee, R.B.},
+  journal  = {IEEE Transactions on Human Factors in Electronics},
+  title    = {A Finite State Approach to the Synthesis of Bioengineering Control Systems},
+  year     = {1966},
+  issn     = {2168-2852},
+  number   = {2},
+  pages    = {65-69},
+  volume   = {HFE-7},
+  abstract = {The design of devices capable of duplicating the function of human extremities has become increasingly important in science, industry, and medicine. This paper presents an approach to the synthesis of control systems for such machines which results in extremely simple finite state controllers. The technique proposed rests on the definition of a new type of actuator, called a cybernetic actuator, which possesses the property of producing continuous controlled motion from an input which may assume only four distinct states. The application of such actuators to bioengineering systems is illustrated by the design of a control system for an artificial leg.},
+  doi      = {10.1109/THFE.1966.232325},
+  file     = {:Articles/A_Finite_State_Approach_to_the_Synthesis_of_Bioengineering_Control_Systems.pdf:PDF},
+  keywords = {Control system synthesis;Biomedical engineering;Medical control systems;Actuators;Humans;Extremities;Electrical equipment industry;Cybernetics;Motion control;Control systems},
+}
+
+@Article{McGhee1968StabilityQuadrupedCreepingGaits,
+  author   = {R.B. McGhee and A.A. Frank},
+  journal  = {Mathematical Biosciences},
+  title    = {On the stability properties of quadruped creeping gaits},
+  year     = {1968},
+  issn     = {0025-5564},
+  pages    = {331-351},
+  volume   = {3},
+  abstract = {While the total number of theoretically possible quadruped gaits is quite large, only six gaits have the property that they can be executed while keeping at least three feet on the ground at all times. These gaits, called creeping gaits, seem to be well suited for low-speed locomotion since they permit a quadruped to remain statically stable during most of a locomotion cycle. A mathematical analysis shows, however, that for only three of the six creeping gaits it is possible to place the feet of an animal or machine so that it is statically stable at all times. Furthermore, among these three, there exists a unique optimum gait that maximizes static stability. This gait corresponds to the normal quadruped crawl favored by most animals for very low-speed locomotion.},
+  doi      = {https://doi.org/10.1016/0025-5564(68)90090-4},
+  file     = {:Articles/OnStabilityPropertiesQuadrupedCreepingGaits.pdf:PDF},
+}
+
+@Article{McGhee1967FiniteStateControlQuadrupedLoc,
+  author   = {Robert B. McGhee},
+  journal  = {SIMULATION},
+  title    = {Finite state control of quadruped locomotion},
+  year     = {1967},
+  number   = {3},
+  pages    = {135-140},
+  volume   = {9},
+  abstract = {Previous work relating to the control of legged locomo tion systems has suggested that it might be possible to achieve stable locomotion in a machine using only on-off actuators at each joint. It has further been hypothesized that the coordination of joint motions could be accom plished by a simple finite algorithm implemented as an extremely small special-purpose digital computer. The re search reported in this paper establishes the validity of these conjectures by means of a successful experiment. A quadruped with four identical legs, each with a powered hip joint and knee joint, has been constructed and tested. The results obtained have significance both with respect to prosthetics and orthotics and with respect to the design of vehicles for off-the-road transportation.},
+  doi      = {10.1177/003754976700900308},
+  file     = {:Articles/FiniteStateControlOfQuadrupedLocomotion.pdf:PDF},
+}
+
+@Book{Muybridge1957AnimalsInMotion,
+  author    = {Muybridge, Eadweard},
+  publisher = {Dover Publications},
+  title     = {Animals in motion.},
+  year      = {1957},
+  address   = {New York},
+  file      = {:Articles/AnimalsInMotion.pdf:PDF},
+  keywords  = {Human locomotion -- Pictorial works; Animal locomotion -- Pictorial works},
+  language  = {eng},
+  lccn      = {57004552},
+}
+
+@Book{Muybridge1893DescriptiveZoopraxography,
+  author    = {Muybridge, Eadweard},
+  publisher = {University of Pennsylvania},
+  title     = {Descriptive Zoopraxography, Or The Science of Animal Locomotion: With Selected Outline Tracings Reduced from Some of the Illustrations of" Animal Locomotion"...},
+  year      = {1893},
+}
+
+@Article{hildebrand1965SymmetricalGaitsHorses,
+  author    = {Hildebrand, Milton},
+  journal   = {Science},
+  title     = {Symmetrical Gaits of Horses: Gaits can be expressed numerically and analyzed graphically to reveal their nature and relationships.},
+  year      = {1965},
+  number    = {3697},
+  pages     = {701--708},
+  volume    = {150},
+  file      = {:Articles/SymmetricalGaitOfHorses.pdf:PDF},
+  publisher = {American Association for the Advancement of Science},
+}
+
+@Article{McGhee1968FiniteStateApectsLeggedLocomotion,
+  author   = {R.B. McGhee},
+  journal  = {Mathematical Biosciences},
+  title    = {Some finite state aspects of legged locomotion},
+  year     = {1968},
+  issn     = {0025-5564},
+  number   = {1},
+  pages    = {67-84},
+  volume   = {2},
+  abstract = {Animal locomotion systems making use of legs as the basic component for support and propulsion can be studied from the point of view of finite state machine theory by regarding each leg as an elementary two-state sequential machine. The two states are simply the state of being in contact with the supporting surface and the state of being raised above it. This idealization permits the construction of a general theory of locomotion equally applicable to animals and legged locomotion machines. Such a theory can be made sufficiently complete to permit the synthesis of finite control algorithms capable of coordinating limb movements in either animals or machines. The validity of the finite state approach has been established by the construction and testing of an artificial quadruped based entirely upon finite state principles.},
+  doi      = {https://doi.org/10.1016/0025-5564(68)90007-2},
+  file     = {:Articles/SomeFiniteStateAspectsOfLeggedLocomotion.pdf:PDF},
+  url      = {https://www.sciencedirect.com/science/article/pii/0025556468900072},
+}
+
+@Article{Vukobratovic1972StabilityAnthropomorphicSystems,
+  author   = {M. Vukobratović and J. Stepanenko},
+  journal  = {Mathematical Biosciences},
+  title    = {On the stability of anthropomorphic systems},
+  year     = {1972},
+  issn     = {0025-5564},
+  number   = {1},
+  pages    = {1-37},
+  volume   = {15},
+  abstract = {This contribution treats definitions, dynamic aspects, and stability concepts of anthropomorphic systems. In addition to general conclusions about the new method of two-legged systems modelling, there are given some characteristic schemes of perturbed steady-gait regime stabilization.},
+  doi      = {https://doi.org/10.1016/0025-5564(72)90061-2},
+  file     = {:Articles/OnTheStabilityOfAnthropomorphicSystems.pdf:PDF},
+  url      = {https://www.sciencedirect.com/science/article/pii/0025556472900612},
+}
+
+@Article{Vukobratovic1975DynamicControlUnstableLocomotion,
+  author   = {M. Vukobratović and D. Stokić},
+  journal  = {Mathematical Biosciences},
+  title    = {Dynamic control of unstable locomotion robots},
+  year     = {1975},
+  issn     = {0025-5564},
+  number   = {1},
+  pages    = {129-157},
+  volume   = {24},
+  abstract = {In this paper the problem of dynamic stability of anthropomorphic mechanisms is dealt with. The method of measured synergy, offering the possibility of solving the problem of nominal dynamic regimes of regulator gait, is presented. On the basis of memorized nominal dynamic regimes, the control system is synthesized, making stable gait possible in the conditions of large perturbations. The essential result represents the control of stable gait by changing characteristic parameters of the system. The problem of postural stability of a biped system under large perturbations is also considered.},
+  doi      = {https://doi.org/10.1016/0025-5564(75)90071-1},
+  file     = {:Articles/DynamicControlOfUnstableLocomotionRobots.pdf:PDF},
+  url      = {https://www.sciencedirect.com/science/article/pii/0025556475900711},
+}
+
+@Article{Tomovic1961CreepingDisplacement,
+  author  = {Tomovic, R},
+  journal = {Cybernetica},
+  title   = {A general theoretical model of creeping displacement},
+  year    = {1961},
+  number  = {2},
+  volume  = {4},
+}
+
+@Article{Vukobratociv1975ControlLeggedLocomotionRobots,
+  author   = {Miomir K. Vukobratović and Dmitrii E. Okhocimskii},
+  journal  = {IFAC Proceedings Volumes},
+  title    = {Control of Legged Locomotion Robots},
+  year     = {1975},
+  issn     = {1474-6670},
+  note     = {6th IFAC World Congress (IFAC 1975) - Part 3: Systems, Economics, Management, and Social Effects, Boston/Cambridge, MA, USA, August 24-30, 1975},
+  number   = {1, Part 3},
+  pages    = {692-704},
+  volume   = {8},
+  abstract = {The paper presents control techniques of inherently dynamically stable and unstable legged locomotion robots. As representative of the first group a six-legged locomotion machine is presented, having multilevel hierarchical type control systems, with some qualities of artificial intellect. As unstable type, biped locomotion systems are discussed. New approach to the synthesis of artificial biped gait is presented, together with control procedures for the cases of small and large perturbations.},
+  doi      = {https://doi.org/10.1016/S1474-6670(17)67614-6},
+  file     = {:Articles/ControlOfLeggedLocomotionRobots.pdf:PDF},
+  url      = {https://www.sciencedirect.com/science/article/pii/S1474667017676146},
+}
+
+@Article{masuya2015DeadReckoningAnchoringPivot,
+  author    = {Masuya, Ken and Sugihara, Tomomichi},
+  journal   = {Advanced Robotics},
+  title     = {Dead reckoning for biped robots that suffers less from foot contact condition based on anchoring pivot estimation},
+  year      = {2015},
+  number    = {12},
+  pages     = {785--799},
+  volume    = {29},
+  file      = {:Articles/DeadReckoningAnchoringPivot.pdf:PDF},
+  publisher = {Taylor \& Francis},
+}
+
+@InProceedings{masuya2013DeadReckoningMVC,
+  author       = {Masuya, Ken and Sugihara, Tomomichi},
+  booktitle    = {2013 IEEE/RSJ International Conference on Intelligent Robots and Systems},
+  title        = {Dead reckoning of biped robots with estimated contact points based on the minimum velocity criterion},
+  year         = {2013},
+  organization = {IEEE},
+  pages        = {3637--3642},
+  file         = {:Articles/DeadReckoningBipedMVC.pdf:PDF},
+}
+
+@Article{masuya2016ComEstKinodynamicsTorqueEq,
+  author    = {Masuya, Ken and Sugihara, Tomomichi},
+  journal   = {Advanced Robotics},
+  title     = {COM motion estimation of a biped robot based on kinodynamics and torque equilibrium},
+  year      = {2016},
+  number    = {10},
+  pages     = {691--703},
+  volume    = {30},
+  file      = {:Articles/ComMotionEstBipedKinodynamicsTorqueEq.pdf:PDF},
+  publisher = {Taylor \& Francis},
+}
+
+@Misc{youm2024leggedrobotstateestimation,
+  author       = {Donghoon Youm and Hyunsik Oh and Suyoung Choi and Hyeongjun Kim and Jemin Hwangbo},
+  title        = {Legged Robot State Estimation With Invariant Extended Kalman Filter Using Neural Measurement Network},
+  year         = {2024},
+  eprint       = {2402.00366},
+  primaryclass = {cs.RO},
+}
+
+@Comment{jabref-meta: databaseType:bibtex;}
+
+@Comment{jabref-meta: grouping:
+0 AllEntriesGroup:;
+1 StaticGroup:Contact Forces Estimation\;0\;1\;0x8a8a8aff\;\;\;;
+1 StaticGroup:Odometry\;0\;1\;0x8a8a8aff\;\;\;;
+2 StaticGroup:Contact detection\;0\;1\;0x8a8a8aff\;\;\;;
+2 StaticGroup:Factor Graphs\;0\;0\;0x8a8a8aff\;\;\;;
+1 StaticGroup:State estimation\;0\;1\;0x8a8a8aff\;\;\;;
+2 StaticGroup:EKF\;0\;1\;0x8a8a8aff\;\;\;;
+2 StaticGroup:New methods\;0\;1\;0x8a8a8aff\;\;\;;
+1 StaticGroup:SLAM\;0\;1\;\;\;\;;
+1 StaticGroup:SemanticMaps\;0\;1\;\;\;\;;
+}
