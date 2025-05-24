@@ -77,6 +77,8 @@ e-mails: arnaud.demont@aist.go.jp, mehdi.benallegue@aist.go.jp, abdelaziz.benall
 
 \section{INTRODUCTION}
 
+\textcolor{red}{Whenever they are MPC, fondation models or reinforcement learning based controllers, controllers are getting more and more computationally expensive. This means that in order to run control loops in real-time on embarked processors, there is a need to reduce as much as possible the computation time of state estimators, such that this time can be allocated to the control. With this purpose, we propose our solution.}
+
 The control of humanoid robots is a very challenging topic. As under-actuated systems, these robots have to apply reaction forces at contacts with their environment in order to generate a desired trajectory. This implies strict constraints on the center of pressure of contacts for a motion to be achievable while ensuring stability. The position of these centers of pressure must therefore be estimated along with the kinematics of the robot to predict its dynamics. This is generally done by estimating the pose and velocity of the humanoid robot's floating base. Indeed, from these variables and the reading of joint encoders, one can reconstruct the full body configuration of the robot in the world frame.
 
 \subsection{Related Works}
@@ -140,14 +142,19 @@ The $i$-th contact's weighting coefficient $\lambda_{i}$ is defined as the ratio
 
 \begin{figure}[!t]
 \begin{center}
-\includegraphics[width=0.5\columnwidth]{Uploaded/Images/anchorFrame.pdf} 
+\includegraphics[width=0.5\columnwidth]{Uploaded/Images/framesAndAnchor.pdf} 
 \vskip -0.5pc
-\caption{Anchor frame obtained from two contacts. For simplification, only the weighted averaging of the contact positions is represented. $\boldsymbol{F}_{2} = 2\boldsymbol{F}_{1}$ so $\lambda_{2}=\frac{2}{3}$.}\label{fig:anchorFrame}
+\caption{Anchor frame obtained from two contacts. For simplification, only the weighted averaging of the contact positions is represented. $\boldsymbol{F}_{2} = 2\boldsymbol{F}_{1}$ so $\lambda_{2}=\frac{2}{3}$.}\label{fig:framesAndAnchor}
 \end{center}
 \vskip -1.5pc
 \end{figure}
 
-To conclude, here we give the useful expressions of the kinematics of the anchor frame in the world frame, and in the IMU's frame:
+Hereinafter we give the useful expressions of the kinematics of the anchor frame in the world frame, and in the IMU's frame:
+
+\begin{equation}
+    {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}^{\prime}} = \sum^{n_{c}}_{i} \lambda_{i}  {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}.
+\end{equation}
+
 
 \textcolor{red}{TODO}
 
