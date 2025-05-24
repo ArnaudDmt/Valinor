@@ -77,7 +77,8 @@ e-mails: arnaud.demont@aist.go.jp, mehdi.benallegue@aist.go.jp, abdelaziz.benall
 
 \section{INTRODUCTION}
 
-\textcolor{red}{Whenever they are MPC, fondation models or reinforcement learning based controllers, controllers are getting more and more computationally expensive. This means that in order to run control loops in real-time on embarked processors, there is a need to reduce as much as possible the computation time of state estimators, such that this time can be allocated to the control. With this purpose, we propose our solution.}
+
+
 
 The control of humanoid robots is a very challenging topic. As under-actuated systems, these robots have to apply reaction forces at contacts with their environment in order to generate a desired trajectory. This implies strict constraints on the center of pressure of contacts for a motion to be achievable while ensuring stability. The position of these centers of pressure must therefore be estimated along with the kinematics of the robot to predict its dynamics. This is generally done by estimating the pose and velocity of the humanoid robot's floating base. Indeed, from these variables and the reading of joint encoders, one can reconstruct the full body configuration of the robot in the world frame.
 
@@ -95,6 +96,14 @@ The control of humanoid robots is a very challenging topic. As under-actuated sy
    
 \subsection{Motivation}
     
+As autonomous systems continue to evolve in complexity and capability, the computational demands of their decision-making processes are increasing significantly. Advanced control strategies such as Model Predictive Control (MPC) \textcolor{red}{Katayama2023MpcLeggedHumanoid, Dantec2022WholeBodyMPCTorqueControl, Dallard2024AdiosStabilizers}, reinforcement learning-based controllers \textcolor{red}{Peters2003ReinforcmentLearningForHumanoid, Li2025RLVersatileDynamicRobustBipedalLocom}, and foundation model-guided policies \textcolor{red}{"Bjorck2025GrootN1", kawaharazuka2024RealWorldApplicationsFoundationModels} are becoming more prevalent due to their ability to handle high-dimensional dynamics, long-horizon planning, and unstructured environments. However, these benefits come at the cost of heightened computational complexity, often pushing the limits of what can be executed in real time on onboard processors\textcolor{red}{"On real-time robust model predictive control", "COMPUTATIONAL DELAY IN NONLINEAR MODEL
+PREDICTIVE CONTROL", "Thodoroff2022BenchmarkingRealTimeRL", "Firoozi2025FoundationModelsInRobotics"}.
+
+As these control methods grow in computational cost, running them on resource-limited platforms like drones or embedded systems becomes a challenge. Since the control part is getting heavier, one practical solution is to reduce the computational load of other parts of the pipeline, for example the state estimation part.
+
+State estimation remains a cornerstone of robust control, providing the essential feedback required for planning and control to operate effectively. Recognizing this trade-off, we propose an approach focused on reducing the runtime demands of the state estimator, aiming for a better balance between estimation accuracy and computational efficiency. This way, more processing time can be allocated to the increasingly demanding control algorithms without compromising the overall performance of the system.
+
+
 \textcolor{red}{
 As one can imagine, a slight error on the estimation of the yaw of the robot can lead to non negligible errors on the translation estimation. Therefore, estimating it as best as possible is a major objective in state estimation. The use of exteroceptive sensors is a direct solution to this issue, however they still don't offer a perfect odometry even with the most advanced methods (ex factor graphs with vilens), notably in some scenarios (ex: no loop closure, long tunnels for lidar, low-textured / low illumination environments, etc.). We propose a new orientation sensor that offers a very accurate and reliable measurement, even in challenging scenarios mentionned previously (eg: low-textured / low illumination environments), and at higher frequency (is it really much higher?). This sensor relies on a very lightweight algorithm, and can thus be used along other computationally expensive algorithms (ex: SLAM). In this article, we use this new sensor in pair with a highly accurate tilt estimation as inputs for a basic legged odometry. The purpose of this is to show how improved the legged odometry is with our orientation measurement even in a naive estimation framework unaware of information coupling, etc., to highlight the interest to include it  to more sophisticated ones (that most of the time just add combine the legged odometry with other sensors in the most effective way possible).}
     
@@ -120,7 +129,6 @@ As one can imagine, a slight error on the estimation of the yaw of the robot can
 
 \subsection{General notations}
 \begin{itemize}
-    \item Reference frames are represented with calligraphy upper-case variables (e.g., $\mathcal{I}$ for the IMU's frame, $\mathcal{A}$ for the anchor frame, and $\mathcal{W}$ for the world frame). 
     \item The general notation for kinematic variables is $^{1}\bigcirc_{2}$ , expressing the kinematics of the frame $2$ in the frame $1$. To simplify the notation, kinematics in the world frame are written without the $\mathcal{W}$ symbol: $^{\mathcal{W}}\bigcirc_{2}=\bigcirc_{2}$.
     \item We define $\boldsymbol{\Omega}$ the function that associates the rotation matrix to the corresponding rotation vector:
     \begin{flalign}
@@ -128,6 +136,7 @@ As one can imagine, a slight error on the estimation of the yaw of the robot can
          \Omega: \boldsymbol{R} & \mapsto \boldsymbol{v}, \;\;\;\; \text{s.t.} \;\;\; \text{exp}\! \left(\text{S}\!\left( \boldsymbol{v} \right) \right) = \boldsymbol{R}  \text{    and    } \left| \boldsymbol{v} \right| \leq \pi     && \label{eq:Omega}
     \end{flalign}
     \item \textcolor{red}{Define vec }
+    \item The world frame and the robot's IMU frame are denoted $\mathcal{W}$ and $\mathcal{I}$, respectively. The frame associated with the $i$-th contact is denoted $\mathcal{C}_{i}$. The anchor point, defined in Section~\ref{}, is denoted $\mathcal{A}$. 
     \item We define $n_c$ the number of current contacts set with the environment.
     
 \end{itemize} 
@@ -135,44 +144,57 @@ As one can imagine, a slight error on the estimation of the yaw of the robot can
 \section{Axis agnostic orientation combinations}
 Use of the axis agnostic representation to merge orientations
 
-\section{Definition of the Anchor Frame}
+\section{Definition of the Anchor Point}
 \textcolor{red}{define rest frames. I already talk about the fixed contacts right after so adapt it.}
-We define here the notion of anchor frame, since it will be used extensively in the following sections. The anchor frame, denoted $\mathcal{A}$, is a frame attached to the robot, and which is considered to have a zero velocity in the world frame. As will be explained in Section\textcolor{red}{sec}, this frame is especially important, since it provides a measurement of the robot's IMU velocity in the world frame. In the case of legged robots, it is common to assume that contacts with the environment are fixed. The frame attached to any contact would thus be usable as an anchor frame. However, in order to pick a unique frame that remains valid as contacts are created and broken, and which respects as best as possible the zero-velocity criterion, we compute its kinematics through a weighted average of the kinematics of the current contact reference frames. This is shown in Figure~\ref{fig:anchorFrame}. \\
-The $i$-th contact's weighting coefficient $\lambda_{i}$ is defined as the ratio of its measured reaction force $\boldsymbol{F}_{i}$ to the total reaction force across all contacts: $\lambda_{i}=\frac{\boldsymbol{F}_{i}}{\sum^{n_{c}}_{j=1}\boldsymbol{F}_{j}}$. As a contact weakens, its reaction force decreases, reducing its influence on the anchor frame's kinematics. This helps mitigate slippage, since weaker contacts are more likely to violate Coulomb's assumption and slip. It is important to note that although the anchor frame is defined to have zero velocity in the world, its pose may still evolve over time. \textcolor{red}{In discrete time, it has zero velocity? Maybe such a definition helps getting rid of the additional frame which coincides with it.}
+\textcolor{red}{J'essaie de n'avoir qu'un repere pour les contacts, donc pas de repos}
+We define here the notion of anchor point, since it will be used extensively in the following sections. The anchor point, denoted $\mathcal{A}$, is a point attached to the robot, and which is considered to have a zero velocity in the world frame. As will be explained in Section\textcolor{red}{sec}, this frame is especially important, since it provides a measurement of the robot's IMU velocity in the world frame. In the case of legged robots, it is common to assume that contacts with the environment are fixed. Any point of a contact surface would thus be usable as an anchor point. However, in order to pick a unique point that remains valid as contacts are created and broken, and which respects as best as possible the zero-velocity criterion, we compute its kinematics through a weighted average of the kinematics of the current contact reference frames. This is shown in Figure~\ref{fig:anchorFrame}. \\
+The $i$-th contact's weighting coefficient $\lambda_{i}$ is defined as the ratio of its measured reaction force $\boldsymbol{F}_{i}$ to the total reaction force across all contacts: $\lambda_{i}=\frac{\boldsymbol{F}_{i}}{\sum^{n_{c}}_{j=1}\boldsymbol{F}_{j}}$. \\ 
+As a contact weakens, its reaction force decreases, reducing its influence on the anchor point's kinematics. This helps mitigate slippage, since weaker contacts are more likely to violate Coulomb's assumption and slip. It is important to note that although the anchor point is defined to have zero velocity in the world, its pose may still evolve over time. \textcolor{red}{In discrete time, it has zero velocity? Maybe such a definition helps getting rid of the additional frame which coincides with it.}
 
 \begin{figure}[!t]
 \begin{center}
 \includegraphics[width=0.5\columnwidth]{Uploaded/Images/framesAndAnchor.pdf} 
 \vskip -0.5pc
-\caption{Anchor frame obtained from two contacts. For simplification, only the weighted averaging of the contact positions is represented. $\boldsymbol{F}_{2} = 2\boldsymbol{F}_{1}$ so $\lambda_{2}=\frac{2}{3}$.}\label{fig:framesAndAnchor}
+\caption{Illustration of the anchor point position computation and of the reference frames used in Valinor. $\mathcal{W}$: world frame; $\mathcal{I}$: IMU frame; $\mathcal{C}_{i}$: frame of the $i$-th contact. For clarity, only the weighted average of the contact positions is shown. In this example, $\boldsymbol{F}_{2} = 2\boldsymbol{F}_{1}$, yielding a weight of $\lambda{2} = \frac{2}{3}$.}\label{fig:framesAndAnchor}
 \end{center}
 \vskip -1.5pc
 \end{figure}
 
-Hereinafter we give the useful expressions of the kinematics of the anchor frame in the world frame, and in the IMU's frame:
-
-\begin{equation}
-    {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}^{\prime}} = \sum^{n_{c}}_{i} \lambda_{i}  {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}.
-\end{equation}
+Based on this definition, we give the position and linear velocity of the anchor point in the IMU's frame, and its position in the world frame:
+\begin{align} 
+&{^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}} = \sum^{n_{c}}_{i} \lambda_{i}  {^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}, \label{eq:imuAnchorPos} \\
+&{^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}^{\prime}} = \sum^{n_{c}}_{i} \lambda_{i}  {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}, \label{eq:imuAnchorVel} \\
+&\boldsymbol{p}_{\mathcal{A}} = \sum^{n_{c}}_{i} \lambda_{i} \boldsymbol{p}^{\star}_{{\mathcal{C}}_{i}}, \label{eq:anchorPointPos}
+\end{align} 
+with ${^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}$ the position and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}$ the linear velocity of the $i$-th contact in the IMU's frame, which are directly provided by the robot's joint encoders. $\boldsymbol{p}^{\star}_{{\mathcal{C}}_{i}}$ is the constant reference position of the $i$-th contact, which was its position at the instant it was created.
+\textcolor{red}{What about p star and R star for the reference pose of the contacts? So we make clear they are different. But when should I talk about the reference pose of contacts? before or after ? Right above i talk about the fixed contact assumption.}
+\textcolor{red}{Remove $\mathcal{A}^\prime$?}
 
 
 \textcolor{red}{TODO}
 
 \section{Tilt Observer with proof of convergence}
-The proposed estimator relies on a highly accurate estimate of the IMU's tilt provided by a complementary filter, introduced in a previous work \textcolor{red}{citer}, which we will call \emph{Tilt Observer}. The Tilt Observer is a complementary filter, which based 
+The proposed estimator relies on a highly accurate estimate of the IMU's tilt provided by a complementary filter, introduced in a previous work \textcolor{red}{citer}, which we will call \emph{Tilt Observer}. The Tilt Observer is a complementary filter, which based .
 
-\subsection{Use of the anchor point}
+\subsection{Definition of the State Vector}
 
-To obtain the linear velocity of the anchor point in the IMU, we consider the point $\mathcal{A}^{\prime}$, which coincides with the anchor point, but which is fixed and thus does not depend on the variation of $\lambda_{i}$. We can then write:
-
+\subsection{Definition of the Measurements}
+Let us denote $\boldsymbol{\omega}_{\mathcal{I}, l} \triangleq \boldsymbol{R}^{T}_{\mathcal{I}} \boldsymbol{\omega}_{\mathcal{I}} $ and $\boldsymbol{v}_{\mathcal{I}, l} \triangleq \boldsymbol{R}^{T}_{\mathcal{I}} \boldsymbol{v}_{\mathcal{I}}$ the linear and angular velocity of the IMU's frame in the world, expressed in the frame of the IMU.
+The measurements required by the Tilt Observer are:
+\begin{alignat}{2}
+         &\boldsymbol{y}_{g}    && \triangleq \boldsymbol{\omega}_{\mathcal{I}, l}, \\
+         &\boldsymbol{y}_{a}    && \triangleq \boldsymbol{R}^{T}_{\mathcal{I}} \boldsymbol{a}_{\mathcal{I}} = \text{S}\! \left( \boldsymbol{\omega}_{\mathcal{I}, l} \right) \boldsymbol{v}_{\mathcal{I}, l} + \dot{\boldsymbol{v}}_{\mathcal{I}, l} + g_0 \boldsymbol{R}^{T}_{\mathcal{I}} \boldsymbol{e}_z, \\
+         &\boldsymbol{y}_{v}    && \triangleq \boldsymbol{v}_{\mathcal{I}, l},
+\end{alignat}
+where $\boldsymbol{y}_{g}$ and $\boldsymbol{y}_{a}$ are the signals of the gyrometer and of the accelerometer, respectively.
+Since no sensor provides a direct measurement of $\boldsymbol{v}_{\mathcal{I}, l}$, we obtain $\boldsymbol{y}_{v}$ using an intermediate zero-velocity pseudo-measurement of the anchor point $\mathcal{A}$ in the world, giving:
 \begin{equation}
-    {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}^{\prime}} = \sum^{n_{c}}_{i} \lambda_{i}  {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}.
+    \boldsymbol{y}_v = - \text{S}\!\left( {\boldsymbol{y}_{g}} \right) {^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}} - {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}} \label{eq:yv}
 \end{equation}
 
-Finally, by using \eqref{eq:worldImuVelFromAnchor} in \eqref{eq:vl_1}, we can compute $\boldsymbol{y}_{v}$ solely from the signal of the gyrometer and the kinematics of the anchor point in the world frame, obtainable directly from the joint encoders.
-\begin{equation}
-    \boldsymbol{y}_v = - \text{S}\!\left( {\boldsymbol{y}_{g}} \right) {^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}} - {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}^{\prime}}
-\end{equation}
+\subsection{Definition of the filter}
+
+
 
 \section{Leg odometry}
 
