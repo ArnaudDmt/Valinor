@@ -24,8 +24,8 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      inkscape:zoom="5.6568543"
-     inkscape:cx="474.8222"
-     inkscape:cy="536.2521"
+     inkscape:cx="457.49808"
+     inkscape:cy="561.88472"
      inkscape:window-width="2560"
      inkscape:window-height="1369"
      inkscape:window-x="-8"
@@ -2580,7 +2580,7 @@
          d="m -715.1039,6557.3913 0.7976,788.3336 h 1774.0321 l -0.066,-225.3232 H 455.7042 Z"
          id="path28-9-3"
          sodipodi:nodetypes="cccccc"
-         inkscape:export-filename="..\Uploaded\Images\anchorFrame.pdf"
+         inkscape:export-filename="..\Uploaded\Images\framesAndAnchor.pdf"
          inkscape:export-xdpi="96"
          inkscape:export-ydpi="96" />
       <path
@@ -3450,8 +3450,10 @@
          style="clip-rule:evenodd;fill-rule:evenodd;image-rendering:optimizeQuality;shape-rendering:geometricPrecision;text-rendering:geometricPrecision">
         <g
            id="g3-7-0-9-5-2"
-           transform="matrix(-26.546852,0,0,26.546852,7351.6489,2420.244)"
-           style="stroke:#73d0e2;stroke-opacity:1">
+           transform="matrix(-25.609222,6.9930766,6.9930766,25.609222,6441.5067,1944.3072)"
+           style="stroke:#73d0e2;stroke-opacity:1"
+           inkscape:transform-center-x="-0.37832059"
+           inkscape:transform-center-y="-0.33668346">
           <path
              style="clip-rule:evenodd;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#73d0e2;stroke-width:0.769301;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#Triangle-6-1-35-3-0-4-4-2-0-3-7-3-42-8-8-2-8-3-0);paint-order:markers stroke fill;image-rendering:optimizeQuality;shape-rendering:geometricPrecision;text-rendering:geometricPrecision"
              d="m 83.998442,118.03692 v -3.9585"

@@ -83,7 +83,7 @@ e-mails: arnaud.demont@aist.go.jp, mehdi.benallegue@aist.go.jp, abdelaziz.benall
 The control of humanoid robots is a very challenging topic. As under-actuated systems, these robots have to apply reaction forces at contacts with their environment in order to generate a desired trajectory. This implies strict constraints on the center of pressure of contacts for a motion to be achievable while ensuring stability. The position of these centers of pressure must therefore be estimated along with the kinematics of the robot to predict its dynamics. This is generally done by estimating the pose and velocity of the humanoid robot's floating base. Indeed, from these variables and the reading of joint encoders, one can reconstruct the full body configuration of the robot in the world frame.
 
 \subsection{Related Works}
-    To ensure a reliable control, the pose of the floating base must be estimated at very high frequency. To this end, one commonly performs inertial odometry \textcolor{red}{buchanan2022LearningInertialOdometry} by integrating the signals provided by IMUs, composed of an accelerometer and a gyrometer, that respectively measure the angular velocity and the linear acceleration (including the gravitational acceleration) of the sensor in the world frame, expressed in the frame of the sensor. However, using only these sensors, the position, linear velocity and the yaw in the world frame are non-observable. They will therefore be subject to drift at low frequency due to the integration of the sensor noises. 
+    To ensure a reliable control, the pose of the floating base must be estimated at very high frequency. To this end, one commonly performs inertial odometry \textcolor{red}{CITE} by integrating the signals provided by IMUs, composed of an accelerometer and a gyrometer, that respectively measure the angular velocity and the linear acceleration (including the gravitational acceleration) of the sensor in the world frame, expressed in the frame of the sensor. However, using only these sensors, the position, linear velocity and the yaw in the world frame are non-observable. They will therefore be subject to drift at low frequency due to the integration of the sensor noises. 
     A widely adopted solution to deal with the drift inherent in the inertial odometry is to combine it with a legged odometry \textcolor{red}{Citer}, that uses the contacts that the robot successively creates with the environment as fixed points in the environment, constraining the kinematics \textcolor{red}{bloesch2013state}. Using the joint encoders, the legged odometry provides an estimate of the position at low frequency and prevents the drift. However, this method relies on the assumption that there is no slippage between the robot and the environment at the contact. In addition, it highly depends on the accuracy of the estimated pose of the contact at the time it is considered as fixed, and thus it depends on the compliance of the robot, the contact detection framework, etc. This combination of the inertial and legged odometry methods is the most common example of \emph{dead reckoning} \textcolor{red}{roston1991deadReckoning} in the literature, a term that more generally refers to any approach based on proprioceptive sensors. Dead reckoning is a satisfactory solution for tasks that don't require a perfect knowledge of the position and yaw in the world frame, for example for some tele-operation tasks and stabilization. The latter notably relies on the estimation of the tilt of the robot, which is partially observable using the accelerometer measurement. Work has therefore been done to improve this estimation. At first obtained by considering the linear acceleration negligible with respect to the gravitational acceleration \textcolor{red}{mahony2008nonlinear}, it also took benefit from the legged odometry, the constraint on the contact allowing for a better dissociation between linear motions and the orientation \textcolor{red}{Rephrase?}. Further works focused on \textcolor{red}{Continue} or with some enhanced methods \textcolor{red}{benallegue2017tilt}. \textcolor{red}{In our work, we propose to enrich our legged odometry with the orientation of contacts. These orientations are integrated to our attitude estimator to correct the estimated yaw of the robot at low frequency, similarly to their position.}
     \textcolor{red}{legged odometry using contact orientations: ramadoss2022wholebodyKineLieKF}
     
@@ -120,7 +120,7 @@ As one can imagine, a slight error on the estimation of the yaw of the robot can
 
 \subsection{Contributions}
 \begin{itemize}
-  \item Presentation of axis agnostic orientation combinations.
+  \item Presentation of axis-agnostic orientation combinations.
   \item Lightweight combination of Leg Odometry with a highly accurate tilt estimate.
   \item Experimental evaluation of the Tilt Observer.
 \end{itemize}
@@ -135,19 +135,74 @@ As one can imagine, a slight error on the estimation of the yaw of the robot can
           \text{SO}\!\left(3\right) & \rightarrow \mathbb{R}^{3}                 && \\
          \Omega: \boldsymbol{R} & \mapsto \boldsymbol{v}, \;\;\;\; \text{s.t.} \;\;\; \text{exp}\! \left(\text{S}\!\left( \boldsymbol{v} \right) \right) = \boldsymbol{R}  \text{    and    } \left| \boldsymbol{v} \right| \leq \pi     && \label{eq:Omega}
     \end{flalign}
+    \item $\left[.\right]_{\times}$ is the skew-symmetric operator. 
+    \item Define here the tilt?
     \item \textcolor{red}{Define vec }
     \item The world frame and the robot's IMU frame are denoted $\mathcal{W}$ and $\mathcal{I}$, respectively. The frame associated with the $i$-th contact is denoted $\mathcal{C}_{i}$. The anchor point, defined in Section~\ref{}, is denoted $\mathcal{A}$. 
     \item We define $n_c$ the number of current contacts set with the environment.
     
 \end{itemize} 
 
-\section{Axis agnostic orientation combinations}
-Use of the axis agnostic representation to merge orientations
+\section{Axis-agnostic orientation combinations}
+In this Section, we introduce the concept of \emph{axis-agnostic} orientation representation. This answers the need for a representation that would allow for the combination of orientations, without axis ambiguities. 
+
+\subsection{Tilt and yaw representation}
+
+\subsection{Rotation matrix to yaw agnostic \textcolor{red}{Useless here?}}
+
+Rotation matrix to yaw axis agnostic:
+\begin{equation}
+\theta = \mathrm{atan2}\left( \boldsymbol{v}_x \cdot \tilde{\boldsymbol{v}}_y - \boldsymbol{v}_y \cdot \tilde{\boldsymbol{v}}_x,\; \boldsymbol{v}_x \cdot \tilde{\boldsymbol{v}}_x + \boldsymbol{v}_y \cdot \tilde{\boldsymbol{v}}_y \right)
+\end{equation}
+where $v=\begin{bmatrix}
+R_{3,2} \\
+- R_{3,1} \\
+0
+\end{bmatrix}$ is the invariant horizontal vector projected onto the XY-plane $\in \mathbb{R}^2$ and $\tilde{v} = R_{2\times2} \cdot v$
+
+\subsection{Merge tilt + yaw axis agnostic}
+
+Let us consider two rotation matrices $\boldsymbol{R}_{1}$ and $\boldsymbol{R}_{2}$, corresponding to the orientations of the frames 1 and 2. The objective is to merge the \emph{tilt} of the frame 1 with the \emph{yaw} of the frame 2.
+
+First, we compute the projection of $\boldsymbol{tilt}_1$ in the frame 2:
+\begin{equation}
+    \begin{bmatrix} v_x \\ v_y \\ v_z \end{bmatrix} = \boldsymbol{R}_{2} \cdot \boldsymbol{tilt}_1
+\end{equation}
+This allows us to compute the invariant orthogonal vector $\boldsymbol{m}$:
+\begin{equation}
+    \boldsymbol{m} = 
+    \begin{cases}
+        \begin{bmatrix} 1 \\ 0 \\ 0 \end{bmatrix}, & \text{if } \left\| \begin{bmatrix} v_x \\ v_y \end{bmatrix} \right\| \approx 0 \\[12pt]
+        \frac{1}{\sqrt{v_x^2 + v_y^2}}
+        \begin{bmatrix} v_y \\ - v_x \\ 0 \end{bmatrix}, & \text{otherwise}
+    \end{cases}
+\end{equation}
+
+We then project $\boldsymbol{m}$ in the frame 2:
+\begin{equation}
+    \boldsymbol{m}_2 = \boldsymbol{R}_2^T \boldsymbol{m}.
+\end{equation}
+
+We finally obtain a rotation matrix $\boldsymbol{R}$, resulting from the combination of the tilt of the frame 1 and of the yaw of the frame 2:
+\begin{align}
+    \boldsymbol{R} = &\left(\begin{array}{ccc}
+    \frac{\boldsymbol{m} \times \boldsymbol{e}_z}{\left\Vert \boldsymbol{m} \times \boldsymbol{e}_z \right\Vert} & 
+    \frac{\boldsymbol{e}_z \times \boldsymbol{m} \times \boldsymbol{e}_z}{\left\Vert \boldsymbol{m} \times \boldsymbol{e}_z \right\Vert} & 
+    e_z
+    \end{array}\right) . \nonumber \\ 
+    & \qquad \left(\begin{array}{ccc} 
+    \frac{\boldsymbol{m}_2 \times \boldsymbol{tilt}_{1}}{\left\Vert \boldsymbol{m}_2 \times \boldsymbol{tilt}_{1} \right\Vert} & 
+    \frac{\boldsymbol{tilt}_{1} \times \boldsymbol{m}_2 \times \boldsymbol{tilt}_{1}}{\left\Vert \boldsymbol{m}_2 \times \boldsymbol{tilt}_{1} \right\Vert} & 
+    \boldsymbol{tilt}_{1}
+    \end{array}\right)^T \label{eq:axis_agnostic_R} 
+\end{align}
+
+
 
 \section{Definition of the Anchor Point}
 \textcolor{red}{define rest frames. I already talk about the fixed contacts right after so adapt it.}
 \textcolor{red}{J'essaie de n'avoir qu'un repere pour les contacts, donc pas de repos}
-We define here the notion of anchor point, since it will be used extensively in the following sections. The anchor point, denoted $\mathcal{A}$, is a point attached to the robot, and which is considered to have a zero velocity in the world frame. As will be explained in Section\textcolor{red}{sec}, this frame is especially important, since it provides a measurement of the robot's IMU velocity in the world frame. In the case of legged robots, it is common to assume that contacts with the environment are fixed. Any point of a contact surface would thus be usable as an anchor point. However, in order to pick a unique point that remains valid as contacts are created and broken, and which respects as best as possible the zero-velocity criterion, we compute its kinematics through a weighted average of the kinematics of the current contact reference frames. This is shown in Figure~\ref{fig:anchorFrame}. \\
+We define here the notion of anchor point, since it will be used extensively in the following sections. The anchor point, denoted $\mathcal{A}$, is a point attached to the robot, and which is considered to have a zero velocity in the world frame. As will be explained in Section\textcolor{red}{sec}, this frame is especially important, since it provides a measurement of the robot's IMU velocity in the world frame. In the case of legged robots, it is common to assume that contacts with the environment are fixed. Any point of a contact surface would thus be usable as an anchor point. However, in order to pick a unique point that remains valid as contacts are created and broken, and which respects as best as possible the zero-velocity criterion, we compute its kinematics through a weighted average of the kinematics of the current contact reference frames. This is shown in Figure~\ref{fig:framesAndAnchor}. \\
 The $i$-th contact's weighting coefficient $\lambda_{i}$ is defined as the ratio of its measured reaction force $\boldsymbol{F}_{i}$ to the total reaction force across all contacts: $\lambda_{i}=\frac{\boldsymbol{F}_{i}}{\sum^{n_{c}}_{j=1}\boldsymbol{F}_{j}}$. \\ 
 As a contact weakens, its reaction force decreases, reducing its influence on the anchor point's kinematics. This helps mitigate slippage, since weaker contacts are more likely to violate Coulomb's assumption and slip. It is important to note that although the anchor point is defined to have zero velocity in the world, its pose may still evolve over time. \textcolor{red}{In discrete time, it has zero velocity? Maybe such a definition helps getting rid of the additional frame which coincides with it.}
 
@@ -155,7 +210,7 @@ As a contact weakens, its reaction force decreases, reducing its influence on th
 \begin{center}
 \includegraphics[width=0.5\columnwidth]{Uploaded/Images/framesAndAnchor.pdf} 
 \vskip -0.5pc
-\caption{Illustration of the anchor point position computation and of the reference frames used in Valinor. $\mathcal{W}$: world frame; $\mathcal{I}$: IMU frame; $\mathcal{C}_{i}$: frame of the $i$-th contact. For clarity, only the weighted average of the contact positions is shown. In this example, $\boldsymbol{F}_{2} = 2\boldsymbol{F}_{1}$, yielding a weight of $\lambda{2} = \frac{2}{3}$.}\label{fig:framesAndAnchor}
+\caption{Illustration of the anchor point position computation and of the reference frames used in Valinor. $\mathcal{W}$: world frame; $\mathcal{I}$: IMU frame; $\mathcal{C}_{i}$: frame of the $i$-th contact. For clarity, only the weighted average of the contact positions is shown. In this example, $\boldsymbol{F}_{2} = 2\boldsymbol{F}_{1}$ and so $\lambda_{2} = \frac{2}{3}$.}\label{fig:framesAndAnchor}
 \end{center}
 \vskip -1.5pc
 \end{figure}
@@ -174,39 +229,135 @@ with ${^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}$ the position and ${^{
 \textcolor{red}{TODO}
 
 \section{Tilt Observer with proof of convergence}
-The proposed estimator relies on a highly accurate estimate of the IMU's tilt provided by a complementary filter, introduced in a previous work \textcolor{red}{citer}, which we will call \emph{Tilt Observer}. The Tilt Observer is a complementary filter, which based .
+The proposed estimator relies on a highly accurate estimate of the IMU's tilt provided by a complementary filter, introduced in a previous work \textcolor{red}{citer}, which we will call \emph{Tilt Observer}. \textcolor{red}{As explained later, this estimator has the advantage }
 
-\subsection{Definition of the State Vector}
-
-\subsection{Definition of the Measurements}
-Let us denote $\boldsymbol{\omega}_{\mathcal{I}, l} \triangleq \boldsymbol{R}^{T}_{\mathcal{I}} \boldsymbol{\omega}_{\mathcal{I}} $ and $\boldsymbol{v}_{\mathcal{I}, l} \triangleq \boldsymbol{R}^{T}_{\mathcal{I}} \boldsymbol{v}_{\mathcal{I}}$ the linear and angular velocity of the IMU's frame in the world, expressed in the frame of the IMU.
-The measurements required by the Tilt Observer are:
+\subsection{Definition of the State Variables}
+The Tilt Observer is able to provide estimates of the following two variables: 
+\begin{itemize}
+    \item $\boldsymbol{v}_{\mathcal{I}, l} \triangleq \boldsymbol{R}^{T}_{\mathcal{I}} \boldsymbol{v}_{\mathcal{I}} $ the linear velocity of the IMU's frame in the world frame, expressed in the frame of the IMU.
+    \item $\boldsymbol{R}^{T}_{\mathcal{I}} \boldsymbol{e}_z$ the tilt of the IMU.
+\end{itemize}
+We thus define the state variables: 
 \begin{alignat}{2}
-         &\boldsymbol{y}_{g}    && \triangleq \boldsymbol{\omega}_{\mathcal{I}, l}, \\
-         &\boldsymbol{y}_{a}    && \triangleq \boldsymbol{R}^{T}_{\mathcal{I}} \boldsymbol{a}_{\mathcal{I}} = \text{S}\! \left( \boldsymbol{\omega}_{\mathcal{I}, l} \right) \boldsymbol{v}_{\mathcal{I}, l} + \dot{\boldsymbol{v}}_{\mathcal{I}, l} + g_0 \boldsymbol{R}^{T}_{\mathcal{I}} \boldsymbol{e}_z, \\
-         &\boldsymbol{y}_{v}    && \triangleq \boldsymbol{v}_{\mathcal{I}, l},
-\end{alignat}
-where $\boldsymbol{y}_{g}$ and $\boldsymbol{y}_{a}$ are the signals of the gyrometer and of the accelerometer, respectively.
-Since no sensor provides a direct measurement of $\boldsymbol{v}_{\mathcal{I}, l}$, we obtain $\boldsymbol{y}_{v}$ using an intermediate zero-velocity pseudo-measurement of the anchor point $\mathcal{A}$ in the world, giving:
+&\boldsymbol{x}_{1} \triangleq \boldsymbol{v}_{\mathcal{I}, l} \quad &&, \boldsymbol{x}_{1} \in \mathbb{R}^{3}, \label{eq:x1} \\
+&\boldsymbol{x}_{2} \triangleq \boldsymbol{R}^{T}_{\mathcal{I}} \boldsymbol{e}_z \quad &&, \boldsymbol{x}_{2} \in \mathbb{S}^{2}. \label{eq:x2}
+\end{alignat} 
+The set $\mathbb{S}^{2} \subset \mathbb{R}^{3}$ is the unit sphere centered at the origin, and defined as
 \begin{equation}
-    \boldsymbol{y}_v = - \text{S}\!\left( {\boldsymbol{y}_{g}} \right) {^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}} - {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}} \label{eq:yv}
+    \mathbb{S}^{2} = \left\{ \boldsymbol{x} \in \mathbb{R}^{3} \vert \lVert \boldsymbol{x} \rVert=1 \right\}
 \end{equation}
 
-\subsection{Definition of the filter}
+\begin{figure}[!t]
+\begin{center}
+\includegraphics[width=0.5\columnwidth]{Uploaded/Images/tilt.pdf} 
+\vskip -0.5pc
+\caption{Tilt}\label{fig:tilt}
+\end{center}
+\vskip -1.5pc
+\end{figure}
+
+\textcolor{red}{This figure is uncited}
+
+\subsection{Definition of the Measurements}
+The measurements required by the Tilt Observer are:
+\begin{itemize}
+    \item $\boldsymbol{y}_{g}$ the signal of the IMU's gyrometer.
+    \item $\boldsymbol{y}_{a}$ the signal of the IMU's accelerometer.
+    \item $\boldsymbol{y}_{v}$ a measurement of $\boldsymbol{v}_{\mathcal{I}, l}$.
+\end{itemize}
+Since no sensor provides a direct measurement of $\boldsymbol{v}_{\mathcal{I}, l}$, we obtain $\boldsymbol{y}_{v}$ from an intermediate zero-velocity pseudo-measurement of the anchor point $\mathcal{A}$ in the world, giving:
+\begin{equation}
+    \boldsymbol{y}_v = - \left[\boldsymbol{y}_{g}\right]_{\times} {^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}} - {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}} \label{eq:yv}
+\end{equation}
+${^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}}$ and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}}$ are the position and linear velocity of the anchor point in the IMU's frame, obtained using\eqref{eq:imuAnchorPos} and \eqref{eq:imuAnchorVel}.
+
+\subsection{Definition of the Filter}
+As explained in \textcolor{red}{Cite}, the state dynamics of our system can be written:
+\begin{align} 
+&\dot{\boldsymbol{x}}_{1} = -\left[\boldsymbol{y}_{g}\right]_{\times} \boldsymbol{x}_{1} - g_{0}\boldsymbol{x}_{2} + \boldsymbol{y}_{a} , \label{eq:x1_dot} \\
+&\dot{\boldsymbol{x}}_{2} = -\left[\boldsymbol{y}_{g}\right]_{\times} \boldsymbol{x}_{2}. \label{eq:x2_dot}
+\end{align} 
+We can then write a complementary filter which uses the system's dynamics as a feed-forward, and corrects the estimated state using the velocity measurement $\boldsymbol{y}_{v}$:
+\begin{align} 
+& \dot{\hat{\boldsymbol{x}}}_{1}  = - \left[\boldsymbol{y}_{g}\right]_{\times}\hat{\boldsymbol{x}}_{1} - g_{0} \hat{\boldsymbol{x}}_{2}^{\prime} + \boldsymbol{y}_{a} + \alpha_{1} \left(\boldsymbol{y}_{v} - \hat{\boldsymbol{x}}_{1}\right), \\
+    & \dot{\hat{\boldsymbol{x}}}_{2}^{\prime} = - \left[\boldsymbol{y}_{g}\right]_{\times} \hat{\boldsymbol{x}}_{2} - \frac{\alpha_{2}}{g_{0}} \left(\boldsymbol{y}_{v} - \hat{\boldsymbol{x}}_{1}\right), \\
+    & \dot{\hat{\boldsymbol{x}}}_{2} = - \left[\boldsymbol{y}_{g} - \gamma \left[\hat{\boldsymbol{x}}_{2}\right]_{\times}\hat{\boldsymbol{x}}_{2}^{\prime}\right]_{\times} \hat{\boldsymbol{x}}_{2}.
+\end{align} 
+$\alpha_1$, $\alpha_2$ and $\gamma$ are positive scalar gains. $\hat{\boldsymbol{x}}_{1} $ and $\hat{\boldsymbol{x}}_{2} $ are estimates of $\boldsymbol{x}_{1} $ and $\boldsymbol{x}_{2} $, respectively. 
+
+The particularity of the Tilt Observer, in comparison to similar complementary filters (e.g. \textcolor{red}{Martin2016}), is the use of an intermediate estimate of the tilt, denoted $\hat{\boldsymbol{x}}_{2}^{\prime}$. This intermediate variable allows for a fast convergence of $\hat{\boldsymbol{x}}_{2}$, while making sure it remains on the unit sphere. 
 
 
 
-\section{Leg odometry}
+% \begin{alignat}{2}
+%          &\boldsymbol{y}_{g}    && \triangleq \boldsymbol{\omega}_{\mathcal{I}, l}, \\
+%          &\boldsymbol{y}_{a}    && \triangleq \boldsymbol{R}^{T}_{\mathcal{I}} \boldsymbol{a}_{\mathcal{I}} = \text{S}\! \left( \boldsymbol{\omega}_{\mathcal{I}, l} \right) \boldsymbol{v}_{\mathcal{I}, l} + \dot{\boldsymbol{v}}_{\mathcal{I}, l} + g_0 \boldsymbol{R}^{T}_{\mathcal{I}} \boldsymbol{e}_z, \\
+%          &\boldsymbol{y}_{v}    && \triangleq \boldsymbol{v}_{\mathcal{I}, l},
+% \end{alignat}
 
+\subsection{Advantages of the Tilt Observer}
+The Tilt Observer presents notable advantages. First, one iteration of the filter only consists in computing three equations, and is thus extremely computationally cheap, as will be shown in \textcolor{red}{Section}. Second, in comparison to the other state estimation frameworks like Kalman Filters, the use of a complementary filter allows to conduct a convergence analysis of the estimation error, providing strong mathematical guarantees on the estimator's performances. Expecially here, it has been shown in \textcolor{red}{Cite} that:
+\begin{itemize}
+    \item The dynamics of the estimation error is autonomous, and thus does not depend on the state. 
+    \item The intermediate estimator $\left\{\hat{\boldsymbol{x}}_{1}, \hat{\boldsymbol{x}}_{2}^{\prime} \right\}$ is \emph{globally exponentially stable}, with respect to the origin $\left(0,0\right)$.
+    \item The full estimator is \emph{almost globally asymptotically stable}, and locally \emph{exponentially stable}.
+\end{itemize}
+
+\section{Leg Odometry}
+
+The position and yaw of the IMU's frame in the world frame is obtained using Leg odometry. The latter consists in using contacts as fixed references in the world. Once a contact $i$ is created, its pose is obtained by forward kinematics from the current IMU's frame pose and the robot's joint encoders. This initial pose, which we call the contact's reference pose $\left\{ \boldsymbol{p}^{\star}_{\mathcal{C}_{i}}, \boldsymbol{R}^{\star}_{\mathcal{C}_{i}}\right\}$, is then considered constant, allowing to recover the pose of the IMU's frame in the world frame. The advantage of Leg odometry over other methods like Inertial odometry, is that it is not subject to drift, due to the integration of noise for example. However, it is sensitive to other factors, such as contact slippage, the structural deformation of the robot under contact forces, and the reliability of the   In our case we use the IMU's information to recover the tilt which is observable within the Tilt Observer.
 
 We update the orientation, then we update the position using the updated orientation.
 \subsection{Averaging of orientations and merging with tilt}
-Use of the axis agnostic representation to merge the estimated tilt with the Leg odometry's yaw, without any axis preference.
+Use of the axis-agnostic representation to merge the estimated tilt with the Leg odometry's yaw, without any axis preference.
 
-The 
-\subsection{Averaging of orientations}
+The orientation of the IMU's frame in the world frame is obtained from the reference orientation of the current contacts. For a contact $i$, we can write:
+\begin{equation}
+    \boldsymbol{R}_{\mathcal{I}, i} = \boldsymbol{R}^{\star}_{\mathcal{C}_{i}} {}^{\mathcal{C}_{i}} \boldsymbol{R}_{\mathcal{I}} 
+\end{equation}
+To compute the average of two orientations, we first compute the error vector between them:
+
+\begin{equation}
+    \tilde{\boldsymbol{R}} = \boldsymbol{R}^{T}_{\mathcal{I}, 1} \boldsymbol{R}_{\mathcal{I}, 2}
+\end{equation}
+\begin{equation}
+    \tilde{\boldsymbol{v}} = \lambda_{2} \text{vec} \left(\tilde{\boldsymbol{R}}\right)
+\end{equation}
 
 
+
+\begin{equation}
+    \tilde{\boldsymbol{R}} = \text{exp} \left( \lambda_{2} \text{log} \left( \boldsymbol{R}^{T}_{\mathcal{I}, 1} \boldsymbol{R}_{\mathcal{I}, 2} \right) \right)
+\end{equation}
+
+\begin{equation}
+\boldsymbol{R}_{\mathcal{I}, \text{avg}} = \boldsymbol{R}_{\mathcal{I}, 1} \text{exp} \left( \lambda_{2} \text{vec}\left(\text{log} \left( \tilde{\boldsymbol{R}}\right)\right)  \right).
+\end{equation}
+exp and log are the \emph{exponential} and \emph{logarithm} maps of SO(3) the Lie Group of rotation matrices. We note that for small angles, we can use the approximation:
+\begin{equation}
+log\left(\tilde{\boldsymbol{R}}\right) = \frac{1}{2} \left(\tilde{\boldsymbol{R}}-\tilde{\boldsymbol{R}}^{T}\right), \label{eq:log_small}
+\end{equation}
+
+\textcolor{red}{Check if Log or log.}
+\textcolor{red}{In the implementation, i don't do $R-R^T$}
+
+%         stateObservation::Matrix3 diffRot = R1.transpose() * R2;
+
+%         stateObservation::Vector3 diffRotVector =
+%             (1.0 - u)
+%             * stateObservation::kine::skewSymmetricToRotationVector(
+%                 diffRot); // we perform the multiplication by the weighting coefficient now so a
+%                           // zero coefficient gives a unit rotation matrix and not a zero matrix
+
+%         stateObservation::AngleAxis diffRotAngleAxis = stateObservation::kine::rotationVectorToAngleAxis(diffRotVector);
+
+%         stateObservation::Matrix3 diffRotMatrix =
+%             stateObservation::kine::Orientation(diffRotAngleAxis).toMatrix3(); // exp( (1 - u) * log(R1^T R2) )
+            
+\subsection{Averaging of positions}
+\begin{equation}
+    \boldsymbol{p}_{\mathcal{I}} = \boldsymbol{p}_{\mathcal{A}} - \boldsymbol{R}_{\mathcal{I}} {}^{\mathcal{I}}\boldsymbol{p}_{\mathcal{A}} 
+\end{equation}
 
 \section{Experimental evaluation}
 
@@ -255,58 +406,10 @@ Show table and plot of pose and vel. Focus on tilt.
 
 \subsection{Computation times comparison}
 
-\subsection{Equation}
-
-The equations should be numbered serially throughout the paper. The equation number should be located to the far right of the line in parenthesis. Equations are shown left aligned on the column.
-
-\begin{theorem}
-Equations are made as follows:
-\begin{align} 
-&\label{eq:1} 
-\dot{x}=Ax+Bu, \\
-&\label{eq:2} 
-y=Cx+Du. 
-\end{align} 
-You must remove all the automatically-made indentations made after hitting the return key. 
-\end{theorem}
-\begin{proof}
-Each equation should be separated by a comma. Assuming that the Equation Editor is used, the settings for individual font sizes are
-
-Main equation: 10 pt (Times New Roman),
-
-Subscript/superscript: 7 pt (Times New Roman),
-
-Sub-subscript: 6 pt (Times New Roman),
-
-Symbol: 150\%,
-
-Sub-symbol: 100\%. 
-
-The equation number should be set with a right tap as shown in \eqref{eq:1}-\eqref{eq:2}. This is the end of the proof.
-\end{proof}
-
-
-
-\begin{remark}
-The journal office knows how to convert all equations into font 10 pt at once. Please inquire about this before preparing the final manuscript. This will be handy for you.
-\end{remark}
-
-
-
-\subsection{Equation/figure/table citation}
-
-Equations \eqref{eq:1}-\eqref{eq:2} stand for the system dynamics. Fig. \ref{fig:1} is the first figure. Table \ref{tab:1} is cited as such. In the paper, all authors are required to use the SI unit.
-
 
 \subsection{References}
 
 References should appear in a separate bibliography at the end of the paper, with items referred to by numerals in square brackets \cite{1,3,4,5}. Times New Roman 10 pt is used for references \cite{2}. References should be complete in the IJCAS style shown in the Reference section of this article. An article should include vol., no., pages, and year.
-
-
-
-\subsection{Author information}
-
-Brief biographies and either clear glossy photographs (25 mm $\times$ 30 mm) of the authors or TIF files of the figures should be submitted after the paper is accepted.
 
 
 
