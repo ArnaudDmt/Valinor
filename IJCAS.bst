@@ -249,10 +249,10 @@ FUNCTION {bbl.in}
 { "in" }
 
 FUNCTION {bbl.pages}
-{ "pages" }
+{ "pp." }
 
 FUNCTION {bbl.page}
-{ "page" }
+{ "pp." }
 
 FUNCTION {bbl.chapter}
 { "chapter" }
@@ -696,6 +696,7 @@ FUNCTION {format.vol.num.pages}
 { volume field.or.null
   duplicate$ empty$ 'skip$
     {
+      "vol. " swap$ *             % <-- Add "vol. " before volume
       "volume" bibinfo.check
     }
   if$

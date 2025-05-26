@@ -103,7 +103,7 @@ As these control methods grow in computational cost, running them on resource-li
 
 State estimation remains a cornerstone of robust control, providing the essential feedback required for planning and control to operate effectively. Recognizing this trade-off, we propose an approach focused on reducing the runtime demands of the state estimator, while preserving high estimation accuracy. This way, more processing time can be allocated to the increasingly demanding control algorithms without compromising the overall performance of the system. 
 
-With this direction of lightweight estimation, our work also aims at proving that the estimation accuracy can be improved, not necessarily by adding new sensors, but by focusing on improving the estimation of key variables, which impact the overall estimation. Our works thus leverages only the commonly readily available proprioceptive sensors on the robot, namely an IMU, joint encoders, and force sensors at the contacts. Using solely proprioceptive sensors provides the observability of only the tilt of the robot\textcolor{red}{Bloesch}. The latter is essential for the robot's stabilization loop, especially for humanoid robots \textcolor{red}{Lyapunov-Stable Orientation Estimator for Humanoid Robots}. Beyond this, it directly impacts odometry performances, since even a slight error on the tilt estimate can lead to a non-negligible error on the translation estimate over long walks, more noticably along the vertical axis\textcolor{red}{Kinetics Observer}. We therefore show that we can improve proprioceptive odometry by exploiting a very accurate tilt estimate. This attitude estimation is made by a lightweight complementary filter, with mathematical guarantees on the estimation convergence, aligning with our goal of lightweight yet accurate state estimation.
+With this direction of lightweight estimation, our work also aims at proving that the estimation accuracy can be improved, not necessarily by adding new sensors, but by focusing on improving the estimation of key variables, which impact the overall estimation. Our works thus leverages only the commonly readily available proprioceptive sensors on the robot, namely an IMU, joint encoders, and force sensors at the contacts. Using solely proprioceptive sensors provides the observability of only the tilt of the robot~\cite{bloesch2013FusionLegKineAndImu}. The latter is essential for the robot's stabilization loop, especially for humanoid robots~\cite{benallegue2020LyapunovStableOrientationEstimatorHumanoids}. Beyond this, it directly impacts odometry performances, since even a slight error on the tilt estimate can lead to a non-negligible error on the translation estimate over long walks, more noticably along the vertical axis~\textcolor{red}{Demont}. We therefore show that we can improve proprioceptive odometry by exploiting a very accurate tilt estimate. This attitude estimation is made by a lightweight complementary filter, with mathematical guarantees on the estimation convergence, aligning with our goal of lightweight yet accurate state estimation.
 
 A close work, by \textcolor{red}{Ken Masuya and Tomomichi Sugihara}, addressed lightweight dead reckoning for biped robots using a complementary filter. However, their approach of the matter is different, especially the key variable whose estimation they aim to improve. Indeed, rather than focusing on the impact of the tilt estimate, their work focuses on wisely fusing position estimates coming from Leg odometry and Inertial odometry. The attitude estimate they leverage actually comes from an external estimator. 
 
@@ -524,23 +524,8 @@ If there is one more author, please ensure that all authors' contributions are i
 It should be provided in the Declarations, separate from the Acknowledgements. If any of these declarations listed are not relevant to the content of your submission, please state that this declaration is ``Not Applicable''.
 
 
-
-
-\begin{reference}
-\bibitem{1} \doi{R. C. Baker and B. Charlie, ``Nonlinear unstable systems,'' \textit{International Journal of Control}, vol. 23, no. 4, pp. 123-145, 1989.}{10.1007s/s12555-xxx-xxxx-x}
-
-\bibitem{2} G.-D. Hong, ``Linear controllable systems,'' \textit{Nature}, vol. 135, no. 5, pp. 18-27, 1990. 
-
-\bibitem{3} K.-S. Hong and C. S. Kim, ``Linear stable systems,'' \textit{IEEE Transactions on Automatic Control}, vol. 33, no. 3, pp. 1234-1245, 1993. 
-
-\bibitem{4} Z. Shiler, S. Filter, and S. Dubowski, ``Time optimal paths and acceleration lines of robotic manipulators,'' \textit{Proc. of the 26th Conference on Decision and Control}, pp. 98-99, 1987.
-
-\bibitem{5}  M. Young, \textit{The Technical Writer's Handbook}, Mill Valley, Seoul, 1989.
-
-\bibitem{6}  Y. Feng, H. Wang, H. Lu, C. Chang, L. Luo, and F. Yang, ``A novel faster all-pair shortest path algorithm based on the matrix multiplication for GPUs,'' \textit{arXiv preprint} arXiv:2208.04514, 2022.
-
-\bibitem{7} ``Reinforcement learning,'' Wikipedia, [Online]. Available: \href{https://en.wikipedia.org/wiki/Reinforcement_learning}{https://en.wikipedia.org/wiki/Reinforcement\_learning}. [Accessed: March 24, 2025].
-\end{reference}
+\bibliographystyle{IJCAS}
+\bibliography{Uploaded/Bibliography}
 
 
 % \biography{Uploaded/Arnaud.png}{Arnaud Demont}{received the M.S. degree in mechanical engineering with a specialization in mechatronics and systems from the National Institute of Applied Sciences of Lyon, France, and a second M.S. degree in automation and robotics in intelligent systems from the University of  Technology of Compiègne, France, in 2021 and 2023 respectively. He is currently pursuing the PhD degree of the Université Paris-Saclay, France, within the CRNS-AIST Joint Robotics Laboratory in Tsukuba, Japan. His research interests include state estimation for legged robots, multi-sensor fusion, and mobile robot perception and autonomous navigation.
