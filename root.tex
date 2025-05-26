@@ -101,7 +101,35 @@ PREDICTIVE CONTROL", "Thodoroff2022BenchmarkingRealTimeRL", "Firoozi2025Foundati
 
 As these control methods grow in computational cost, running them on resource-limited platforms like drones or embedded systems becomes a challenge. Since the control part is getting heavier, one practical solution is to reduce the computational load of other parts of the pipeline, for example the state estimation part.
 
-State estimation remains a cornerstone of robust control, providing the essential feedback required for planning and control to operate effectively. Recognizing this trade-off, we propose an approach focused on reducing the runtime demands of the state estimator, aiming for a better balance between estimation accuracy and computational efficiency. This way, more processing time can be allocated to the increasingly demanding control algorithms without compromising the overall performance of the system.
+State estimation remains a cornerstone of robust control, providing the essential feedback required for planning and control to operate effectively. Recognizing this trade-off, we propose an approach focused on reducing the runtime demands of the state estimator, while preserving high estimation accuracy. This way, more processing time can be allocated to the increasingly demanding control algorithms without compromising the overall performance of the system. 
+
+With this direction of lightweight estimation, our work also aims at proving that the estimation accuracy can be improved, not necessarily by adding new sensors, but by focusing on improving the estimation of key variables, which impact the overall estimation. Our works thus leverages only the commonly readily available proprioceptive sensors on the robot, namely an IMU, joint encoders, and force sensors at the contacts. Using solely proprioceptive sensors provides the observability of only the tilt of the robot\textcolor{red}{Bloesch}. The latter is essential for the robot's stabilization loop, especially for humanoid robots \textcolor{red}{Lyapunov-Stable Orientation Estimator for Humanoid Robots}. Beyond this, it directly impacts odometry performances, since even a slight error on the tilt estimate can lead to a non-negligible error on the translation estimate over long walks, more noticably along the vertical axis\textcolor{red}{Kinetics Observer}. We therefore show that we can improve proprioceptive odometry by exploiting a very accurate tilt estimate. This attitude estimation is made by a lightweight complementary filter, with mathematical guarantees on the estimation convergence, aligning with our goal of lightweight yet accurate state estimation.
+
+A close work, by \textcolor{red}{Ken Masuya and Tomomichi Sugihara}, addressed lightweight dead reckoning for biped robots using a complementary filter. However, their approach of the matter is different, especially the key variable whose estimation they aim to improve. Indeed, rather than focusing on the impact of the tilt estimate, their work focuses on wisely fusing position estimates coming from Leg odometry and Inertial odometry. The attitude estimate they leverage actually comes from an external estimator. 
+
+
+\begin{table}[!b] 
+    \vskip -0.75pc
+    \setlength{\extrarowheight}{0.5ex}
+    \setlength{\tabcolsep}{1pt}
+    \caption{The caption must be shown before the table.}\label{tab:1}
+    \begin{center}
+    \vskip -1.25pc
+    {\footnotesize
+    \begin{tabu}to\linewidth{|X[c]|X[c]|X[c]|} 
+        \hline 
+        & Target of the complementary filter & Estimation of the remaining pose component  \\ \hline 
+        \textcolor{red}{Ken Masuya and Tomomichi Sugihara} & Position coming from IMU and Leg odometry & Attitude, using IMU   \\ \hline 
+        Ours & Tilt coming from IMU and Leg information &  Position and Yaw coming from Leg odometry  \\ \hline 
+    \end{tabu}
+    }
+    \end{center}
+    \vskip -0.25pc
+\end{table}
+
+The attitude estimate they leverage comes from an IMU-based external estimator
+
+The closest work to the proposed method is  note that other works have addressed the problem of dead reckoning for humanoid robots based on complementary filters \textcolor{red}{Dead reckoning for biped robots that suffers less from foot contact condition based on anchoring pivot estimation}. However, the proof of their filter's convergence is not provided, they don't test on real experiments, and they don't focus on orientations: no focus on tilt and on the impact of the yaw.
 
 
 \textcolor{red}{
@@ -123,6 +151,7 @@ As one can imagine, a slight error on the estimation of the yaw of the robot can
   \item Presentation of axis-agnostic orientation combinations.
   \item Lightweight combination of Leg Odometry with a highly accurate tilt estimate.
   \item Experimental evaluation of the Tilt Observer.
+  \item The code of the Tilt Observer is open source, as well as a ROS wrapper.
 \end{itemize}
 
 \section{Preliminaries}
@@ -199,12 +228,15 @@ We finally obtain a rotation matrix $\boldsymbol{R}$, resulting from the combina
 
 
 
-\section{Definition of the Anchor Point}
+\section{Definition of the Anchor Point}\label{sec:anchor_point}
 \textcolor{red}{define rest frames. I already talk about the fixed contacts right after so adapt it.}
 \textcolor{red}{J'essaie de n'avoir qu'un repere pour les contacts, donc pas de repos}
 We define here the notion of anchor point, since it will be used extensively in the following sections. The anchor point, denoted $\mathcal{A}$, is a point attached to the robot, and which is considered to have a zero velocity in the world frame. As will be explained in Section\textcolor{red}{sec}, this frame is especially important, since it provides a measurement of the robot's IMU velocity in the world frame. In the case of legged robots, it is common to assume that contacts with the environment are fixed. Any point of a contact surface would thus be usable as an anchor point. However, in order to pick a unique point that remains valid as contacts are created and broken, and which respects as best as possible the zero-velocity criterion, we compute its kinematics through a weighted average of the kinematics of the current contact reference frames. This is shown in Figure~\ref{fig:framesAndAnchor}. \\
-The $i$-th contact's weighting coefficient $\lambda_{i}$ is defined as the ratio of its measured reaction force $\boldsymbol{F}_{i}$ to the total reaction force across all contacts: $\lambda_{i}=\frac{\boldsymbol{F}_{i}}{\sum^{n_{c}}_{j=1}\boldsymbol{F}_{j}}$. \\ 
-As a contact weakens, its reaction force decreases, reducing its influence on the anchor point's kinematics. This helps mitigate slippage, since weaker contacts are more likely to violate Coulomb's assumption and slip. It is important to note that although the anchor point is defined to have zero velocity in the world, its pose may still evolve over time. \textcolor{red}{In discrete time, it has zero velocity? Maybe such a definition helps getting rid of the additional frame which coincides with it.}
+The weighting coefficients are defined such that weaker contacts, which are prone to violate Coulomb's inequality and thus to slip, contribute less to the anchor point's kinematics computation. Given $mg$ the weight of the robot, we first compute $u_{i} = \frac{\boldsymbol{F}_{i,z}}{\sqrt{\boldsymbol{F}_{i,z}^2 + \boldsymbol{F}_{i,z}^2} + \epsilon mg}$ the ratio of the normal force to the tangential force\footnote{The term $\epsilon$, arbitrarily small, allows to deal with the case where the tangential force is zero.} at the contact $i$. The contact's weighting coefficient $\lambda_{i}$ is then:
+\begin{equation}
+    \lambda_{i}=\frac{u_{i}}{\sum^{n_{c}}_{j=1}u_{i}}
+\end{equation}
+It is important to note that although the anchor point is defined to have zero velocity in the world, its pose may still evolve over time. \textcolor{red}{In discrete time, it has zero velocity? Maybe such a definition helps getting rid of the additional frame which coincides with it.}
 
 \begin{figure}[!t]
 \begin{center}
@@ -229,7 +261,7 @@ with ${^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}$ the position and ${^{
 \textcolor{red}{TODO}
 
 \section{Tilt Observer with proof of convergence}
-The proposed estimator relies on a highly accurate estimate of the IMU's tilt provided by a complementary filter, introduced in a previous work \textcolor{red}{citer}, which we will call \emph{Tilt Observer}. \textcolor{red}{As explained later, this estimator has the advantage }
+The proposed estimator relies on a highly accurate estimate of the IMU's tilt provided by a complementary filter, introduced in a previous work \textcolor{red}{citer}, which we will call \emph{Tilt Observer}. 
 
 \subsection{Definition of the State Variables}
 The Tilt Observer is able to provide estimates of the following two variables: 
@@ -279,14 +311,13 @@ As explained in \textcolor{red}{Cite}, the state dynamics of our system can be w
 \end{align} 
 We can then write a complementary filter which uses the system's dynamics as a feed-forward, and corrects the estimated state using the velocity measurement $\boldsymbol{y}_{v}$:
 \begin{align} 
-& \dot{\hat{\boldsymbol{x}}}_{1}  = - \left[\boldsymbol{y}_{g}\right]_{\times}\hat{\boldsymbol{x}}_{1} - g_{0} \hat{\boldsymbol{x}}_{2}^{\prime} + \boldsymbol{y}_{a} + \alpha_{1} \left(\boldsymbol{y}_{v} - \hat{\boldsymbol{x}}_{1}\right), \\
+& \dot{\hat{\boldsymbol{x}}}_{1}  = - \left[\boldsymbol{y}_{g}\right]_{\times}\hat{\boldsymbol{x}}_{1} - g_{0} \hat{\boldsymbol{x}}_{2}^{\prime} + \boldsymbol{y}_{a} + \alpha_{1} \left(\boldsymbol{y}_{v} - \hat{\boldsymbol{x}}_{1}\right), \label{x1_dot} \\
     & \dot{\hat{\boldsymbol{x}}}_{2}^{\prime} = - \left[\boldsymbol{y}_{g}\right]_{\times} \hat{\boldsymbol{x}}_{2} - \frac{\alpha_{2}}{g_{0}} \left(\boldsymbol{y}_{v} - \hat{\boldsymbol{x}}_{1}\right), \\
     & \dot{\hat{\boldsymbol{x}}}_{2} = - \left[\boldsymbol{y}_{g} - \gamma \left[\hat{\boldsymbol{x}}_{2}\right]_{\times}\hat{\boldsymbol{x}}_{2}^{\prime}\right]_{\times} \hat{\boldsymbol{x}}_{2}.
 \end{align} 
 $\alpha_1$, $\alpha_2$ and $\gamma$ are positive scalar gains. $\hat{\boldsymbol{x}}_{1} $ and $\hat{\boldsymbol{x}}_{2} $ are estimates of $\boldsymbol{x}_{1} $ and $\boldsymbol{x}_{2} $, respectively. 
 
 The particularity of the Tilt Observer, in comparison to similar complementary filters (e.g. \textcolor{red}{Martin2016}), is the use of an intermediate estimate of the tilt, denoted $\hat{\boldsymbol{x}}_{2}^{\prime}$. This intermediate variable allows for a fast convergence of $\hat{\boldsymbol{x}}_{2}$, while making sure it remains on the unit sphere. 
-
 
 
 % \begin{alignat}{2}
@@ -296,7 +327,7 @@ The particularity of the Tilt Observer, in comparison to similar complementary f
 % \end{alignat}
 
 \subsection{Advantages of the Tilt Observer}
-The Tilt Observer presents notable advantages. First, one iteration of the filter only consists in computing three equations, and is thus extremely computationally cheap, as will be shown in \textcolor{red}{Section}. Second, in comparison to the other state estimation frameworks like Kalman Filters, the use of a complementary filter allows to conduct a convergence analysis of the estimation error, providing strong mathematical guarantees on the estimator's performances. Expecially here, it has been shown in \textcolor{red}{Cite} that:
+The use of a complementary filter for the Tilt Observer presents notable strengths in comparison to other methods like the commonly used Kalman Filter. First, it allows us to work in the frequency domain. This is particularily suitable for our model since the assumption of fixed contacts used to obtain the velocity measurement $\boldsymbol{y}_v$ is more valid in low frequency than in high frequency. In~\eqref{eq:x1_dot}, we thus use the IMU measurements for the high frequency variation of $\hat{\boldsymbol{x}}_{1}$, and $\boldsymbol{y}_v$ for its low frequency variation. Second, one iteration of the filter only consists in computing three equations, and is thus extremely computationally cheap, as will be shown in \textcolor{red}{Section}. Finally, the formulation as a complementary filter allows to conduct a convergence analysis of the estimation error, providing strong mathematical guarantees on the estimator's performances. Especially here, it has been shown in \textcolor{red}{Cite} that:
 \begin{itemize}
     \item The dynamics of the estimation error is autonomous, and thus does not depend on the state. 
     \item The intermediate estimator $\left\{\hat{\boldsymbol{x}}_{1}, \hat{\boldsymbol{x}}_{2}^{\prime} \right\}$ is \emph{globally exponentially stable}, with respect to the origin $\left(0,0\right)$.
@@ -305,38 +336,28 @@ The Tilt Observer presents notable advantages. First, one iteration of the filte
 
 \section{Leg Odometry}
 
-The position and yaw of the IMU's frame in the world frame is obtained using Leg odometry. The latter consists in using contacts as fixed references in the world. Once a contact $i$ is created, its pose is obtained by forward kinematics from the current IMU's frame pose and the robot's joint encoders. This initial pose, which we call the contact's reference pose $\left\{ \boldsymbol{p}^{\star}_{\mathcal{C}_{i}}, \boldsymbol{R}^{\star}_{\mathcal{C}_{i}}\right\}$, is then considered constant, allowing to recover the pose of the IMU's frame in the world frame. The advantage of Leg odometry over other methods like Inertial odometry, is that it is not subject to drift, due to the integration of noise for example. However, it is sensitive to other factors, such as contact slippage, the structural deformation of the robot under contact forces, and the reliability of the   In our case we use the IMU's information to recover the tilt which is observable within the Tilt Observer.
+While the tilt of the IMU's frame in the world frame is estimated by the Tilt Observer, its position and yaw are obtained using Leg odometry. Once a contact $i$ is created, its pose is obtained by forward kinematics from the current IMU's frame pose and the robot's joint encoders. This initial pose, which we call the contact's reference pose $\left\{ \boldsymbol{p}^{\star}_{\mathcal{C}_{i}}, \boldsymbol{R}^{\star}_{\mathcal{C}_{i}}\right\}$, is then considered constant, allowing to recover the pose of the IMU's frame in the world frame. 
+With the proposed pipeline, we thus leverage both the accuracy and mathematical guarantees provided by the Tilt Observer, and the robustness to drift provided by the Leg odometry. Similarly to the computation of the anchor point in Section~\ref{sec:anchor_point}, the contribution of contacts to the Leg odometry is weighted to trust more contacts which are the least prone to slippage.
 
-We update the orientation, then we update the position using the updated orientation.
+
+\textcolor{red}{What about using the force ratio even for the correction of contacts?}
 \subsection{Averaging of orientations and merging with tilt}
-Use of the axis-agnostic representation to merge the estimated tilt with the Leg odometry's yaw, without any axis preference.
 
-The orientation of the IMU's frame in the world frame is obtained from the reference orientation of the current contacts. For a contact $i$, we can write:
+To obtain the yaw from contact information, we compute the weighted average between the reference orientation of the two most reliable contacts. In our case, we assume they are the contacts with the highest measured reaction force, as explained in Section~\ref{sec:anchor_point}. For each contact $i$, we can write:
 \begin{equation}
     \boldsymbol{R}_{\mathcal{I}, i} = \boldsymbol{R}^{\star}_{\mathcal{C}_{i}} {}^{\mathcal{C}_{i}} \boldsymbol{R}_{\mathcal{I}} 
 \end{equation}
-To compute the average of two orientations, we first compute the error vector between them:
-
-\begin{equation}
-    \tilde{\boldsymbol{R}} = \boldsymbol{R}^{T}_{\mathcal{I}, 1} \boldsymbol{R}_{\mathcal{I}, 2}
-\end{equation}
-\begin{equation}
-    \tilde{\boldsymbol{v}} = \lambda_{2} \text{vec} \left(\tilde{\boldsymbol{R}}\right)
-\end{equation}
-
-
-
-\begin{equation}
-    \tilde{\boldsymbol{R}} = \text{exp} \left( \lambda_{2} \text{log} \left( \boldsymbol{R}^{T}_{\mathcal{I}, 1} \boldsymbol{R}_{\mathcal{I}, 2} \right) \right)
-\end{equation}
-
-\begin{equation}
-\boldsymbol{R}_{\mathcal{I}, \text{avg}} = \boldsymbol{R}_{\mathcal{I}, 1} \text{exp} \left( \lambda_{2} \text{vec}\left(\text{log} \left( \tilde{\boldsymbol{R}}\right)\right)  \right).
-\end{equation}
-exp and log are the \emph{exponential} and \emph{logarithm} maps of SO(3) the Lie Group of rotation matrices. We note that for small angles, we can use the approximation:
+We then compute the average $\boldsymbol{R}_{\mathcal{I}, \text{avg}}$ between both contacts using the formalism defined by SO(3) the Lie group of rotation matrices:
+\begin{align}
+    &\tilde{\boldsymbol{R}} = \boldsymbol{R}^{T}_{\mathcal{I}, 1} \boldsymbol{R}_{\mathcal{I}, 2}  \\
+ & \boldsymbol{R}_{\mathcal{I}, \text{avg}} = \boldsymbol{R}_{\mathcal{I}, 1} \text{exp} \left( \lambda_{2} \text{vec}\left(\text{log} \left( \tilde{\boldsymbol{R}}\right)\right)  \right).
+\end{align}
+exp and log are the \emph{exponential} and \emph{logarithm} maps of SO(3). We note that for small angles, we can use the approximation:
 \begin{equation}
 log\left(\tilde{\boldsymbol{R}}\right) = \frac{1}{2} \left(\tilde{\boldsymbol{R}}-\tilde{\boldsymbol{R}}^{T}\right), \label{eq:log_small}
 \end{equation}
+Once the average orientation has been computed, we 
+
 
 \textcolor{red}{Check if Log or log.}
 \textcolor{red}{In the implementation, i don't do $R-R^T$}
@@ -355,21 +376,31 @@ log\left(\tilde{\boldsymbol{R}}\right) = \frac{1}{2} \left(\tilde{\boldsymbol{R}
 %             stateObservation::kine::Orientation(diffRotAngleAxis).toMatrix3(); // exp( (1 - u) * log(R1^T R2) )
             
 \subsection{Averaging of positions}
+We use the updated orientation.
 \begin{equation}
     \boldsymbol{p}_{\mathcal{I}} = \boldsymbol{p}_{\mathcal{A}} - \boldsymbol{R}_{\mathcal{I}} {}^{\mathcal{I}}\boldsymbol{p}_{\mathcal{A}} 
 \end{equation}
 
 \section{Experimental evaluation}
 
-We take less into account weak contacts so maybe we are also better under slippage, so we should maybe test it.
+The proposed estimator has been evaluated accross two experimental scenarios on two different humanoid robots\footnote{we used the dataset built to evaluate the Kinetics Observer in \textcolor{red}{cite}}:
+\begin{itemize}
+    \item a walk on a flat ground over about 18 meters with the robot RHP Friends. This experiment was repeated 5 times, for a total distance of about 90 meters. 
+    \item a multi-contact motion over about 2 meters with the robot HRP-5P. This motion involved an additional contact at the robot's left hand, and contacts on tilted obstacles. This experiments was repeated 4 times for a total distance of about 8 meters.
+\end{itemize}
 
+We compare Valinor, our proposed estimator, with the Right-Invariant EKF (RI-EKF) by \textcolor{red}{Hartley2020RIEKF}. For a fair comparison, both estimators received the same contact state information, obtained from a Schmitt Trigger applied to force sensor data (with thresholds set to 10\% and 15\% of the robot's weight).
+Ground truth pose is obtained from a motion capture system (OptiTrack, 16 Prime\textsuperscript{X} 13 cameras), and ground truth velocity is computed via finite differences and filtered with a zero-phase low-pass filter.
 
-\subsection{Walk on flat floor}
-Show table and plot of pose and vel. Focus on tilt.
+The odometry performance of Valinor and the RI-EKF is evaluated against the ground truth trajectory using the Absolute Trajectory Error (ATE) and Relative Error (RE), as defined in \textcolor{red}{Zhang2018QuantitativeTrajectoryEvaluation}. ATE is computed after realigning the estimated trajectory to the ground truth, in order to minimize the squared error between them. The mean ATE allows to quantify the global consistency and fidelity of the estimated trajectory to the actual one, completed by its standard deviation which highlights the presence of large deviations. RE evaluates the estimation drift over segments of fixed distances. It is particularly relevant for proprioceptive odometry, as it is not affected by global drift, which is unavoidable without exteroceptive sensors. RE therefore provides valuable and easily interpretable insight into the expected local accuracy of the estimator over a given distance.
+
+We compute separately the ATE and RE for lateral ($\boldsymbol{x}, \boldsymbol{y}$) and vertical ($\boldsymbol{z}$) translations, since these components are generally influenced by different factors. Accuracy in lateral translation would mainly rely on that of local displacements and yaw estimation, whereas accuracy in vertical translations would be affected by the accuracy of the estimation of the vertical local displacement, of the tilt, and the reliability of the contact height initialization. Similarily, angular errors in tilt and yaw are also evaluated independently.
+
+Finally, we also assess the estimation of the IMU's linear velocity in the world. This velocity is expressed in the frame of the IMU such that it is not affected by errors in the orientation estimate. The velocity error is also separated into lateral and vertical components.
 
 \subsection{Multi-contact}
 
-
+We evaluated the performances of Valinor over a multi-contact motion, implying 
 
 \begin{table*}[!b] 
 \vskip -0.75pc
@@ -384,18 +415,18 @@ Show table and plot of pose and vel. Focus on tilt.
             \hline
             \multirow{4}{*}{}          &       \multicolumn{4}{c|}{Translation [m]}         &    \multicolumn{4}{c|}{Orientation $[^{\circ}]$}  &    \multicolumn{2}{c|}{Linear velocity $[\text{m.s}^{-1}]$}     \\     
             \cline{2-11}
-                        &    \multicolumn{2}{c|}{Lateral}    &     \multicolumn{2}{c|}{Vertical}      &     \multicolumn{2}{c|}{\{roll, pitch\}}    &    \multicolumn{2}{c|}{yaw}    &   Lateral  &  Vertical \\ 
+                        &    \multicolumn{2}{c|}{Lateral}    &     \multicolumn{2}{c|}{Vertical}      &     \multicolumn{2}{c|}{Tilt}    &    \multicolumn{2}{c|}{Yaw}    &   Lateral  &  Vertical \\ 
                         &    \multicolumn{2}{c|}{ \{$\boldsymbol{x}, \boldsymbol{y}$\}}    &     \multicolumn{2}{c|}{$\boldsymbol{z}$}      &     \multicolumn{2}{c|}{}    &    \multicolumn{2}{c|}{}    &   \{$\boldsymbol{x}, \boldsymbol{y}$\}  &  $\boldsymbol{z}$ \\
             \cline{2-11}
                         &    $\text{ATE}_{\left\{\boldsymbol{x}, \boldsymbol{y}\right\}}$  &    $\text{RE}_{\left\{\boldsymbol{x}, \boldsymbol{y}\right\}}$   &    $\text{ATE}_{\boldsymbol{z}}$      &     $\text{RE}_{\boldsymbol{z}}$   &    $\text{ATE}_{\left\{\text{r, p}\right\}}$  & $\text{RE}_{\left\{\text{r, p}\right\}}$ &  $\text{ATE}_{\text{yaw}}$ &  $\text{RE}_{\text{yaw}}$  &   $\text{Vel}_{\left\{\boldsymbol{x}, \boldsymbol{y}\right\}}$  &  $\text{Vel}_{\boldsymbol{z}}$  \\
             \hline     
             
-            Valinor       &  \getErrorResult{Multicontact}{Kowithoutwrenchsensors}{AbserrorHrpeMulticontactA}{Transxy}{Meanabs}   &  \textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Relerror}{Transxy}{Meanabs}}  &  \textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{AbserrorHrpeMulticontactA}{Transz}{Meanabs}}  &  \textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Relerror}{Transz}{Meanabs}}   &  \textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{AbserrorHrpeMulticontactA}{Tilt}{Meanabs}}     &  \textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Relerror}{Tilt}{Meanabs}}    &   \textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{AbserrorHrpeMulticontactA}{Yaw}{Meanabs}}    &    \textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Relerror}{Yaw}{Meanabs}}     &  \getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Velerror}{EstimateXy}{Meanabs}    &   \textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Velerror}{EstimateZ}{Meanabs}}  \\ 
-            (Proposed) &   (\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{AbserrorHrpeMulticontactA}{Transxy}{Std})   &   (\textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Relerror}{Transxy}{Std}})   &  (\textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{AbserrorHrpeMulticontactA}{Transz}{Std}})  &     (\textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Relerror}{Transz}{Std}})    &       (\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{AbserrorHrpeMulticontactA}{Tilt}{Std})   &   (\textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Relerror}{Tilt}{Std}})   &      (\textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{AbserrorHrpeMulticontactA}{Yaw}{Std}})  &    (\textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Relerror}{Yaw}{Std}})   &  (\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Velerror}{EstimateXy}{Std})   &   (\textbf{\getErrorResult{Multicontact}{Kowithoutwrenchsensors}{Velerror}{EstimateZ}{Std}})  \\ 
+            Valinor       &  \textbf{\getErrorResult{Multicontact}{Tilt}{AbserrorHrpeMulticontactA}{Transxy}{Meanabs}}   &  \textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Transxy}{Meanabs}}  &  \getErrorResult{Multicontact}{Tilt}{AbserrorHrpeMulticontactA}{Transz}{Meanabs}  &  \textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Transz}{Meanabs}}   &  \textbf{\getErrorResult{Multicontact}{Tilt}{AbserrorHrpeMulticontactA}{Tilt}{Meanabs}}     &  \textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Tilt}{Meanabs}}    &   \textbf{\getErrorResult{Multicontact}{Tilt}{AbserrorHrpeMulticontactA}{Yaw}{Meanabs}}    &    \textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Yaw}{Meanabs}}     &  \getErrorResult{Multicontact}{Tilt}{Velerror}{EstimateXy}{Meanabs}    &   \textbf{\getErrorResult{Multicontact}{Tilt}{Velerror}{EstimateZ}{Meanabs}}  \\ 
+            (Proposed) &   (\getErrorResult{Multicontact}{Tilt}{AbserrorHrpeMulticontactA}{Transxy}{Std})   &   (\textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Transxy}{Std}})   &  (\getErrorResult{Multicontact}{Tilt}{AbserrorHrpeMulticontactA}{Transz}{Std})  &     (\textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Transz}{Std}})    &       (\textbf{\getErrorResult{Multicontact}{Tilt}{AbserrorHrpeMulticontactA}{Tilt}{Std}})   &   (\textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Tilt}{Std}})   &      (\textbf{\getErrorResult{Multicontact}{Tilt}{AbserrorHrpeMulticontactA}{Yaw}{Std}})  &    (\textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Yaw}{Std}})   &  (\getErrorResult{Multicontact}{Tilt}{Velerror}{EstimateXy}{Std})   &   (\textbf{\getErrorResult{Multicontact}{Tilt}{Velerror}{EstimateZ}{Std}})  \\ 
             \hline 
 
-            \multirow{2}{*}{RI-EKF \cite{1}}    &  \getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Transxy}{Meanabs}   &  \getErrorResult{Multicontact}{Hartley}{Relerror}{Transxy}{Meanabs}  &  \getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Transz}{Meanabs}  &  \getErrorResult{Multicontact}{Hartley}{Relerror}{Transz}{Meanabs}   &  \getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Tilt}{Meanabs}     &  \getErrorResult{Multicontact}{Hartley}{Relerror}{Tilt}{Meanabs}    &   \getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Yaw}{Meanabs}    &    \getErrorResult{Multicontact}{Hartley}{Relerror}{Yaw}{Meanabs}   &  \textbf{\getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateXy}{Meanabs}}    &   \getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateZ}{Meanabs}  \\ 
-            &   (\textbf{\getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Transxy}{Std}})   &   (\getErrorResult{Multicontact}{Hartley}{Relerror}{Transxy}{Std})   &  (\getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Transz}{Std})  &     (\getErrorResult{Multicontact}{Hartley}{Relerror}{Transz}{Std})    &       (\getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Tilt}{Std})   &   (\getErrorResult{Multicontact}{Hartley}{Relerror}{Tilt}{Std})   &      (\getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Yaw}{Std})  &    (\getErrorResult{Multicontact}{Hartley}{Relerror}{Yaw}{Std})    &  (\textbf{\getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateXy}{Std}})    &   (\getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateZ}{Std})  \\ 
+            \multirow{2}{*}{RI-EKF \cite{1}}    &  \getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Transxy}{Meanabs}   &  \getErrorResult{Multicontact}{Hartley}{Relerror}{Transxy}{Meanabs}  &  \textbf{\getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Transz}{Meanabs}}  &  \getErrorResult{Multicontact}{Hartley}{Relerror}{Transz}{Meanabs}   &  \getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Tilt}{Meanabs}     &  \getErrorResult{Multicontact}{Hartley}{Relerror}{Tilt}{Meanabs}    &   \getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Yaw}{Meanabs}    &    \getErrorResult{Multicontact}{Hartley}{Relerror}{Yaw}{Meanabs}   &  \getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateXy}{Meanabs}    &   \getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateZ}{Meanabs}  \\ 
+            &   (\getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Transxy}{Std})   &   (\getErrorResult{Multicontact}{Hartley}{Relerror}{Transxy}{Std})   &  (\textbf{\getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Transz}{Std}})  &     (\getErrorResult{Multicontact}{Hartley}{Relerror}{Transz}{Std})    &       (\getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Tilt}{Std})   &   (\getErrorResult{Multicontact}{Hartley}{Relerror}{Tilt}{Std})   &      (\getErrorResult{Multicontact}{Hartley}{AbserrorHrpeMulticontactA}{Yaw}{Std})  &    (\getErrorResult{Multicontact}{Hartley}{Relerror}{Yaw}{Std})    &  (\getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateXy}{Std})    &   (\getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateZ}{Std})  \\ 
             \hline     
         \end{tabu}
     \end{center}
@@ -403,6 +434,62 @@ Show table and plot of pose and vel. Focus on tilt.
 \end{center}
 \vskip -0.25pc
 \end{table*}
+
+
+
+
+
+\subsection{Walk on flat floor}
+Show table and plot of pose and vel. Focus on tilt.
+
+\begin{figure}[!t]
+\begin{center}
+\includegraphics[width=\columnwidth]{Uploaded/Images/3d_traj.pdf} 
+\vskip -0.5pc
+\caption{Tilt}\label{fig:3d_traj}
+\end{center}
+\vskip -1.5pc
+\end{figure}
+
+We can see from Table~\ref{tab:flat-odometry-results} that the yaw estimation made by the RI-EKF is slightly better than that of Valinor. We explain this by the fact this orientation comes only from 
+
+
+\begin{table*}[!b] 
+\vskip -0.75pc
+\setlength{\extrarowheight}{0.5ex}
+\setlength{\tabcolsep}{1pt}
+\caption{Mean and standard deviation (in parentheses) of errors computed during the flat odometry. The 1 m Relative Error is represented. The best results for each metric are highlighted in bold.} \label{tab:flat-odometry-results}
+\begin{center}
+\vskip -1.25pc
+{\footnotesize
+    \begin{center}
+        \begin{tabu}to\linewidth{| X[c] || X[c] | X[c] | X[c] | X[c] | X[c] | X[c] | X[c] | X[c] | X[c] | X[c] |}
+            \hline
+            \multirow{4}{*}{}          &       \multicolumn{4}{c|}{Translation [m]}         &    \multicolumn{4}{c|}{Orientation $[^{\circ}]$}  &    \multicolumn{2}{c|}{Linear velocity $[\text{m.s}^{-1}]$}     \\     
+            \cline{2-11}
+                        &    \multicolumn{2}{c|}{Lateral}    &     \multicolumn{2}{c|}{Vertical}      &     \multicolumn{2}{c|}{Tilt}    &    \multicolumn{2}{c|}{Yaw}    &   Lateral  &  Vertical \\ 
+                        &    \multicolumn{2}{c|}{ \{$\boldsymbol{x}, \boldsymbol{y}$\}}    &     \multicolumn{2}{c|}{$\boldsymbol{z}$}      &     \multicolumn{2}{c|}{}    &    \multicolumn{2}{c|}{}    &   \{$\boldsymbol{x}, \boldsymbol{y}$\}  &  $\boldsymbol{z}$ \\
+            \cline{2-11}
+                        &    $\text{ATE}_{\left\{\boldsymbol{x}, \boldsymbol{y}\right\}}$  &    $\text{RE}_{\left\{\boldsymbol{x}, \boldsymbol{y}\right\}}$   &    $\text{ATE}_{\boldsymbol{z}}$      &     $\text{RE}_{\boldsymbol{z}}$   &    $\text{ATE}_{\left\{\text{r, p}\right\}}$  & $\text{RE}_{\left\{\text{r, p}\right\}}$ &  $\text{ATE}_{\text{yaw}}$ &  $\text{RE}_{\text{yaw}}$  &   $\text{Vel}_{\left\{\boldsymbol{x}, \boldsymbol{y}\right\}}$  &  $\text{Vel}_{\boldsymbol{z}}$  \\
+            \hline     
+            
+            Valinor       &  \getErrorResult{Flatodometry}{Tilt}{AbserrorKoTrobobdRhpsaA}{Transxy}{Meanabs}   &  \textbf{\getErrorResult{Flatodometry}{Tilt}{Relerror}{Transxy}{Meanabs}}  &  \textbf{\getErrorResult{Flatodometry}{Tilt}{AbserrorKoTrobobdRhpsaA}{Transz}{Meanabs}}  &  \textbf{\getErrorResult{Flatodometry}{Tilt}{Relerror}{Transz}{Meanabs}}   &  \textbf{\getErrorResult{Flatodometry}{Tilt}{AbserrorKoTrobobdRhpsaA}{Tilt}{Meanabs}}     &  \textbf{\getErrorResult{Flatodometry}{Tilt}{Relerror}{Tilt}{Meanabs}}    &   \textbf{\getErrorResult{Flatodometry}{Tilt}{AbserrorKoTrobobdRhpsaA}{Yaw}{Meanabs}}    &    \getErrorResult{Flatodometry}{Tilt}{Relerror}{Yaw}{Meanabs}     &  \getErrorResult{Flatodometry}{Tilt}{Velerror}{EstimateXy}{Meanabs}    &   \getErrorResult{Flatodometry}{Tilt}{Velerror}{EstimateZ}{Meanabs}  \\ 
+            (Proposed) &   (\getErrorResult{Flatodometry}{Tilt}{AbserrorKoTrobobdRhpsaA}{Transxy}{Std})   &   (\textbf{\getErrorResult{Flatodometry}{Tilt}{Relerror}{Transxy}{Std}})   &  (\textbf{\getErrorResult{Flatodometry}{Tilt}{AbserrorKoTrobobdRhpsaA}{Transz}{Std}})  &     (\textbf{\getErrorResult{Flatodometry}{Tilt}{Relerror}{Transz}{Std}})    &       (\textbf{\getErrorResult{Flatodometry}{Tilt}{AbserrorKoTrobobdRhpsaA}{Tilt}{Std}})   &   (\textbf{\getErrorResult{Flatodometry}{Tilt}{Relerror}{Tilt}{Std}})   &      (\textbf{\getErrorResult{Flatodometry}{Tilt}{AbserrorKoTrobobdRhpsaA}{Yaw}{Std}})  &    (\getErrorResult{Flatodometry}{Tilt}{Relerror}{Yaw}{Std})   &  (\getErrorResult{Flatodometry}{Tilt}{Velerror}{EstimateXy}{Std})   &   (\getErrorResult{Flatodometry}{Tilt}{Velerror}{EstimateZ}{Std})  \\ 
+            \hline 
+
+            \multirow{2}{*}{RI-EKF \cite{1}}    &  \textbf{\getErrorResult{Flatodometry}{Hartley}{AbserrorKoTrobobdRhpsaA}{Transxy}{Meanabs}}   &  \getErrorResult{Flatodometry}{Hartley}{Relerror}{Transxy}{Meanabs}  &  \getErrorResult{Flatodometry}{Hartley}{AbserrorKoTrobobdRhpsaA}{Transz}{Meanabs}  &  \getErrorResult{Flatodometry}{Hartley}{Relerror}{Transz}{Meanabs}   &  \getErrorResult{Flatodometry}{Hartley}{AbserrorKoTrobobdRhpsaA}{Tilt}{Meanabs}     &  \getErrorResult{Flatodometry}{Hartley}{Relerror}{Tilt}{Meanabs}    &   \getErrorResult{Flatodometry}{Hartley}{AbserrorKoTrobobdRhpsaA}{Yaw}{Meanabs}    &    \textbf{\getErrorResult{Flatodometry}{Hartley}{Relerror}{Yaw}{Meanabs}}   &  \textbf{\getErrorResult{Flatodometry}{Hartley}{Velerror}{EstimateXy}{Meanabs}}    &   \getErrorResult{Flatodometry}{Hartley}{Velerror}{EstimateZ}{Meanabs}  \\ 
+            &   (\textbf{\getErrorResult{Flatodometry}{Hartley}{AbserrorKoTrobobdRhpsaA}{Transxy}{Std}})   &   (\getErrorResult{Flatodometry}{Hartley}{Relerror}{Transxy}{Std})   &  (\getErrorResult{Flatodometry}{Hartley}{AbserrorKoTrobobdRhpsaA}{Transz}{Std})  &     (\getErrorResult{Flatodometry}{Hartley}{Relerror}{Transz}{Std})    &       (\getErrorResult{Flatodometry}{Hartley}{AbserrorKoTrobobdRhpsaA}{Tilt}{Std})   &   (\getErrorResult{Flatodometry}{Hartley}{Relerror}{Tilt}{Std})   &      (\getErrorResult{Flatodometry}{Hartley}{AbserrorKoTrobobdRhpsaA}{Yaw}{Std})  &    (\textbf{\getErrorResult{Flatodometry}{Hartley}{Relerror}{Yaw}{Std}})    &  (\textbf{\getErrorResult{Flatodometry}{Hartley}{Velerror}{EstimateXy}{Std}})    &   (\textbf{\getErrorResult{Flatodometry}{Hartley}{Velerror}{EstimateZ}{Std}})  \\ 
+            \hline     
+        \end{tabu}
+    \end{center}
+}
+\end{center}
+\vskip -0.25pc
+\end{table*}
+
+
+
+
 
 \subsection{Computation times comparison}
 
@@ -415,7 +502,7 @@ References should appear in a separate bibliography at the end of the paper, wit
 
 \section{CONCLUSION}
 
-Opening: include a correction of the contact pose references. 
+Opening: include a correction of the contact pose references.  Gyrometer and accelerometer biases.
 
 
 
