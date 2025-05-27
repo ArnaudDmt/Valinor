@@ -924,8 +924,8 @@ FUNCTION {article}
     }
   if$
   format.issn output
-  new.block
-  format.url output
+  % new.block
+  % format.url output
   new.block
   format.note output
   fin.entry
@@ -975,8 +975,8 @@ FUNCTION {booklet}
   address "address" bibinfo.check output
   format.date output
   format.isbn output
-  new.block
-  format.url output
+  % new.block
+  % format.url output
   new.block
   format.note output
   fin.entry
@@ -1017,8 +1017,8 @@ FUNCTION {inbook}
     { format.isbn output }
     'skip$
   if$
-  new.block
-  format.url output
+  % new.block
+  % format.url output
   new.block
   format.note output
   fin.entry
@@ -1045,8 +1045,8 @@ FUNCTION {incollection}
       format.chapter.pages output
     }
   if$
-  new.block
-  format.url output
+  % new.block
+  % format.url output
   new.block
   format.note output
   fin.entry
@@ -1077,8 +1077,8 @@ FUNCTION {inproceedings}
       format.pages output
     }
   if$
-  new.block
-  format.url output
+  % new.block
+  % format.url output
   new.block
   format.note output
   fin.entry
@@ -1115,8 +1115,8 @@ FUNCTION {manual}
   if$
   format.edition output
   format.date output
-  new.block
-  format.url output
+  % new.block
+  % format.url output
   new.block
   format.note output
   fin.entry
@@ -1133,8 +1133,8 @@ FUNCTION {mastersthesis}
   school "school" bibinfo.warn output
   address "address" bibinfo.check output
   format.date "year" output.check
-  new.block
-  format.url output
+  % new.block
+  % format.url output
   new.block
   format.note output
   fin.entry
@@ -1166,8 +1166,8 @@ FUNCTION {phdthesis}
   school "school" bibinfo.warn output
   address "address" bibinfo.check output
   format.date "year" output.check
-  new.block
-  format.url output
+  % new.block
+  % format.url output
   new.block
   format.note output
   fin.entry
@@ -1208,8 +1208,8 @@ FUNCTION {proceedings}
       format.date "year" output.check
   format.isbn output
   format.issn output
-  new.block
-  format.url output
+  % new.block
+  % format.url output
   new.block
   format.note output
   fin.entry
@@ -1226,8 +1226,8 @@ FUNCTION {techreport}
   institution "institution" bibinfo.warn output
   address "address" bibinfo.check output
   format.date "year" output.check
-  new.block
-  format.url output
+  % new.block
+  % format.url output
   new.block
   format.note output
   fin.entry
