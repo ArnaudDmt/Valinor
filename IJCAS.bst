@@ -79,7 +79,7 @@ FUNCTION {output.nonnull}
   output.state mid.sentence =
     { ", " * write$ }
     { output.state after.block =
-        { add.period$ write$
+        { write$
           newline$
           "\newblock " write$
         }
@@ -420,13 +420,14 @@ FUNCTION {format.names}
             }
           if$
         }
-        't
+        't 
       if$
       nameptr #1 + 'nameptr :=
       namesleft #1 - 'namesleft :=
     }
   while$
   } if$
+  
 }
 FUNCTION {format.names.ed}
 {
@@ -434,6 +435,7 @@ FUNCTION {format.names.ed}
 }
 FUNCTION {format.authors}
 { author "author" format.names
+"," * 
 }
 FUNCTION {get.bbl.editor}
 { editor num.names$ #1 > 'bbl.editors 'bbl.editor if$ }
@@ -495,8 +497,7 @@ FUNCTION {format.title}
   "title" bibinfo.check
   duplicate$ empty$ 'skip$
     {
-      "\enquote{" swap$ *
-      add.period$ "}" *
+      "\enquote{" swap$ * "," * "}" *
     }
   if$
 }
@@ -923,11 +924,11 @@ FUNCTION {article}
       format.pages output
     }
   if$
-  format.issn output
+  % format.issn output
   % new.block
   % format.url output
-  new.block
-  format.note output
+  % new.block
+  % format.note output
   fin.entry
 }
 FUNCTION {book}
@@ -1070,8 +1071,8 @@ FUNCTION {inproceedings}
         }
       if$
       format.date "year" output.check
-      format.isbn output
-      format.issn output
+      % format.isbn output
+      % format.issn output
     }
     { format.incoll.inproc.crossref output.nonnull
       format.pages output
@@ -1148,12 +1149,12 @@ FUNCTION {misc}
   howpublished new.block.checka
   howpublished "howpublished" bibinfo.check output
   format.date output
-  new.block
-  format.url output
-  new.block
-  format.note output
+  % new.block
+  % format.url output
+  % new.block
+  % format.note output
   fin.entry
-  empty.misc.check
+  % empty.misc.check
 }
 FUNCTION {phdthesis}
 { output.bibitem
@@ -1206,12 +1207,12 @@ FUNCTION {proceedings}
      }
   if$
       format.date "year" output.check
-  format.isbn output
-  format.issn output
+  % format.isbn output
+  % format.issn output
   % new.block
   % format.url output
-  new.block
-  format.note output
+  % new.block
+  % format.note output
   fin.entry
 }
 
