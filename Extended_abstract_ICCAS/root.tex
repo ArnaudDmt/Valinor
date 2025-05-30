@@ -1,0 +1,183 @@
+%% document class file for the preparation of a paper
+%% for the International Conference ICCAS 2020
+%% global option 'fleqn' ensures equations flush left.
+%% set '10pt' and 'twocolumn' options.
+
+\documentclass[10pt,twocolumn]{ICCAS}
+ 
+%%%%%%% set heading and page number hear %%%%%%%%%%
+% % Do not put page numbers for submission.
+%\setcounter{page}{101}
+
+\usepackage{diagbox}
+\usepackage{subcaption}
+\usepackage[hyphens]{url}  % Allows line breaks at hyphens
+\usepackage[colorlinks]{hyperref}
+\usepackage{array,tabularx}
+\usepackage{multicol} 
+\usepackage{multirow}
+
+\begin{document}
+
+\newcommand{\getErrorResult}[5]{\csname#1#2#3#4#5\endcsname}
+\input{Uploaded/metrics_results}
+
+\title{{\scshape Valinor}: a Lightweight Leg Inertial Odometry for Humanoid Robots}
+
+\author{Arnaud Demont*${}^{1,2,3}$, Mehdi Benallegue${}^{1}$, Thomas Duvinage${}^{1}$, and Abdelaziz Benallegue${}^{1,2,3}$}
+
+% \author{First A. Author${}^{1}$ and Second B. Author${}^{2*}$ }
+
+% \affils{ ${}^{1}$Department of Electrical Engineering, Hankook University, \\
+% Seoul, 13391, Korea (first@hankook.ac.kr) \\
+% ${}^{2}$Department of Mechanical Engineering, Hankook University, \\
+% Seoul, 13391, Korea (second@hankook.ac.kr) {\small${}^{*}$ Corresponding author}}
+
+\affils{
+${}^{1}$CNRS-AIST JRL (Joint Robotics Laboratory), IRL, National Institute of Advanced Industrial Science and Technology,\\  Tsukuba,  305-8560 Japan (arnaud.demont@aist.go.jp, mehdi.benallegue@aist.go.jp, thomas.duvinage@aist.go.jp). \\
+${}^{2}$Université Paris-Saclay,   91190 Gif-sur-Yvette, France.\\
+${}^{3}$Laboratoire d'Ingénierie des Systèmes de Versailles (LISV),\\   78140 Vélizy, France (arnaud.demont@uvsq.fr, abdelaziz.benallegue@uvsq.fr). \\ {\small${}^{*}$ Corresponding author}
+}
+
+
+\abstract{
+This article presents {\scshape Valinor} (Velocity-Aided Leg Inertial Nonlinear Odometry and Registration), a method for Leg-Inertial odometry for humanoid robots addressing the challenge of lightweight yet accurate and certifiable state estimation. {\scshape Valinor} associates Leg odometry with the Tilt Observer, a computationally efficient complementary filter, which provides accurate estimates of the IMU's tilt and linear velocity with strong mathematical convergence guarantees. We introduce an axis-agnostic method for the fusion of the Leg odometry's yaw with the Tilt Observer's tilt estimate. We argue that this method is less arbitrary and more mathematically sound than those based on other orientation representations, especially on Euler angles.
+We present an evaluation of the proposed estimator through real-world data on two humanoid robots. We show that, while being 7.5 times faster than the state-of-the-art method used for comparison, {\scshape Valinor} improves tilt estimation by over 25\%, making it a well-suited feedback for balance and walking controllers. 
+}
+
+\keywords{
+    Lightweight state estimation, Humanoid robots, Proprioceptive odometry, Tilt estimation, Balancing.
+}
+
+\maketitle
+
+%-----------------------------------------------------------------------
+
+\section{Introduction}
+
+Humanoid robot navigation in real-world environments remains a core challenge in robotics. Deploying robots at scale in society and industry requires strong guarantees on their ability to plan motion, and execute actions in real time, in order to ensure safe, predictable, and certifiable behavior.
+
+In the meantime, methods for motion generation continue to gain in complexity and capability. Notably, Model Predictive Control (MPC)~\cite{Dallard2024AdiosStabilizers} and reinforcement learning-based controllers~\cite{Peters2003ReinforcmentLearningForHumanoid} are becoming more prevalent due to their ability to handle long-horizon planning, complex dynamics, and to their versatility. However, these advances come at the cost of increased computational complexity, running them in real-time on resource-limited platforms like embedded systems thus becomes challenging~\cite{findeisen2004computationalDelayNMPC}. Since the control part is getting heavier, one practical solution is to reduce the computational load of other parts of the pipeline. 
+
+The state estimation part is one of the cornerstones of the pipeline, since other components depend on its output and often have to wait for it before executing, and thus cannot run in parallel. For this reason, there is a need for lightweight state estimation methods, which focus on improving the estimation of key variables at high frequency using the proprioceptive sensors readily available on the robot. The most common sensors for humanoids are joint encoders, inertial measurement units (IMUs) and contact force sensors such as FSR or force/torque sensors.
+
+In this work we propose {\scshape Valinor} (Velocity-Aided Leg Inertial Nonlinear Odometry and Registration), a method for Leg-Inertial odometry for legged robots, which relies on a highly accurate tilt estimate provided by a nonlinear complementary filter~\cite{benallegue2020LyapunovStableOrientationEstimatorHumanoids}. This complementary filter allows for a much faster computation than the conventionally used Kalman Filter (e.g.~\cite{Hartley2020RIEKF}), and offers mathematical convergence guarantees on the tilt and linear velocity estimate. \\
+The main contributions introduced in this paper are as follows:
+\begin{itemize}
+  \item The proposed state estimator is 7.5 times faster than the start-of-the-art method for proprioceptive odometry, while displaying on par odometry accuracy, and even improving significantly tilt estimation.
+  \item We present the axis-agnostic tilt and yaw fusion, which we show to be more mathematically sound than that based on Euler angle representations.
+  \item We evaluate the proposed method on real experiments with two different humanoid robots.
+  \item The code of the Tilt Observer is open source\footnote{\scriptsize \url{https://github.com/ArnaudDmt/state-observation}}, as well as a ROS wrapper\footnote{\scriptsize \url{https://github.com/ArnaudDmt/state_observation_ros.git}}.
+\end{itemize}
+
+\section{Tilt Observer with Proof of Convergence} \label{sec:Tilt}
+The robot's tilt is estimated by the \emph{Tilt Observer}, which relies on the signals from an IMU and on a linear velocity measurement. We obtain the latter from the \emph{anchor point}, an approximation of the point attached to the robot with the velocity the closest to zero. We compute this point with a weighted average between the contact positions, taking more into account contacts which are the least prone to slip. By using this information coming from contacts, the Tilt Observer provides an accurate tilt estimate whose convergence is mathematically proven, providing strong accuracy guarantees.
+
+\section{Leg Odometry for Position and Yaw Estimation}\label{sec:Leg_odom}
+
+While the tilt of the IMU's frame in the world frame is estimated by the Tilt Observer, its position and yaw are obtained using Leg odometry. Once a contact is created, its initial pose in the world is obtained by forward kinematics from the current IMU's frame pose and the robot's joint encoders. We call it the contact's \emph{reference} pose $\left\{ \boldsymbol{p}^{\star}_{\mathcal{C}}, \boldsymbol{R}^{\star}_{\mathcal{C}}\right\}$, which we consider constant to enforce the contact's anchoring role. This pose is then used to recover the pose of the IMU's frame in the world frame. 
+With the proposed pipeline, we thus leverage both the accuracy and mathematical guarantees provided by the Tilt Observer, and the robustness to drift provided by the Leg odometry. Similarly to the computation of the anchor point, the contribution of contacts to the Leg odometry is weighted to trust more contacts which are the least prone to slippage, in order to mitigate its effect.
+
+\section{Tilt--Yaw Fusion}
+The Tilt Observer provides an accurate
+estimate of the IMU \emph{tilt}
+\(
+  \boldsymbol{\ell}=\boldsymbol{R}_{1}^{\top}\boldsymbol{e}_{z},
+\)
+while the contact–based Leg odometry supplies an orientation \(\boldsymbol{R}_{2}\) whose
+yaw reflects the robot heading.  We now merge these two pieces into a
+single rotation \(\boldsymbol{R}\).
+
+Classically in these situations, the Euler angles representation of the rotations would be used. 
+Despite the simplicity of this method, its rests on two tacit assumptions that are seldom met in the Leg–Inertial setting considered
+here:
+
+\begin{itemize}
+\item The optimality of this fusion is defined with
+      respect to the IMU axis $\boldsymbol{e}_{x}$ only.  
+      This makes sense when $\boldsymbol{e}_{x}$ \emph{is} the heading
+      carrier, for example with a GPS-based heading for wheeled vehicles.  
+      In practice the IMU can be installed with an arbitrary yaw
+      offset, and our yaw information actually comes from Leg odometry (average contact frames), not from
+      that axis.  Treating $\boldsymbol{e}_{x}$ as ``special'' therefore
+      introduces a systematic bias.
+
+\item Because this fusion uses a ZYX decomposition of
+      $\boldsymbol{R}_{1}$, it inherits the Euler-angle singularity at
+      $\theta_{1}= \pm 90^{\circ}$.  
+      Exactly there the pitch axis aligns with
+      $\boldsymbol{e}_{z}$, roll and yaw collapse, and the horizontal
+      projection of $\boldsymbol{e}_{x}$ disappears, leaving the yaw
+      numerically indeterminate.  
+      Such attitudes are frequent in humanoids that perform
+      multicontact motions.
+\end{itemize}
+
+To avoid these two issues we adopt an \emph{axis-agnostic} fusion of tilt and yaw that
+uses solely the measured tilt $\boldsymbol{\ell}$ and allows any horizontal
+vector to encode yaw.
+
+\section{Experimental Evaluation}
+
+The proposed estimator has been compared to the state-of-the-art RI-EKF~\cite{Hartley2020RIEKF}, accross two experimental scenarios on two different humanoid robots:
+\begin{itemize}
+    \item Experiment 1: A walk on a flat ground over about 18 meters with the robot RHP Friends. This experiment was repeated 5 times, for a total distance of about 90 meters.
+    \item Experiment 2: A multi-contact motion over about 2 meters with the robot HRP-5P. This motion involved an additional contact at the robot's left hand, and non-coplanar contacts on tilted obstacles. This experiment was repeated 4 times for a total distance of about 8 meters.
+\end{itemize}
+
+We first evaluated the computation speed performance of the proposed estimator on a laptop with an Intel Xeon E-2176M CPU (2.70GHz x 12), over the four multi-contact experiments. In average, an iteration of {\scshape Valinor} was computed in 2.547 \textmu s, against 19.315 \textmu s for the RI-EKF. It is thus more than 7.5 times faster, while proposing equivalent estimation accuracy, or even improving the estimation of key variables, as shown in Table~\ref{tab:estimation_eval}.
+\begin{table}[h!] 
+\setlength{\extrarowheight}{0.6ex}
+\addtolength{\tabcolsep}{-0.4em}
+\caption{Mean and standard deviation (in parentheses) of the estimation errors during the four trials of Experiment 2. RE is the The 0.3 m Relative Error. } \label{tab:estimation_eval}
+{\footnotesize
+    \begin{center}
+        \begin{tabu}to\linewidth{| X[c] | X[c] | X[c] | X[c] | X[c] | X[c] | X[c] |}
+            \hline
+                  &       \multicolumn{2}{c|}{RE Translation}         &    \multicolumn{2}{c|}{RE Orientation}  &    \multicolumn{2}{c|}{Linear velocity}     \\     
+
+            &       \multicolumn{2}{c|}{[m]}         &    \multicolumn{2}{c|}{ [\textdegree] }  &    \multicolumn{2}{c|}{[$\text{m.s}^{-1}$]}     \\     
+                  
+            \cline{2-7}
+              &     Lateral    &      Vertical      &   \multirow{2}{*}{Tilt}      &     \multirow{2}{*}{Yaw}    &  Lateral  &  Vertical \\ 
+              &    \{$\boldsymbol{x}, \boldsymbol{y}$\}    &     $\boldsymbol{z}$      &      &      &   \{$\boldsymbol{x}, \boldsymbol{y}$\}  &  $\boldsymbol{z}$ \\
+            \hline     
+            \multirow{2}{*}{Ours}  &  \textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Transxy}{Meanabs}}  &  \textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Transz}{Meanabs}}   &    \textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Tilt}{Meanabs}}    &    \textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Yaw}{Meanabs}}     &  \getErrorResult{Multicontact}{Tilt}{Velerror}{EstimateXy}{Meanabs}    &   \textbf{\getErrorResult{Multicontact}{Tilt}{Velerror}{EstimateZ}{Meanabs}}  \\ 
+               &  (\getErrorResult{Multicontact}{Tilt}{Relerror}{Transxy}{Std})   &      (\getErrorResult{Multicontact}{Tilt}{Relerror}{Transz}{Std})      &   (\getErrorResult{Multicontact}{Tilt}{Relerror}{Tilt}{Std})   &     (\getErrorResult{Multicontact}{Tilt}{Relerror}{Yaw}{Std})   &  (\getErrorResult{Multicontact}{Tilt}{Velerror}{EstimateXy}{Std})   &   (\getErrorResult{Multicontact}{Tilt}{Velerror}{EstimateZ}{Std})  \\ 
+            \hline
+            RI-EKF  &  \getErrorResult{Multicontact}{Hartley}{Relerror}{Transxy}{Meanabs}  &   \getErrorResult{Multicontact}{Hartley}{Relerror}{Transz}{Meanabs}   &    \getErrorResult{Multicontact}{Hartley}{Relerror}{Tilt}{Meanabs}    &    \getErrorResult{Multicontact}{Hartley}{Relerror}{Yaw}{Meanabs}   &  \textbf{\getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateXy}{Meanabs}}    &   \getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateZ}{Meanabs}  \\ 
+            \cite{Hartley2020RIEKF} & (\getErrorResult{Multicontact}{Hartley}{Relerror}{Transxy}{Std})    &     (\getErrorResult{Multicontact}{Hartley}{Relerror}{Transz}{Std})    &     (\getErrorResult{Multicontact}{Hartley}{Relerror}{Tilt}{Std})   &    (\getErrorResult{Multicontact}{Hartley}{Relerror}{Yaw}{Std})    &  (\getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateXy}{Std})    &   (\getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateZ}{Std})  \\ 
+            \hline     
+        \end{tabu}
+    \end{center}
+}
+\end{table}
+
+These results show that {\scshape Valinor} improved the estimation of lateral translations by over 40\% compared to the RI-EKF, and improved that of the robot's tilt by 60\%. For both translations and tilt estimates, our method displayed a significantly lower standard deviation of the error, proving an improved estimation consistency. 
+
+
+%%%%%%%%%%%%%%%%% BIBLIOGRAPHY IN THE LaTeX file !!!!! %%%%%%%%%%%%%%%%%%%%%%
+%%---------------------------------------------------------------------------%%
+%
+% \begin{thebibliography}{99}
+
+% \bibitem{ref1}
+% J. H. Bong, ``Controlling the parasite,'' in \textit{Proc. of International Conference on Control, Automation and Systems}, pp. 0209-0210, 2020
+
+
+% \bibitem{ref2}
+% A. Alice and B. Bob, ``Nonlinear unstable systems,'' \textit{International Journal of Control, Automation, and Systems}, vol. 23, no. 4, pp. 123–145, 1989.
+
+% \bibitem{ref3}
+% M. Young, \textit{The Technical Writer's Handbook}, Mill Valley, Seoul, 1989.
+
+
+
+% \end{thebibliography}
+% %
+% %%--------------------------------------------------------------------%%
+
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv, Uploaded/Bibliography}
+
+\end{document}

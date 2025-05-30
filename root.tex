@@ -57,17 +57,17 @@ We present an evaluation of the proposed estimator through real-world data on tw
 \end{abstract}
 
 \begin{keywords}
-  lightweight state estimation, humanoid robots, proprioceptive odometry, tilt estimation, balancing.
+  Lightweight state estimation, Humanoid robots, Proprioceptive odometry, Tilt estimation, Balancing.
 \end{keywords}
 
 \maketitle
 
 \makeAuthorInformation{
-A. Demont, M. Benallegue and A. Benallegue are with the CNRS-AIST JRL (Joint Robotics Laboratory), IRL, National Institute of Advanced Industrial Science and Technology (AIST), 1-1-1 Umezono, Tsukuba, Ibaraki 305-8560 Japan. 
+A. Demont, M. Benallegue, T. Duvinage and A. Benallegue are with the CNRS-AIST JRL (Joint Robotics Laboratory), IRL, National Institute of Advanced Industrial Science and Technology (AIST), 1-1-1 Umezono, Tsukuba, Ibaraki 305-8560 Japan. 
 
 A. Demont and A. Benallegue are also with Université Paris-Saclay, 3 rue Joliot Curie, Bâtiment Breguet, 91190 Gif-sur-Yvette, France, and Laboratoire d'Ingénierie des Systèmes de Versailles, 10-12 avenue de l'Europe, 78140 Vélizy, France. 
 
-e-mails: arnaud.demont@aist.go.jp, mehdi.benallegue@aist.go.jp, abdelaziz.benallegue@uvsq.fr.
+e-mails: arnaud.demont@aist.go.jp, mehdi.benallegue@aist.go.jp, thomas.duvinage@aist.go.jp, abdelaziz.benallegue@uvsq.fr.
 
 * Corresponding author.
 }
@@ -80,19 +80,19 @@ e-mails: arnaud.demont@aist.go.jp, mehdi.benallegue@aist.go.jp, abdelaziz.benall
 \section{INTRODUCTION}
 
 
-Humanoid robot navigation in real-world environments remains a core challenge in robotics. For robots to be deployed at scale in society and industry, whether in healthcare facilities or warehouses, they must operate robustly in dynamic, unstructured, and human-centric environments~\cite{Kuindersma2015OptimizationBasedLocomAtlas}. This requires strong guarantees on their ability to plan motion, and execute actions in real time. In comparison to other legged robots, the control of humanoids is particularily difficult due to their complex underactuated dynamics controlled through contact with the environment~\cite{sugihara2020surveyDynamicsHumanoids}. Their control must therefore be as theoretically grounded as possible, in order to ensure safe, predictable, and certifiable behavior~\cite{Weng2022OnSafetyTestingLeggedRobots} \textcolor{red}{pas citer celui la}.
+Humanoid robot navigation in real-world environments remains a core challenge in robotics. For robots to be deployed at scale in society and industry, whether in healthcare facilities or warehouses, they must operate robustly in dynamic, unstructured, and human-centric environments~\cite{Kuindersma2015OptimizationBasedLocomAtlas}. This requires strong guarantees on their ability to plan motion, and execute actions in real time. In comparison to other legged robots, the control of humanoids is particularily difficult due to their complex underactuated dynamics controlled through contact with the environment~\cite{sugihara2020surveyDynamicsHumanoids}. Their control must therefore be as theoretically grounded as possible, in order to ensure safe, predictable, and certifiable behavior~\cite{chlipala2013CertifiedProgrammingCoq}.
 
-In the meantime, methods for motion generation continue to gain in complexity and capability. Notably, Model Predictive Control (MPC)~\cite{Katayama2023MpcLeggedHumanoid, Dantec2022WholeBodyMPCTorqueControl, Dallard2024AdiosStabilizers}, reinforcement learning-based controllers~\cite{Peters2003ReinforcmentLearningForHumanoid, Li2025RLVersatileDynamicRobustBipedalLocom}, and foundation models~\cite{Bjorck2025GrootN1, kawaharazuka2024RealWorldApplicationsFoundationModels} are becoming more prevalent due to their ability to handle long-horizon planning, complex dynamics, and to their versatility. However, these advances come at the cost of increased computational complexity, running them in real-time on resource-limited platforms like embedded systems thus becomes challenging~\cite{Zeilinger2014RealTimeRobustMPC, findeisen2004computationalDelayNMPC, Thodoroff2022BenchmarkingRealTimeRL, Firoozi2025FoundationModelsInRobotics}. Since the control part is getting heavier, one practical solution is to reduce the computational load of other parts of the pipeline. The state estimation part is one of its cornerstone of the pipeline, since other components depend on its output and often have to wait for it before executing, and thus cannot run in parallel. It is therefore especially critical to try and reduce the computation time of the state estimation part.
+In the meantime, methods for motion generation continue to gain in complexity and capability. Notably, Model Predictive Control (MPC)~\cite{Katayama2023MpcLeggedHumanoid, Dantec2022WholeBodyMPCTorqueControl, Dallard2024AdiosStabilizers}, reinforcement learning-based controllers~\cite{Peters2003ReinforcmentLearningForHumanoid, Li2025RLVersatileDynamicRobustBipedalLocom}, and foundation models~\cite{Bjorck2025GrootN1, kawaharazuka2024RealWorldApplicationsFoundationModels} are becoming more prevalent due to their ability to handle long-horizon planning, complex dynamics, and to their versatility. However, these advances come at the cost of increased computational complexity, running them in real-time on resource-limited platforms like embedded systems thus becomes challenging~\cite{Zeilinger2014RealTimeRobustMPC, findeisen2004computationalDelayNMPC, Thodoroff2022BenchmarkingRealTimeRL, Firoozi2025FoundationModelsInRobotics}. Since the control part is getting heavier, one practical solution is to reduce the computational load of other parts of the pipeline. The state estimation part is one of the cornerstones of the pipeline, since other components depend on its output and often have to wait for it before executing, and thus cannot run in parallel. It is therefore especially critical to try and reduce the computation time of the state estimation part.
 
 State estimation for legged robots has also known notable improvements in the past years, the main trend aiming towards improving its global accuracy by incorporating more and more advanced sensors, especially exteroceptive ones, such as cameras, LiDARs, etc.~\cite{wisth2022vilens, fallon2018AccRobLocWalkRobotsImuVisLidar, Kuang2024TightlyCoupledLidarImuUwb}. Such methods show remarkable accuracies. However, they also tend to be more and more computationally expensive (e.g. the order of the millisecond for ~\cite{Kuang2024TightlyCoupledLidarImuUwb}).
 
-For this reason, there is still a need for lightweight state estimation methods, which rather than adding new sensors, focus on improving the estimation of key variables at high frequency using the proprioceptive sensors readily available on the robot. The most common sensors for humanoids are joint encoders, inertial measurement units (IMUs) and contact force sensors such as FSR or force/torque sensors. IMUs able to measure angular velocities and linear accelerations, including the gravitational one. It can be used to estimate the vertical direction, which we call \emph{tilt}. This is done often under the assumption that accelerations are negligible compared to the gravitational acceleration (e.g.~\cite{mahony2008NonlinearComplementaryFiltersOnSO3}. Unfortunately, this assumption cannot hold in the case of humanoids, especially with impacts and dynamic motions, which significantly degrades the estimation. IMUs signals can also be integrated to provide estimations of the positions and orientation in which is called inertial odometry, but if done for extended periods of time this would produce fast drifts because of noise and initial estimation errors.
+For this reason, there is still a need for lightweight state estimation methods, which rather than adding new sensors, focus on improving the estimation of key variables at high frequency using the proprioceptive sensors readily available on the robot. The most common sensors for humanoids are joint encoders, inertial measurement units (IMUs) and contact force sensors such as FSR or force/torque sensors. IMUs are able to measure angular velocities and linear accelerations, including the gravitational one. It can be used to estimate the vertical direction, which we call \emph{tilt}. This is done often under the assumption that accelerations are negligible compared to the gravitational acceleration (e.g.~\cite{mahony2008NonlinearComplementaryFiltersOnSO3}). Unfortunately, this assumption cannot hold in the case of humanoids, especially with impacts and dynamic motions, which significantly degrades the estimation. IMUs signals can also be integrated to provide estimations of the positions and orientation in which is called inertial odometry, but if done for extended periods of time this would produce fast drifts because of noise and initial estimation errors.
 
 Both issues, high accelerations and odometry drifts can be resolved thanks to a single consideration: legged robots are connected to a stable environment through their contacts. Meaning that we consider contacts to be fixed points in the environment, which provides a partial measurement of the robot's kinematics in the world using joint encoders. This consideration only makes the tilt fully observable, however dynamic the motion is~\cite{benallegue2020LyapunovStableOrientationEstimatorHumanoids}. The anchor with the environment and the kinematic data can be used also to perform legged odometry (also called ``Leg'' odometry) using the transformations between successive contacts to rebuild the world-trajectory~\cite{Lin2005ALegConfigurationMeasSystemHexapod}. This technique can be merged with IMU data and correct for the drift~\cite{bloesch2013FusionLegKineAndImu, Wawrzynski2015RobustEstVelocityTilt, masuya2015DeadReckoningAnchoringPivot}. This is called leg-inertial odometry.
 
  Violations of slippage-free contact assumption can degrade the odometry performance~\cite{lin2021legged, maravgakis2023probabilistic}. Work has thus been done to address the problem of contact slippage, for example by discarding unreliable contacts~\cite{lin2021legged, maravgakis2023probabilistic,yoon2023InvariantSmootherDynamicContactEventInformation}, or by attempting to correct the contact reference position~\cite{bloesch2013FusionLegKineAndImu,Hartley2020RIEKF, Demont2024KineticsObserver}. Despite that, the position and yaw orientation of the robot in the world frame remain unobservable~\cite{bloesch2013FusionLegKineAndImu}. Nevertheless, the methods exploiting these contacts have proven to be more than enough in concrete use-cases when the pose needs to be reliable only locally, like for remotely controlled robots~\cite{Grandia2024DesignControlBipedalRoboticCharacter} or when task planning is also made in the robot's local environment~\cite{Tsuru2023OnlineMulticontactReplanningHumanoid}, which means that drifts due to slippage remain limited for these use-cases.
 
-In this work we propose {\scshape Valinor} (Velocity-Aided Leg Inertial Nonlinear Odometry and Registration), a method for Leg-Inertial odometry for legged robots, which relies on a highly accurate tilt estimate provided by a nonlinear complementary filter~\cite{benallegue2020LyapunovStableOrientationEstimatorHumanoids}. This complementary filter allows for a much faster computation than the conventionally used Kalman Filter (e.g.~\cite{Hartley2020RIEKF}), and offers mathematical convergence guarantees on the tilt and linear velocity estimate. \textcolor{red}{We show that {\scshape Valinor} achieves estimation accuracy on par with state-of-the-art methods, aligning with our objective of lightweight yet accurate and certifiable state estimation. JE ME REPETE?}
+In this work we propose {\scshape Valinor} (Velocity-Aided Leg Inertial Nonlinear Odometry and Registration), a method for Leg-Inertial odometry for legged robots, which relies on a highly accurate tilt estimate provided by a nonlinear complementary filter~\cite{benallegue2020LyapunovStableOrientationEstimatorHumanoids}. This complementary filter allows for a much faster computation than the conventionally used Kalman Filter (e.g.~\cite{Hartley2020RIEKF}), and offers mathematical convergence guarantees on the tilt and linear velocity estimate, aligning with our objective of lightweight yet accurate and certifiable state estimation.
 The main contributions introduced in this paper are as follows:
 \begin{itemize}
   \item The proposed state estimator is 7.5 times faster than the start-of-the-art method for proprioceptive odometry, while displaying on par odometry accuracy, and even improving significantly tilt estimation.
@@ -113,16 +113,16 @@ The main contributions introduced in this paper are as follows:
 
 
 \section{DEFINITION OF THE ANCHOR POINT}\label{sec:anchor_point}
-We define here the notion of anchor frame, since it will be used extensively in the following sections. These point importance is twofold in our work: Firtsly, in the case of legged robots, the position of the anchor frame can be merged with the robot's joint encoders and IMU signals to provide an algebraic estimate of the IMU velocity in the world frame. This will be explained in Section~\ref{subsec:tiltMeas} where we show that it is essential for the estimator design. Secondly, the anchor will be the frame that will allow to build the estimates of the position and yaw orientation of new contacts when they are established.
+We define here the notion of anchor point, since it will be used extensively in the following sections. The position of the anchor point can be merged with the robot's joint encoders and IMU signals to provide an algebraic estimate of the IMU velocity in the world frame. This will be explained in Section~\ref{subsec:tiltMeas} where we show that it is essential for the estimator design.
 
-The anchor point, denoted $\mathcal{A}$, is defined as a frame attached to the robot and which is considered to have zero \emph{instantanous} linear velocity in the world frame. This frame does not need to be fixed in the robot frame as well, the only requirement is that its instantaneous pose and velocities in the frame of the robot's floating base are known. 
+The anchor point, denoted $\mathcal{A}$, is defined as a point attached to the robot and which is considered to have zero \emph{instantanous} linear velocity in the world frame. This point does not need to be fixed in the robot frame as well, the only requirement is that its instantaneous position and linear velocity in the frame of the robot's floating base are known. 
 
-Contacts with the environment provide naturally good sets of points known to the robot and having zero world velocity. With the no-slippage hypothesis, any point of a contact body would thus be suitable to define an anchor frame. However, we need an anchor frame pose that remains always defined and as continuous as possible, even when contacts are created and broken, as long as there is at least one contact established. Also, the no-slippage hypothesis can hold better for some points than others. For instance, when the contact forces are closer to Coulomb's friction cones the contact is more likely to slip.
+Contacts with the environment provide naturally good sets of points known to the robot and having zero world velocity. With the no-slippage hypothesis, any point of a contact body would thus be suitable to define an anchor point. However, we need an anchor point that remains always defined and whose position is as continuous as possible, even when contacts are created and broken, as long as there is at least one contact established. Also, the no-slippage hypothesis can hold better for some points than others. For instance, when the contact forces are closer to Coulomb's friction cones the contact is more likely to slip.
 
-To address these two requirements we determine the pose of that point through a weighted average of the kinematics of the current contacts, as shown in Figure~\ref{fig:framesAndAnchor}.  \\
-The weighting coefficients are defined such that weaker contacts, which are prone to violate Coulomb's inequality and thus to slip, contribute less to the anchor point's kinematics computation. Given $mg$ the weight of the robot, we first compute 
+To address these two requirements we determine the kinematics of that point through a weighted average of the kinematics of the current contacts, as shown in Figure~\ref{fig:framesAndAnchor}.  \\
+The weighting coefficients are defined such that weaker contacts, which are prone to violate Coulomb's inequality and thus to slip, contribute less to the anchor point's kinematics computation. Given $mg_{0}$ the weight of the robot, we first compute 
 \begin{equation}
-    u_{i} = \frac{\boldsymbol{F}_{i,z}}{\sqrt{\boldsymbol{F}_{i,x}^2 + \boldsymbol{F}_{i,y}^2} + \epsilon mg}, \label{eq:ratio_ui}
+    u_{i} = \frac{\boldsymbol{F}_{i,z}}{\sqrt{\boldsymbol{F}_{i,x}^2 + \boldsymbol{F}_{i,y}^2} + \epsilon mg_{0}}, \label{eq:ratio_ui}
 \end{equation}
 the ratio of the normal force to the tangential force at the contact $i$. The term $\epsilon$, arbitrarily small, allows to deal with the case where the tangential force is zero.
 
@@ -138,7 +138,7 @@ Based on this definition, we give the position and linear velocity of the anchor
 \end{align} 
 with ${^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}$ the position and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}$ the linear velocity of the $i$-th contact in the IMU's frame, which are directly provided by the robot's joint encoders and geometrical model.
 
-It is important to note also that with this definition, although the anchor point is defined to have zero velocity in the world, its instantaneous pose may still evolve over time.
+It is important to note also that with this definition, although the anchor point is defined to have zero velocity in the world, its instantaneous position may still evolve over time.
 
 \begin{figure}[!t]
 \begin{center}
@@ -148,8 +148,6 @@ It is important to note also that with this definition, although the anchor poin
 \end{center}
 \vskip -1.5pc
 \end{figure}
-
-
 
 
 \section{Tilt Observer with proof of convergence}
@@ -192,7 +190,7 @@ The state dynamics of our system can be written:
 &\dot{\boldsymbol{x}}_{1} = - \boldsymbol{y}_{g} \times \boldsymbol{x}_{1} - g_{0}\boldsymbol{x}_{2} + \boldsymbol{y}_{a} , \label{eq:x1_dot} \\
 &\dot{\boldsymbol{x}}_{2} = - \boldsymbol{y}_{g} \times  \boldsymbol{x}_{2}. \label{eq:x2_dot}
 \end{align} 
-We write a complementary filter which uses the system's dynamics as a feed-forward, and corrects the estimated state using the velocity measurement $\boldsymbol{y}_{v}$:
+with $g_{0}$ the gravitational acceleration constant. We write a complementary filter which uses the system's dynamics as a feed-forward, and corrects the estimated state using the velocity measurement $\boldsymbol{y}_{v}$:
 
 \begin{equation}
     \left\{
@@ -217,14 +215,13 @@ The use of a complementary filter for the Tilt Observer presents notable strengt
     \item The full estimator is \emph{almost globally asymptotically stable}, and locally \emph{exponentially stable}. It provides a good filtering of noise and guarantees to respect the normality constraint.
 \end{itemize}
 
-\section{Leg Odometry}
-\label{sec:leg_odometry}
+\section{Leg Odometry for Position and Yaw Estimation} \label{sec:leg_odometry}
 
 While the tilt of the IMU's frame in the world frame is estimated by the Tilt Observer, its position and yaw are obtained using Leg odometry. Once a contact $i$ is created, its initial pose in the world is obtained by forward kinematics from the current IMU's frame pose and the robot's joint encoders. We call it the contact's \emph{reference} pose $\left\{ \boldsymbol{p}^{\star}_{\mathcal{C}_{i}}, \boldsymbol{R}^{\star}_{\mathcal{C}_{i}}\right\}$, which we consider constant to enforce the contact's anchoring role. This pose is then used to recover the pose of the IMU's frame in the world frame. 
 With the proposed pipeline, we thus leverage both the accuracy and mathematical guarantees provided by the Tilt Observer, and the robustness to drift provided by the Leg odometry. Similarly to the computation of the anchor point in Section~\ref{sec:anchor_point}, the contribution of contacts to the Leg odometry is weighted to trust more contacts which are the least prone to slippage, in order to mitigate its effect.
 
 
-To obtain the yaw from contact information, we compute the weighted average between the reference orientation of the two most reliable contacts\footnote{The two contacts with the highest ratio $u_{i}$ defined in~\eqref{eq:ratio_ui}}. For each contact $i$, we write:
+To obtain the yaw from contact information, we compute the weighted average between the reference orientation of the two most reliable contacts\footnote{The two contacts with the highest ratio $u_{i}$ defined in~\eqref{eq:ratio_ui}.}. For each contact $i$, we write:
 \begin{equation}
     \boldsymbol{R}_{\mathcal{I}, i} = \boldsymbol{R}^{\star}_{\mathcal{C}_{i}} {}^{\mathcal{C}_{i}} \boldsymbol{R}_{\mathcal{I}} 
 \end{equation}
@@ -235,7 +232,7 @@ We then compute the average $\boldsymbol{R}_{\mathcal{I}, \text{avg}}$ between b
 \end{align}
 exp and log are the \emph{exponential} and \emph{logarithm} maps of SO(3). We note that for small angles, we can use the approximation:
 \begin{equation}
-log\left(\tilde{\boldsymbol{R}}\right) \simeq \frac{1}{2} \left(\tilde{\boldsymbol{R}}-\tilde{\boldsymbol{R}}^{T}\right), \label{eq:log_small}
+\text{log}\left(\tilde{\boldsymbol{R}}\right) \simeq \frac{1}{2} \left(\tilde{\boldsymbol{R}}-\tilde{\boldsymbol{R}}^{T}\right), \label{eq:log_small}
 \end{equation}
 Once the average orientation has been computed, we merge the corresponding yaw with the tilt estimated by the Tilt Observer using a new axis-agnostic fusion of tilt and yaw, that we describe in Section~\ref{sec:axisAgnostic} which preserves the estimated tilt with little computations.
 
@@ -254,36 +251,36 @@ We note that this position is obtained using the IMU's orientation estimate that
 The Tilt Observer of Section~\ref{sec:tilt_observer} provides an accurate
 estimate of the IMU \emph{tilt}
 \(
-  \boldsymbol{\ell}=R_{1}^{\top}\boldsymbol{e}_{z},
+  \boldsymbol{\ell}=\boldsymbol{R}_{1}^{\top}\boldsymbol{e}_{z},
 \)
-while the contact–based leg-odometry of
-Section~\ref{sec:leg_odometry} supplies an orientation \(R_{2}\) whose
+while the contact–based Leg odometry of
+Section~\ref{sec:leg_odometry} supplies an orientation \(\boldsymbol{R}_{2}\) whose
 yaw reflects the robot heading.  We now merge these two pieces into a
-single rotation \(R\).
+single rotation \(\boldsymbol{R}\).
 
 %.....................................................................
 \subsection{Why not Euler angles?}
 %.....................................................................
 
 Classically in these situations, we use the Euler angles representation of the rotations,
-\(R_{1}=R_{z}(\psi_{1})R_{y}(\theta_{1})R_{x}(\phi_{1})\) and
-\(R_{2}=R_{z}(\psi_{2})R_{y}(\theta_{2})R_{x}(\phi_{2})\),
+\(\boldsymbol{R}_{1}=R_{z}(\psi_{1})R_{y}(\theta_{1})R_{x}(\phi_{1})\) and
+\(\boldsymbol{R}_{2}=R_{z}(\psi_{2})R_{y}(\theta_{2})R_{x}(\phi_{2})\),
 the textbook fusion is
 \begin{equation}
-  R_{\mathrm{cl}}
+  \boldsymbol{R}_{\mathrm{cl}}
   =R_{z}(\psi_{2})\,R_{y}(\theta_{1})\,R_{x}(\phi_{1}).
   \label{eq:fusion_classic}
 \end{equation}
 This solution has two properties
 \begin{itemize}
 \item tilt is conserved, i.e. 
-\(R_{\mathrm{cl}}^{\top}\boldsymbol{e}_{z}=\boldsymbol{\ell}\).
-\item among all rotations \(\hat{R}\) such that
-\(\hat{R}^{\top}\boldsymbol{e}_{z}=\boldsymbol{\ell}\),
+\(\boldsymbol{R}_{\mathrm{cl}}^{\top}\boldsymbol{e}_{z}=\boldsymbol{\ell}\).
+\item among all rotations \(\hat{\boldsymbol{R}}\) such that
+\(\hat{\boldsymbol{R}}^{\top}\boldsymbol{e}_{z}=\boldsymbol{\ell}\),
 \(R_{\mathrm{cl}}\) minimises the horizontal error
 \(
   \|
-    \hat{R}^{\top}\boldsymbol{e}_{x}-R_{2}^{\top}\boldsymbol{e}_{x}
+    \hat{\boldsymbol{R}}^{\top}\boldsymbol{e}_{x}-\boldsymbol{R}_{2}^{\top}\boldsymbol{e}_{x}
   \|^{2}.
 \)
 \end{itemize}
@@ -305,7 +302,7 @@ here:
       introduces a systematic bias.
 
 \item Because \eqref{eq:fusion_classic} uses a ZYX decomposition of
-      $R_{1}$, it inherits the Euler-angle singularity at
+      $\boldsymbol{R}_{1}$, it inherits the Euler-angle singularity at
       $\theta_{1}= \pm 90^{\circ}$.  
       Exactly there the pitch axis aligns with
       $\boldsymbol{e}_{z}$, roll and yaw collapse, and the horizontal
@@ -314,7 +311,6 @@ here:
       Such attitudes are frequent in humanoids that perform
       multicontact motions.
 \end{itemize}
-
 To avoid these two issues we adopt an \emph{axis-agnostic} fusion that
 uses solely the measured tilt $\boldsymbol{\ell}$, allows any horizontal
 vector to encode yaw, and stays regular for all configurations except
@@ -333,20 +329,21 @@ Using that row we build the horizontal vector
 \begin{equation}
   \boldsymbol{m}_2
   =
-  \dfrac{1}{\sqrt{{r}_{2,x}^{2}+{r}_{2,y}^{2}}}\begin{bmatrix}
-    {r}_{2,y}\\[2pt]-{r}_{2,x}\\[2pt]0
-  \end{bmatrix},
+  \begin{cases}
+    \boldsymbol{e}_x, &
+    \text{if } {r}_{2,x}^{2}+{r}_{2,y}^{2}\simeq0,\\[6pt]
+      \dfrac{1}{\sqrt{{r}_{2,x}^{2}+{r}_{2,y}^{2}}} [{r}_{2,y}\;-{r}_{2,x}\;0]^{\top},
+    & \text{otherwise.}
+  \end{cases}
 \end{equation}
-where ${r}_{2,x}$ and ${r}_{2,y}$ are the first and second components of 
-$\boldsymbol{r}_{2}$. Such a vector always exists and is unique, 
-except when the tilt $\boldsymbol{R}_{2}^T \boldsymbol{e}_z$ is vertical (upward or downward) where we can take $\boldsymbol{m}=\boldsymbol{e_x}$ to avoid the singularity.
+where ${r}_{2,x}$ and ${r}_{2,y}$ are the first and second components of $\boldsymbol{r}_{2}$. 
+The condition ${r}_{2,x}^{2}+{r}_{2,y}^{2}\simeq0$ occurs when the tilt $\boldsymbol{R}_{2}^T \boldsymbol{e}_z$ is vertical (upward or downward), so we take $\boldsymbol{m}=\boldsymbol{e_x}$ to avoid the singularity.
+Otherwise, the vector $\boldsymbol{m}_2$ always exists and is unique.
 
 Rotating $\boldsymbol{m}_2$ by $\boldsymbol{R}_{2}^T$
 results in another vector
-$\tilde{\boldsymbol{m}}_2=\boldsymbol{R}_{2}^T\boldsymbol{m}_2$, which is horizontal as well
-because the third component is~$0$.
-
-This means that  $\boldsymbol{m}_2$ is an invariant horizontal vector, this vector is unique except when the tilt $\boldsymbol{R}_{2}^T \boldsymbol{e}_z$ is vertical where any horizontal vector is invariant. In such a case taking $\boldsymbol{m}=\boldsymbol{e_x}$ amounts at mimicking Euler angles.
+$\tilde{\boldsymbol{m}}_2=\boldsymbol{R}_{2}^T\boldsymbol{m}_2$, which is horizontal as well.
+This means that  $\boldsymbol{m}_2$ is an invariant horizontal vector. 
 
 We define the yaw of~$\boldsymbol{R}_{2}$, as the angle between these two vectors $\boldsymbol{m}_2$ and $\tilde{\boldsymbol{m}}_2$, which is computed as
 \begin{equation}
@@ -357,12 +354,14 @@ We define the yaw of~$\boldsymbol{R}_{2}$, as the angle between these two vector
     -{m}_{2,y}\tilde{{m}}_{2,x},\;
      {m}_{2,x}\tilde{{m}}_{2,x}
     +{m}_{2,y}\tilde{{m}}_{2,y}
-  \Bigr).
+  \Bigr),
   \label{eq:yaw_theta}
 \end{equation}
-where the $x$ and $y$ subscripts denote the first and second components of the corresponding vector.
+where the $x$ and $y$ subscripts denote the first and second components of the corresponding vector. 
+The use of horizontal invariant vectors to define the yaw angle guarantees that we only consider rotations around the vertical axis, giving the most sound definition of yaw.
 
-This yaw is always well defined except when the tilt of $\boldsymbol{R}_{2}$ is vertical downward, meaning $\boldsymbol{R}_{2}$ is a rotation of $\pi$ around a horizontal axis. In such a case the concept of yaw itself is ill-defined. When the tilt is upward, any horizontal vector gives the same yaw, so using Euler's yaw angle by taking  $\boldsymbol{m}_2=\boldsymbol{e_x}$ is a valid choice.
+When the tilt $\boldsymbol{R}_{2}^T \boldsymbol{e}_z$ is vertical, any horizontal vector is invariant. In such a case, taking $\boldsymbol{m}=\boldsymbol{e_x}$ amounts at mimicking Euler yaw angle. 
+When this tilt is downward, meaning $\boldsymbol{R}_{2}$ is a rotation of $\pi$ around a horizontal axis, the concept of yaw itself is ill-defined. When the tilt is upward, any horizontal vector gives the same yaw, so using Euler's yaw angle by taking  $\boldsymbol{m}_2=\boldsymbol{e_x}$ is a valid choice.
 
  Fortunately we don't have to compute this angle explicitly to perform the merge. It can be done directly using the tilt $\boldsymbol{\ell}$ and the second matrix $\boldsymbol{R}_{2}$.
 
@@ -372,10 +371,10 @@ This yaw is always well defined except when the tilt of $\boldsymbol{R}_{2}$ is 
 %---------------------------------------------------------------------
 
 \subsubsection{Select a proper reference vector}
-This step is similar to the yaw computation above, and starts with the selection of the reference vector. However, the fusion makes this step slightly more complicated than just identifying the yaw of a single matrix. This is because the two rotations could have a very different tilt. In that case, since we trust the estimated yaw $\ell$, it means the tilt of $R_2$ is incorrect and the yaw of that matrix is not properly defined around the vertical direction. The solution is to find a reference vector that is invariant orthogonal to the real up direction rather than to the vertical.
-To do so we apply $\boldsymbol{R}_{2}$ to the tilt:
-$\boldsymbol{r}=\boldsymbol{R}_{2}\boldsymbol{\ell}=[v_{x}\;v_{y}\;v_{z}]^{\top}$ to get the actual vertical direction.
-A convenient horizontal vector orthogonal to $\boldsymbol{r}$ is
+Similarly to the yaw computation above, we start with the selection of the reference vector. However, the fusion makes this step slightly more subtile than just identifying the yaw of a single matrix. This is because the two rotations could have a very different tilt. This could lead the tilt vector $\ell$ to be nearly colinear with the rotated horizontal invariant vector $\boldsymbol{R}_{2}^T\boldsymbol{m}_2$. This would make the fusion singular. 
+
+The solution is to find a reference vector that is both horizontal and orthogonal to the real up direction $\boldsymbol{r}=\boldsymbol{R}_{2}\boldsymbol{\ell}=[v_{x}\;v_{y}\;v_{z}]^{\top}$.
+Consequently, a proper reference vector can be defined as
 \[
   \boldsymbol{m}
   =
@@ -386,8 +385,9 @@ A convenient horizontal vector orthogonal to $\boldsymbol{r}$ is
     & \text{otherwise.}
   \end{cases}
 \]
-The degenerate case occurs only when $\boldsymbol{r}$ is vertical, corresponding to the rotations having the same tilt, in which situation we roll back to the definition of yaw of the previous section.  The vector
-expressed in the frame of $R_{2}$ is
+The degenerate case occurs only when $\boldsymbol{r}$ is vertical, corresponding to $\boldsymbol{R}_{2}^{T}\boldsymbol{e}_{z} = \boldsymbol{\ell}$, which means the rotations nearly have the same tilt. In this situation we know that $\ell$ and $\boldsymbol{R}_{2}^T\boldsymbol{m}_2$ are nearly orthogonal. We thus safely use the yaw angle definition of the previous section.  
+
+We define the vector $\boldsymbol{m}$ expressed in the frame of $\boldsymbol{R}_{2}$ as 
 $\boldsymbol{m}_{l}=R_{2}^{\top}\boldsymbol{m}$.
 
 
@@ -437,15 +437,15 @@ properties:
 
 \begin{itemize}
   \item \emph{Tilt preservation}:  
-        \(R^{\top}\boldsymbol{e}_{z}=\boldsymbol{\ell}\).
+        \(\boldsymbol{R}^{\top}\boldsymbol{e}_{z}=\boldsymbol{\ell}\).
 
   \item \emph{Optimal horizontal alignment}:  
-        for any rotation \(\hat R\) satisfying
-        \(\hat R^{\top}\boldsymbol{e}_{z}=\boldsymbol{\ell}\),
+        for any rotation \(\hat{\boldsymbol{R}}\) satisfying
+        \(\hat{\boldsymbol{R}}^{\top}\boldsymbol{e}_{z}=\boldsymbol{\ell}\),
         the choice \eqref{eq:fused_R} minimises
         \[
           \bigl\|
-             \hat R^{\top}\boldsymbol{m}-\boldsymbol{m}_{l}
+             \hat{\boldsymbol{R}}^{\top}\boldsymbol{m}-\boldsymbol{m}_{l}
           \bigr\|^{2}.
         \]
         The proof follows exactly the one–parameter maximisation used
@@ -464,7 +464,7 @@ properties:
         compatible with real-time embedded execution.
 \end{itemize}
 
-The axis-agnostic fusion is therefore adopted as the default in \textsc{VALINOR}, notably to fuse the yaw obtained with the Leg odometry ($R_{2} = \boldsymbol{R}_{\mathcal{I}, \text{avg}}$ from \eqref{eq:leg_odom_avg_ori}), with the Tilt Observer's tilt estimate ($\hat{\boldsymbol{x}}_{2}$). \textcolor{red}{Is this okay?} This solution avoids the arbitrary preference for the body axis \(\boldsymbol{e}_{x}\), takes into account the difference of tilt and avoids the gimbal-lock issues of \eqref{eq:fusion_classic}. 
+The axis-agnostic fusion is therefore adopted as the default in \textsc{VALINOR}; it avoids the arbitrary preference for the body axis \(\boldsymbol{e}_{x}\), takes into account the difference of tilt and avoids the gimbal-lock issues of \eqref{eq:fusion_classic}. 
 
 
 
@@ -475,8 +475,8 @@ The axis-agnostic fusion is therefore adopted as the default in \textsc{VALINOR}
 
 The proposed estimator has been evaluated accross two experimental scenarios on two different humanoid robots\footnote{We used the dataset built to evaluate the Kinetics Observer in~\cite{Demont2024KineticsObserver}}:
 \begin{itemize}
-    \item Experiment 1: A walk on a flat ground over about 18 meters with the robot RHP Friends~\cite{Benallegue2025RhpFriendsJRL}, as shown in Figure~\ref{fig:trajRhps1_3d}. This experiment was repeated 5 times, for a total distance of about 90 meters.
-    \item Experiment 2: A multi-contact motion over about 2 meters with the robot HRP-5P~\cite{Kaneko2019Hrp5}. This motion involved an additional contact at the robot's left hand, and non-coplanar contacts on tilted obstacles, as shown in Figure~\ref{fig:hrp5_multicontact}. This experiments was repeated 4 times for a total distance of about 8 meters.
+    \item Experiment 1: A walk on a flat ground over about 18 meters with the robot RHP Friends~\cite{Benallegue2025RhpFriendsJRL}, as shown in Figure~\ref{fig:trajRhps1}. This experiment was repeated 5 times, for a total distance of about 90 meters.
+    \item Experiment 2: A multi-contact motion over about 2 meters with the robot HRP-5P~\cite{Kaneko2019Hrp5}. This motion involved an additional contact at the robot's left hand, and non-coplanar contacts on tilted obstacles, as shown in Figure~\ref{fig:hrp5_multicontact}. This experiment was repeated 4 times for a total distance of about 8 meters.
 \end{itemize}
 
 
@@ -484,7 +484,7 @@ The proposed estimator has been evaluated accross two experimental scenarios on 
 \begin{center}
 \includegraphics[width=\columnwidth]{Uploaded/Images/trajectory_rhps1.pdf} 
 \vskip -0.5pc
-\caption{Ground truth and estimated RHP Friend's pelvis trajectory during the first experiment of walk on flat ground.}\label{fig:trajRhps1_3d}
+\caption{Ground truth and estimated RHP Friend's pelvis trajectory during the first experiment of walk on flat ground.}\label{fig:trajRhps1}
 \end{center}
 \vskip -1.5pc
 \end{figure}
@@ -515,14 +515,14 @@ Finally, we also assess the estimation of the IMU's linear velocity in the world
 
 \subsubsection{Computational Performance Evaluation}\label{subsec:computation_time}
 
-To prove the computation speed performance of {\scshape Valinor}, we compared its average computation time per iteration over the four multi-contact experiments, to that of the RI-EKF. In average, an iteration of {\scshape Valinor} was computed in 2.547 \textmu s, against 19.315 \textmu s for the RI-EKF. The proposed method is thus more than 7.5 times faster than the state-of-the-art estimator, while proposing equivalent estimation accuracy, as shown below.
+To evaluate the computation speed performance of {\scshape Valinor}, we compared its average computation time per iteration over the four multi-contact experiments, to that of the RI-EKF. Both estimators were run on the same laptop, on an Intel Xeon E-2176M CPU (2.70GHz x 12). In average, an iteration of {\scshape Valinor} was computed in 2.547 \textmu s, against 19.315 \textmu s for the RI-EKF. The proposed method is thus more than 7.5 times faster than the state-of-the-art estimator, while proposing equivalent estimation accuracy, as shown below.
 
 \subsubsection{Estimation Accuracy Evaluation}
 
 Table~\ref{tab:estimation_eval} regroups the evaluation results of {\scshape Valinor}'s estimation performance compared to those of the RI-EKF during the two experiments on real robots.
 The presented errors are computed over all the sequences of each scenario: 5 for the walk on flat ground, and 4 for the multi-contact motion.
 
-\begin{table*}[h] 
+\begin{table*}[h!] 
 \vskip -0.75pc
 \setlength{\extrarowheight}{0.6ex}
 \addtolength{\tabcolsep}{-0.4em}
@@ -560,15 +560,32 @@ The presented errors are computed over all the sequences of each scenario: 5 for
 \end{table*}
 
 
-We first note that the relative strengths of both estimators were consistent accross both experiments, and that overall, they both displayed satisfactory estimation performance. Indeed, without the use of any exteroceptive sensors, their errors in translation estimates remain of the order of the centimer per meter walked, those on orientation estimates remain around 1\textdegree \ per meter walked, and finally their error in velocity estimates remain below 2 cm.s$^{-1}$. Now we give more insights in the obtained results:
+We first note that the relative strengths of both estimators were consistent accross both experiments, and that overall, they both displayed satisfactory estimation performance. Indeed, without the use of any exteroceptive sensors, their errors in translation estimates remain of the order of the centimer per meter walked, those on orientation estimates remain around 1\textdegree \ per meter walked, and finally their error in velocity estimates remain below 2 cm.s$^{-1}$. Now we give more insights into the obtained results:
 \begin{itemize}
-    \item {\scshape Valinor} estimated more accurately lateral translations, improving the estimation by over 30\% and 40\% compared to the RI-EKF. Additionally, it improved the estimation of the tilt by about 28\% in Experiment 1 and by 60\% in Experiment 2, reaching an average error of only 0.23\textdegree. For both translations and tilt estimates, our method displayed a significantly lower standard deviation of the error, proving an improved estimation consistency. 
+    \item {\scshape Valinor} estimated more accurately lateral translations, improving the estimation by over 30\% and 40\% compared to the RI-EKF. Additionally, as visible in Figure~\ref{fig:tilt_rhps1} it improved the estimation of the tilt by about 28\% in Experiment 1 and by 60\% in Experiment 2, reaching an average error of only 0.23\textdegree. For both translations and tilt estimates, our method displayed a significantly lower standard deviation of the error, proving an improved estimation consistency. 
     \item The RI-EKF estimated lateral velocities more accurately than {\scshape Valinor}, with a 20\% smaller the error. But we believe this difference has lower significance due to the large value of the standard deviation.
     \item Both estimators showed similar performance for the estimation of the yaw and of vertical translation and velocity.
 \end{itemize}
 
-Concerning vertical translations, we noticed that both estimators drifted upwards during the walk on flat ground, which involved longer walks and many more steps than the multi-contact motion. One of the reasons, inherent to Leg odometry, is its reliance on the quality of the contact detection. For example, detecting contacts consistently too early (when they are not perfectly still yet), would cause the estimate to drift on each step. Conversely, drift can also occur when detecting contacts consistently too late, due to the robot's structural deformation under the contact force, etc. While investigating, we could indeed reduce the vertical drift by tuning the thresholds of the Schmitt Trigger used for contact detection. However, we decided to leave them changed to ensure a fair comparison. The other main factor explaining the vertical drift is the quality of the pitch estimate, which significantly affects vertical translation estimates during long forward walks.
+As shown in Figure~\ref{fig:trans_z_rhps1}, we noticed that both estimators drifted upwards during the walk on flat ground, which involved longer walks and many more steps than the multi-contact motion. One of the reasons, inherent to Leg odometry, is its reliance on the quality of the contact detection. For example, detecting contacts consistently too early (when they are not perfectly still yet), would cause the estimate to drift on each step. Conversely, drift can also occur when detecting contacts consistently too late, due to the robot's structural deformation under the contact force, etc. While investigating, we could indeed reduce the vertical drift by tuning the thresholds of the Schmitt Trigger used for contact detection. However, we decided to leave them changed to ensure a fair comparison. The other main factor explaining the vertical drift is the quality of the pitch estimate, which significantly affects vertical translation estimates during long forward walks.
 
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[width=\columnwidth]{Uploaded/Images/tilt.pdf} 
+\vskip -0.5pc
+\caption{Estimated and ground truth roll and pitch angles of the robot's pelvis during the first trial of the walk on flat floor.}\label{fig:tilt_rhps1}
+\end{center}
+\vskip -1.5pc
+\end{figure}
+
+\begin{figure}[!h]
+\begin{center}
+\includegraphics[width=\columnwidth]{Uploaded/Images/trans_z.pdf} 
+\vskip -0.5pc
+\caption{Estimated and ground truth height of the robot's pelvis during the first trial of the walk on flat floor.}\label{fig:trans_z_rhps1}
+\end{center}
+\vskip -1.5pc
+\end{figure}
 
 \section{CONCLUSION}
 
