@@ -1,0 +1,17 @@
+Reviewer #3: This paper introduces VALINOR, a lightweight leg-inertial odometry method for humanoid robots. The system uses a complementary filter-based tilt observer combined with leg odometry based on contact and joint encoder information. The main goal is to reduce computational load while still providing reliable state estimates, which is especially useful for real-time control on embedded systems.
+
+While this is not exactly my area of expertise, I found the paper clear in its main idea and well aligned with recent trends in legged robotics, where lightweight and fast estimation is becoming more important as control modules grow more complex. The individual components, such as tilt observers and leg odometry, are based on known ideas, but the way they are put together here—especially the axis-independent tilt and yaw fusion—is thoughtfully designed. The open-source code for the tilt observer also makes the work more practical.
+
+The main concept is clear and relevant, but I think the paper could be improved by making the system architecture easier to follow and by presenting the results with a bit more balance. Below are my detailed comments.
+
+<Major Comments>
+1. Matching claims to results
+The paper states that VALINOR is as accurate or more accurate than the RI-EKF, and much faster. This is true for some parts, like tilt and lateral position. But for other parts, like yaw and lateral velocity, the results are about the same or slightly worse. These points are mentioned, but only briefly. It would be better to clearly say which parts are improved and which are not. This would make the claims more honest and easier to trust.
+
+2. Experiment scope and discussion of general cases
+The experiments were done on two humanoid robots with tasks like walking on flat ground and multi-contact motion. This shows that the method works in practice. Still, it would help to briefly discuss how the method might behave in more difficult cases, like when foot contact is missed or the surface is slippery. This isn't critical to the paper, but adding a few sentences about assumptions and possible failure cases would make the paper feel more complete.
+
+<Minor Comments>
+1. Please check for small typos like "instantanous" (should be "instantaneous") or "accross" (should be "across").
+2. Some phrases are unclear. For example, "we decided to leave them changed" is probably meant to say "we decided not to change them."
+3. Figures like Fig. 4 and 5 should include clear axis labels and units (e.g., seconds, degrees).

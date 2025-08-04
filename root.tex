@@ -21,6 +21,7 @@
 \usepackage{multicol} 
 \usepackage{multirow}
 \usepackage{subcaption}
+\usepackage{empheq}
 
 %%%% Editorial Information
 %% Authors do not have to modify this section.
@@ -48,7 +49,8 @@
 
 % the \author command
 % the \orcid{orcid number}
-\author{Arnaud Demont*\orcid{https://orcid.org/0009-0006-8325-8331}, Mehdi Benallegue\orcid{https://orcid.org/0000-0001-7537-9498}, Thomas Duvinage\orcid{https://orcid.org/0009-0008-9939-8237}, and Abdelaziz Benallegue\orcid{https://orcid.org/0000-0003-2316-7981}}
+\author{Arnaud Demont*\orcid{0009-0006-8325-8331}, Mehdi Benallegue\orcid{0000-0001-7537-9498}, Thomas Duvinage\orcid{0009-0008-9939-8237}, and Abdelaziz Benallegue\orcid{0000-0003-2316-7981}}
+
 
 % the abstract environment
 \begin{abstract}
@@ -62,19 +64,16 @@ We present an evaluation of the proposed estimator through real-world data on tw
 
 \maketitle
 
+
 \makeAuthorInformation{
-A. Demont, M. Benallegue, T. Duvinage and A. Benallegue are with the CNRS-AIST JRL (Joint Robotics Laboratory), IRL, National Institute of Advanced Industrial Science and Technology (AIST), 1-1-1 Umezono, Tsukuba, Ibaraki 305-8560 Japan. 
-
-A. Demont and A. Benallegue are also with Université Paris-Saclay, 3 rue Joliot Curie, Bâtiment Breguet, 91190 Gif-sur-Yvette, France, and Laboratoire d'Ingénierie des Systèmes de Versailles, 10-12 avenue de l'Europe, 78140 Vélizy, France. 
-
-e-mails: arnaud.demont@aist.go.jp, mehdi.benallegue@aist.go.jp, thomas.duvinage@aist.go.jp, abdelaziz.benallegue@uvsq.fr.
+Arnaud Demont is with the CNRS-AIST JRL (Joint Robotics Laboratory), IRL, National Institute of Advanced Industrial Science and Technology (AIST), Tsukuba, Ibaraki 305-8560 Japan, Université Paris-Saclay, 91190 Gif-sur-Yvette, France, and Laboratoire d'Ingénierie des Systèmes de Versailles, 78140 Vélizy, France (email: arnaud.demont@aist.go.jp). 
+Mehdi Benallegue and Thomas Duvinage are with the CNRS-AIST JRL (Joint Robotics Laboratory), IRL, National Institute of Advanced Industrial Science and Technology (AIST), Tsukuba, Ibaraki 305-8560 Japan (emails: mehdi.benallegue@aist.go.jp, thomas.duvinage@aist.go.jp).
+Abdelaziz Benallegue is with the CNRS-AIST JRL (Joint Robotics Laboratory), IRL, National Institute of Advanced Industrial Science and Technology (AIST), Tsukuba, Ibaraki 305-8560 Japan, and Laboratoire d'Ingénierie des Systèmes de Versailles, 78140 Vélizy, France (email: abdelaziz.benallegue@uvsq.fr). 
 
 * Corresponding author.
 }
 
 \runningtitle{2025}{Arnaud Demont, Mehdi Benallegue, Thomas Duvinage and Abdelaziz Benallegue}{Manuscript Template for the International Journal of Control, Automation, and Systems: ICROS {\&} KIEE}{xxx}{xxxx}{x}
-
-
 
 
 \section{INTRODUCTION}
@@ -114,9 +113,9 @@ The main contributions introduced in this paper are as follows:
 
 
 \section{DEFINITION OF THE ANCHOR POINT}\label{sec:anchor_point}
-We define here the notion of anchor point, since it will be used extensively in the following sections. The position of the anchor point can be merged with the robot's joint encoders and IMU signals to provide an algebraic estimate of the IMU velocity in the world frame. This will be explained in Section~\ref{subsec:tiltMeas} where we show that it is essential for the estimator design.
+We define here the notion of anchor point, since it will be used extensively in the following sections. It is notably essential for the design of the Tilt Observer, as explained in Section~\ref{subsec:tiltMeas}.
 
-The anchor point, denoted $\mathcal{A}$, is defined as a point attached to the robot and which is considered to have zero \emph{instantanous} linear velocity in the world frame. This point does not need to be fixed in the robot frame as well, the only requirement is that its instantaneous position and linear velocity in the frame of the robot's floating base are known. 
+The anchor point, denoted $\mathcal{A}$, is defined as a point attached to the robot and which is considered to have zero \emph{instantaneous} linear velocity in the world frame. This point does not need to be fixed in the robot frame as well, the only requirement is that its instantaneous position and linear velocity in the frame of the robot's floating base are known. 
 
 Contacts with the environment provide naturally good sets of points known to the robot and having zero world velocity. With the no-slippage hypothesis, any point of a contact body would thus be suitable to define an anchor point. However, we need an anchor point that remains always defined and whose position is as continuous as possible, even when contacts are created and broken, as long as there is at least one contact established. Also, the no-slippage hypothesis can hold better for some points than others. For instance, when the contact forces are closer to Coulomb's friction cones the contact is more likely to slip.
 
@@ -137,7 +136,7 @@ Based on this definition, we give the position and linear velocity of the anchor
 &{^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}} = \sum^{n_{c}}_{i} \lambda_{i}  {^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}, \label{eq:imuAnchorPos} \\
 &{^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}^{\prime}} = \sum^{n_{c}}_{i} \lambda_{i}  {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}, \label{eq:imuAnchorVel}
 \end{align} 
-with ${^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}$ the position and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}$ the linear velocity of the $i$-th contact in the IMU's frame, which are directly provided by the robot's joint encoders and geometrical model.
+with ${^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}$ the position and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}$ the linear velocity of the $i$-th contact in the IMU's frame, which are directly provided by the robot's joint encoders and geometrical model. \\As explained in Section~\ref{subsec:tiltMeas}, ${^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}}$ and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}^{\prime}}$ are updated at each iteration. Combined with the zero-velocity assumption of the anchor point in the world frame and the gyrometer measurement, they provide an algebraic estimate of the IMU velocity in the world frame.
 
 It is important to note also that with this definition, although the anchor point is defined to have zero velocity in the world, its instantaneous position may still evolve over time.
 
@@ -192,24 +191,19 @@ The state dynamics of our system can be written:
 &\dot{\boldsymbol{x}}_{2} = - \boldsymbol{y}_{g} \times  \boldsymbol{x}_{2}. \label{eq:x2_dot}
 \end{align} 
 with $g_{0}$ the gravitational acceleration constant. We write a complementary filter which uses the system's dynamics as a feed-forward, and corrects the estimated state using the velocity measurement $\boldsymbol{y}_{v}$:
-
-\begin{equation}
-    \left\{
-    \begin{aligned}
-        & \dot{\hat{\boldsymbol{x}}}_{1}  = - \boldsymbol{y}_{g} \times \hat{\boldsymbol{x}}_{1} - g_{0} \hat{\boldsymbol{x}}_{2}^{\prime} + \boldsymbol{y}_{a} + \alpha_{1} \left(\boldsymbol{y}_{v} - \hat{\boldsymbol{x}}_{1}\right), \\
-    & \dot{\hat{\boldsymbol{x}}}_{2}^{\prime} = -  \boldsymbol{y}_{g} \times \hat{\boldsymbol{x}}_{2} - \frac{\alpha_{2}}{g_{0}} \left(\boldsymbol{y}_{v} - \hat{\boldsymbol{x}}_{1}\right), \\
-    & \dot{\hat{\boldsymbol{x}}}_{2} = - \left(\boldsymbol{y}_{g} - \gamma  \hat{\boldsymbol{x}}_{2} \times \hat{\boldsymbol{x}}_{2}^{\prime}\right)\times \hat{\boldsymbol{x}}_{2}.
-    \end{aligned}
-    \right.
-    \label{eq:tilt_dynamics}
-\end{equation}
+\begin{empheq}[left= \empheqlbrace]{align}
+    \dot{\hat{\boldsymbol{x}}}_{1} &= - \boldsymbol{y}_{g} \times \hat{\boldsymbol{x}}_{1} - g_{0} \hat{\boldsymbol{x}}_{2}^{\prime} + \boldsymbol{y}_{a} + \alpha_{1} (\boldsymbol{y}_{v} - \hat{\boldsymbol{x}}_{1}) \label{eq:tilt_dynamics_1} \\
+    \dot{\hat{\boldsymbol{x}}}_{2}^{\prime} &= -  \boldsymbol{y}_{g} \times \hat{\boldsymbol{x}}_{2} - \frac{\alpha_{2}}{g_{0}} (\boldsymbol{y}_{v} - \hat{\boldsymbol{x}}_{1}) \label{eq:tilt_dynamics_2} \\
+    \dot{\hat{\boldsymbol{x}}}_{2} &= - (\boldsymbol{y}_{g} - \gamma \hat{\boldsymbol{x}}_{2} \times \hat{\boldsymbol{x}}_{2}^{\prime})\times \hat{\boldsymbol{x}}_{2} \label{eq:tilt_dynamics_3}
+\end{empheq}
 
 
-$\alpha_1$, $\alpha_2$ and $\gamma$ are positive scalar gains. $\hat{\boldsymbol{x}}_{1} $ and $\hat{\boldsymbol{x}}_{2} $ are estimates of $\boldsymbol{x}_{1} $ and $\boldsymbol{x}_{2} $, respectively.
+$\hat{\boldsymbol{x}}_{1} $ is the estimate of $\boldsymbol{x}_{1} $. $\hat{\boldsymbol{x}}_{2}^{\prime}$ is an intermediate estimate of $\boldsymbol{x}_{2} $, which converges exponentially but is not restricted to lie on the sphere $\mathbb{S}^{2}$. This estimate drives the convergence of the final estimate $\hat{\boldsymbol{x}}_{2} $, which is explicitly projected onto $\mathbb{S}^{2}$ so as to respect its Lie group structure.
+The positive scalar gains $\alpha_1$, $\alpha_2$ and $\gamma$ define the convergence rates of the three state estimates. Insights on their tuning are provided in~\cite{benallegue2023velocity}. Note that the filter's convergence guarantees hold regardless of the gains' tuning.
 
 
 \subsection{Advantages of the Tilt Observer}
-The use of a complementary filter for the Tilt Observer presents notable strengths in comparison to other methods like the commonly used Kalman Filter. First, it allows us to easily work in the frequency domain when determining the gains. This is particularly suitable for our model since the assumption of fixed contacts used to obtain the velocity measurement $\boldsymbol{y}_v$ is more valid in low frequency than in high frequency. In~\eqref{eq:x1_dot}, we thus use the IMU measurements for the high frequency variation of $\hat{\boldsymbol{x}}_{1}$, and $\boldsymbol{y}_v$ for its low frequency variation. Second, one iteration of the filter only consists in computing three equations, it also doesn't involve any matrix multiplication or inversion and is thus computationally extremely cheap, as will be shown in Section~\ref{subsec:computation_time}. Finally, the formulation as a complementary filter allows to conduct a convergence analysis of the estimation error, providing strong mathematical guarantees on the estimator's performances. Especially here, it has been shown in~\cite{benallegue2020LyapunovStableOrientationEstimatorHumanoids} that:
+The use of a complementary filter for the Tilt Observer presents notable strengths in comparison to other methods like the commonly used Kalman Filter. First, it allows us to easily work in the frequency domain when determining the gains. This is particularly suitable for our model since the assumption of fixed contacts used to obtain the velocity measurement $\boldsymbol{y}_v$ is more valid in low frequency than in high frequency. In~\eqref{eq:tilt_dynamics_1}, we thus use the IMU measurements for the high frequency feed-forward of $\hat{\boldsymbol{x}}_{1}$, and $\boldsymbol{y}_v$ for its low frequency correction. Second, one iteration of the filter only consists in computing three equations, it also doesn't involve any matrix multiplication or inversion and is thus computationally extremely cheap, as will be shown in Section~\ref{subsec:computation_time}. Finally, the formulation as a complementary filter allows to conduct a convergence analysis of the estimation error, providing strong mathematical guarantees on the estimator's performances. Especially here, it has been shown in~\cite{benallegue2020LyapunovStableOrientationEstimatorHumanoids} that:
 \begin{itemize}
     \item The dynamics of the estimation error is autonomous, and thus does not depend on the motion of the robot. 
     \item The intermediate estimator $\left\{\hat{\boldsymbol{x}}_{1}, \hat{\boldsymbol{x}}_{2}^{\prime} \right\}$ is \emph{globally exponentially stable}, with respect to the origin $\left(0,0\right)$.
@@ -465,7 +459,7 @@ properties:
         compatible with real-time embedded execution.
 \end{itemize}
 
-The axis-agnostic fusion is therefore adopted as the default in \textsc{VALINOR}; it avoids the arbitrary preference for the body axis \(\boldsymbol{e}_{x}\), takes into account the difference of tilt and avoids the gimbal-lock issues of \eqref{eq:fusion_classic}. 
+The axis-agnostic fusion is therefore adopted as the default in {\scshape VALINOR}; it avoids the arbitrary preference for the body axis \(\boldsymbol{e}_{x}\), takes into account the difference of tilt and avoids the gimbal-lock issues of \eqref{eq:fusion_classic}. 
 
 
 
@@ -474,14 +468,14 @@ The axis-agnostic fusion is therefore adopted as the default in \textsc{VALINOR}
 \section{Experimental Evaluation}
 \subsection{Description of the experiments}
 
-The proposed estimator has been evaluated accross two experimental scenarios on two different humanoid robots\footnote{We used the dataset built to evaluate the Kinetics Observer in~\cite{Demont2024KineticsObserver}}:
+The proposed estimator has been evaluated across two experimental scenarios on two different humanoid robots\footnote{We used the dataset built to evaluate the Kinetics Observer in~\cite{Demont2024KineticsObserver}}:
 \begin{itemize}
     \item Experiment 1: A walk on a flat ground over about 18 meters with the robot RHP Friends~\cite{Benallegue2025RhpFriendsJRL}, as shown in Figure~\ref{fig:trajRhps1}. This experiment was repeated 5 times, for a total distance of about 90 meters.
     \item Experiment 2: A multi-contact motion over about 2 meters with the robot HRP-5P~\cite{Kaneko2019Hrp5}. This motion involved an additional contact at the robot's left hand, and non-coplanar contacts on tilted obstacles, as shown in Figure~\ref{fig:hrp5_multicontact}. This experiment was repeated 4 times for a total distance of about 8 meters.
 \end{itemize}
 
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
 \begin{center}
 \includegraphics[width=\columnwidth]{Uploaded/Images/trajectory_rhps1.pdf} 
 \vskip -0.5pc
@@ -490,9 +484,9 @@ The proposed estimator has been evaluated accross two experimental scenarios on 
 \vskip -1.5pc
 \end{figure}
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
 \begin{center}
-\includegraphics[width=0.6\columnwidth]{Uploaded/Images/multiContactExpe.png} 
+\includegraphics[width=0.6\columnwidth]{Uploaded/Images/multiContactExpe.jpg} 
 \vskip -0.5pc
 \caption{Picture of HRP-5P during the multi-contact motion. The imprints of the successive contacts are represented by colored trapezoids: Red: Right foot; Green: Left foot; Blue: Left hand. Figure reused from~\cite{Demont2024KineticsObserver}.}\label{fig:hrp5_multicontact}
 \end{center}
@@ -563,27 +557,27 @@ The presented errors are computed over all the sequences of each scenario: 5 for
 \end{table*}
 
 
-We first note that the relative strengths of both estimators were consistent accross both experiments, and that overall, they both displayed satisfactory estimation performance. Indeed, without the use of any exteroceptive sensors, their errors in translation estimates remain of the order of the centimer per meter walked, those on orientation estimates remain around 1\textdegree \ per meter walked, and finally their error in velocity estimates remain below 2 cm.s$^{-1}$. Now we give more insights into the obtained results:
+We first note that the relative strengths of both estimators were consistent across both experiments, and that overall, they both displayed satisfactory estimation performance. Indeed, without the use of any exteroceptive sensors, their errors in translation estimates remain of the order of the centimer per meter walked, those on orientation estimates remain around 1\textdegree \ per meter walked, and finally their error in velocity estimates remain below 2 cm.s$^{-1}$. Now we give more insights into the obtained results:
 \begin{itemize}
     \item {\scshape Valinor} estimated more accurately lateral translations, improving the estimation by over 30\% and 40\% compared to the RI-EKF. Additionally, as visible in Figure~\ref{fig:tilt_rhps1} it improved the estimation of the tilt by about 28\% in Experiment 1 and by 60\% in Experiment 2, reaching an average error of only 0.23\textdegree. For both translations and tilt estimates, our method displayed a significantly lower standard deviation of the error, proving an improved estimation consistency. 
     \item The RI-EKF estimated lateral velocities more accurately than {\scshape Valinor}, with a 20\% smaller the error. But we believe this difference has lower significance due to the large value of the standard deviation.
     \item Both estimators showed similar performance for the estimation of the yaw and of vertical translation and velocity.
 \end{itemize}
 
-As shown in Figure~\ref{fig:trans_z_rhps1}, we noticed that both estimators drifted upwards during the walk on flat ground, which involved longer walks and many more steps than the multi-contact motion. One of the reasons, inherent to Leg odometry, is its reliance on the quality of the contact detection. For example, detecting contacts consistently too early (when they are not perfectly still yet), would cause the estimate to drift on each step. Conversely, drift can also occur when detecting contacts consistently too late, due to the robot's structural deformation under the contact force, etc. While investigating, we could indeed reduce the vertical drift by tuning the thresholds of the Schmitt Trigger used for contact detection. However, we decided to leave them changed to ensure a fair comparison. The other main factor explaining the vertical drift is the quality of the pitch estimate, which significantly affects vertical translation estimates during long forward walks.
+As shown in Figure~\ref{fig:trans_z_rhps1}, we noticed that both estimators drifted upwards during the walk on flat ground, which involved longer walks and many more steps than the multi-contact motion. One of the reasons, inherent to Leg odometry, is its reliance on the quality of the contact detection. For example, detecting contacts consistently too early (when they are not perfectly still yet), would cause the estimate to drift on each step. Conversely, drift can also occur when detecting contacts consistently too late, due to the robot's structural deformation under the contact force, etc. While investigating, we could indeed reduce the vertical drift by tuning the thresholds of the Schmitt Trigger used for contact detection. However, we decided not to change them to ensure a fair comparison. The other main factor explaining the vertical drift is the quality of the pitch estimate, which significantly affects vertical translation estimates during long forward walks.
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
 \begin{center}
-\includegraphics[width=\columnwidth]{Uploaded/Images/tilt.pdf} 
+\includegraphics[width=\columnwidth]{Uploaded/Images/tilt.jpg} 
 \vskip -0.5pc
 \caption{Estimated and ground truth roll and pitch angles of the robot's pelvis during the first trial of the walk on flat floor.}\label{fig:tilt_rhps1}
 \end{center}
 \vskip -1.5pc
 \end{figure}
 
-\begin{figure}[!h]
+\begin{figure}[!ht]
 \begin{center}
-\includegraphics[width=\columnwidth]{Uploaded/Images/trans_z.pdf} 
+\includegraphics[width=\columnwidth]{Uploaded/Images/trans_z.jpg} 
 \vskip -0.5pc
 \caption{Estimated and ground truth height of the robot's pelvis during the first trial of the walk on flat floor.}\label{fig:trans_z_rhps1}
 \end{center}
@@ -598,6 +592,13 @@ Further work would aim at improving the coupling between the Inertial and the Le
 
 
 \section*{DECLARATIONS}
+
+\subsection*{Conflict of Interest }
+The authors declare that there is no competing financial interest or personal relationship that could have appeared to influence the work reported in this paper.
+
+\subsection*{Authors' Contributions}
+Arnaud Demont and Mehdi Benallegue conceived the study and developed its theoretical foundations. Abdelaziz Benallegue supervised the study and validated the theoretical framework. Arnaud Demont and Thomas Duvinage conducted the experiments. Arnaud Demont implemented the work in C++ and processed the experimental results. Arnaud Demont and Mehdi Benallegue wrote the manuscript in consultation with Thomas Duvinage and Abdelaziz Benallegue.
+
 \subsection*{Funding }
 This paper is based on results obtained from a project of Programs for Bridging the gap between R\&D and the IDeal society (society 5.0) and Generating Economic and social value (BRIDGE)/Practical Global Research in the AI x Robotics Services, implemented by the Cabinet Office, Government of Japan, and partially funded by the Japan Science and Technology Agency (JST) with the JST-Mirai Program, grant number JPMJMI21H4.
 
@@ -608,16 +609,16 @@ This paper is based on results obtained from a project of Programs for Bridging 
 \bibliographystyle{IEEEtran}
 \bibliography{IEEEabrv, Uploaded/Bibliography}
 
-% \biography{Uploaded/Images/Arnaud.png}{Arnaud Demont}{received the M.S. degree in mechanical engineering with a specialization in mechatronics and systems from the National Institute of Applied Sciences of Lyon, France, and a second M.S. degree in automation and robotics in intelligent systems from the University of  Technology of Compiègne, France, in 2021 and 2023 respectively. He is currently pursuing the PhD degree of the Université Paris-Saclay, France, within the CRNS-AIST Joint Robotics Laboratory in Tsukuba, Japan. His research interests include state estimation for legged robots, multi-sensor fusion, and mobile robot perception and autonomous navigation.
+% \biography{Uploaded/Images/Arnaud.jpg}{Arnaud Demont}{received the M.S. degree in mechanical engineering with a specialization in mechatronics and systems from the National Institute of Applied Sciences of Lyon, France, and a second M.S. degree in automation and robotics in intelligent systems from the University of  Technology of Compiègne, France, in 2021 and 2023 respectively. He is currently pursuing the PhD degree of the Université Paris-Saclay, France, within the CRNS-AIST Joint Robotics Laboratory in Tsukuba, Japan. His research interests include state estimation for legged robots, multi-sensor fusion, and mobile robot perception and autonomous navigation.
 % }
 
-% \biography{Uploaded/Images/Mehdi.png}{Mehdi Benallegue}{holds an engineering degree from the National Institute of Computer Science (INI) in Algeria, obtained in 2007. He earned a master's degree from the University of Paris 7, France, in 2008, and a Ph.D. from the University of Montpellier 2, France, in 2011. His research took him to the Franco-Japanese Robotics Laboratory in Tsukuba, Japan, and to INRIA Grenoble, France. He also worked as a postdoctoral researcher at the Collège de France and at LAAS CNRS in Toulouse, France. Currently, he is a Research Associate with CNRS AIST Joint robotics Laboratory in Tsukuba, Japan. His research interests include robot estimation and control, legged locomotion, biomechanics, neuroscience, and computational geometry.
+% \biography{Uploaded/Images/Mehdi.jpg}{Mehdi Benallegue}{holds an engineering degree from the National Institute of Computer Science (INI) in Algeria, obtained in 2007. He earned a master's degree from the University of Paris 7, France, in 2008, and a Ph.D. from the University of Montpellier 2, France, in 2011. His research took him to the Franco-Japanese Robotics Laboratory in Tsukuba, Japan, and to INRIA Grenoble, France. He also worked as a postdoctoral researcher at the Collège de France and at LAAS CNRS in Toulouse, France. Currently, he is a Research Associate with CNRS AIST Joint robotics Laboratory in Tsukuba, Japan. His research interests include robot estimation and control, legged locomotion, biomechanics, neuroscience, and computational geometry.
 % }
 
-% \biography{Uploaded/Images/Thomas.png}{Thomas Duvinage}{received the M.S. degree in computer science with a specialization in robotics and computer vision from the University of Technology of Belfort-Montbéliard, France. He also holds a second M.S. degree in industrial and technology entrepreneurship from the same university. Since 2024, he has been serving as a CNRS delegate research engineer at the CNRS-AIST Joint Robotics Laboratory in Tsukuba, Japan. His work focuses on software integration for robotic systems, with research interests including robotics software architecture, system integration, and real-time robotic applications.
+% \biography{Uploaded/Images/Thomas.jpg}{Thomas Duvinage}{received the M.S. degree in computer science with a specialization in robotics and computer vision from the University of Technology of Belfort-Montbéliard, France. He also holds a second M.S. degree in industrial and technology entrepreneurship from the same university. Since 2024, he has been serving as a CNRS delegate research engineer at the CNRS-AIST Joint Robotics Laboratory in Tsukuba, Japan. His work focuses on software integration for robotic systems, with research interests including robotics software architecture, system integration, and real-time robotic applications.
 % }
 
-% \biography{Uploaded/Images/Aziz.png}{Prof. Abdelaziz Benallegue}{received the B.S. degree in electronics engineering from Algiers National Polytechnic School, Algeria in 1986 and both the M.S. and Ph.D. degrees in automatic control and robotics from University of Pierre and Marie Curie, Paris 6 (currently Sorbonne University), France in 1987 and 1991 respectively. He was Associate professor in Automatic Control and Robotics at the University Pierre et Marie Curie, Paris 6 (currently Sorbonne University) from 1992 to 2002. In September 2002, he joined the University of Versailles St Quentin as full Professor assigned. He was a CNRS delegate at JRL-AIST, Japan for three years, between 2016 and 2022. His research activities are mainly related to linear and non-linear estimation and control theory (adaptive control, robust control, neural learning control, observers, multi-sensor fusion, etc.) with applications in robotics (humanoid robots, aerial robots, manipulator robots, etc.).
+% \biography{Uploaded/Images/Aziz.jpg}{Prof. Abdelaziz Benallegue}{received the B.S. degree in electronics engineering from Algiers National Polytechnic School, Algeria in 1986 and both the M.S. and Ph.D. degrees in automatic control and robotics from University of Pierre and Marie Curie, Paris 6 (currently Sorbonne University), France in 1987 and 1991 respectively. He was Associate professor in Automatic Control and Robotics at the University Pierre et Marie Curie, Paris 6 (currently Sorbonne University) from 1992 to 2002. In September 2002, he joined the University of Versailles St Quentin as full Professor assigned. He was a CNRS delegate at JRL-AIST, Japan for three years, between 2016 and 2022. His research activities are mainly related to linear and non-linear estimation and control theory (adaptive control, robust control, neural learning control, observers, multi-sensor fusion, etc.) with applications in robotics (humanoid robots, aerial robots, manipulator robots, etc.).
 % }
 
 % \clearafterbiography

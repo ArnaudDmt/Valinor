@@ -1,0 +1,106 @@
+
+\subsubsection{Claim of Tilt Observer}
+
+\begin{revquote}
+The Tilt Observer and its convergence properties are not novel in this work; they originate from prior work ([19]). Where the overall claim is to "This article presents VALINOR (Velocity-Aided Leg Inertial Nonlinear Odometry and Registration), a method for Leg-Inertial odometry for humanoid robots addressing the challenge of lightweight yet accurate and certifiable state estimation.", this could be misleading. It is used as a tool.
+\end{revquote}
+
+\begin{revquote}
+The observer dynamics uses a variable $\hat{\boldsymbol{x}}_{2}^{\prime} $, which is not defined in the current paper, despite playing a central role in the update laws.
+\end{revquote}
+
+We thank the reviewer for this rightful comment. We have added the definition of $\hat{\boldsymbol{x}}_{2}^{\prime} $ right below its use in Eq.~\eqref{eq:tilt_dynamics_1}, and its role in the filter. We elaborate here the explanation.
+The particularity of the Tilt Observer is that it estimates the IMU's tilt $\boldsymbol{x}_{2}$ in two stages. $\hat{\boldsymbol{x}}_{2}^{\prime} $ is its intermediate estimate, which is not constrained to remain on the sphere $\mathbb{S}^{2}$, unlike $\boldsymbol{x}_{2}$ which is a unit vector. As explained in Theorem 1 of~\cite{benallegue2020LyapunovStableOrientationEstimatorHumanoids}, this allows $\hat{\boldsymbol{x}}_{2}^{\prime} $ to converge globally exponentially through the unit sphere. In the second stage of the tilt estimation, the final estimate $\hat{\boldsymbol{x}}_{2}$, is driven by $\hat{\boldsymbol{x}}_{2}^{\prime}$ while being restricted to lie on the unit sphere by the use the formalism of the $\mathbb{S}^{2}$ Lie group. Doing so, the tilt estimate benefits from strong mathematical convergence guarantees while being mathematically consistent.
+
+
+\begin{revquote}
+The observer relies on gains $\alpha_{1}$, $\alpha_{2}$, $\gamma$, but no method or rationale is provided for how they are selected, or tilt observer defines them.
+\end{revquote}
+
+We thank the reviewer for this comment. We indeed did not provide a method for the gains tuning. To correct this, we now refer to~\cite{benallegue2023velocity} when introducing the gains. Section IV C of this paper provides insights on how to tune them when working with real systems, notably based on the noisiness and reliability of the IMU and linear velocity measurements. For example in our implementation, we used the following tuning: $\alpha_{1} = 4, \alpha_{2} = 4, \gamma = 1$. HRP-5P and RHP Friends are equipped with high-end IMUs\footnote{Unfortunately only the model of the IMU used in HRP5-P (KVH Industries: 1750, according to~\cite{Kaneko2019Hrp5}) has been publicly disclosed.}, so we tuned our filter to leverage them. 
+To the paragraph, we also added the note that the convergence properties of the filter are independent of the gains tuning. 
+
+\subsubsection{IMU Bias and Noise Modeling}
+
+\begin{revquote}
+* IMU measurements (gyroscope and accelerometer) are used directly without modeling or compensating for sensor bias.
+* Unlike RI-EKF, which includes IMU bias in the state vector, VALINOR assumes ideal IMU signals.
+* This assumption should be acknowledged and tested for robustness, particularly in longer or more dynamic trials.
+\end{revquote}
+
+We thank the reviewer for this comment. The biases on the gyrometer and accelerometer measurements were indeed not considered in the Tilt Observer. These biases are one of the core challenges of proprioceptive estimation, since they are not observable with no global position and orientation measurement. In RI-EKF, the authors explain that by simply adding biases to the state, most of their theorical properties (for example their observability analysis) no longer hold. The complementary fitler used for the Tilt Observer is no exception, and adding the biases would prevent from writing a proof of convergence.
+\textcolor{red}{
+But we would like here to provide more insights on the impact of the biases on the estimator:}
+Also, adding the gyrometer may indeed improve the estimation, but from our experience working with estimators using only proprioceptive measurements, the estimated gyrometer bias generally doesn't converge towards the actual one but to totally different values. It may even reach non-negligible erroneous estimate that lead to the drift of the robot. We could notably observe this with the RI-EKF during the long walk experiment. While the gyrometer bias was almost zero during the whole walk, the RI-EKF estimated an increasing bias along the z axis, and increasingly drifted in yaw over time.   \textcolor{red}{See figure}
+For these reasons, we did not insist on the inclusion of sensor biases.
+
+\textcolor{red}{Say clearly in the text that we don't estimate the bias?}
+
+ 
+
+\subsubsection{End-to-End Pipeline and Description}
+
+
+\begin{revquote}
+While experimental sections reference a combined system (estimator + control + humanoid), there is no detailed diagram or explanation of the full data flow.
+\end{revquote}
+
+\begin{revquote}
+There is no formal SE(3), Lie group, or EKF-based structure defined for global pose fusion.
+\end{revquote}
+
+We thank the reviewer for this comment. The proposed estimator indeed doesn't use an EKF or the Lie Group SE(3) to perform fusion. In VALINOR, we ``directly'' build a pose from a position, a yaw, and a tilt coming from different sources (from contact positions, contact orientations, and the Tilt Observer, respectively), and we agree that this can be improved. However, doing that while keeping the philisophy of lightweight yet reliable estimation is not trivial. 
+As an example, we could indeed fuse the contact poses and the output of the Tilt Observer within an EKF. However, the matrix inversion and multiplications involved in the EKF would increase greatly the computation time of our estimator. Moreover, by using our tilt estimate $\hat{\boldsymbol{x}}_{2}$ as a measurement, we could not guarantee anymore the convergence properties of the tilt at the output.
+
+To remain consistent with our approach, we are thus working on extending this work by writing a proof of convergence similar to that of the Tilt Observer, for a complementary filter that would include the positions and orientations coming from contacts.  
+
+\begin{revquote}
+Pose estimation is described in parts (e.g., contact anchoring, tilt fusion), but the overall architecture is fragmented and unclear.
+\end{revquote}
+
+\io
+
+\begin{revquote}
+Though contact positions relative to the IMU are derived from encoder data, the process of estimating the anchor pose, its reference frame, and how it updates over time is not fully described.
+\end{revquote}
+
+We thank the reviewer for this comment. The anchor point is a point that belongs to the robot, but we consider its position and velocity in both the world and the IMU's frame. By assuming this point has a zero linear velocity in the world, we can obtain an estimate of the IMU's velocity in the world with Eq.~\eqref{eq:yv}. To compute this velocity, only the position and the linear velocity of the anchor point in the IMU's frame are necessary, so we don't need to compute them in the world frame. We modified Section~\ref{sec:anchor_point} to explain it more clearly, once its kinematics in the IMU's frame have been given.
+
+\subsubsection{Quantitative Yaw Visualization}
+
+\begin{revquote}
+Yaw fusion is one of the core contributions of the paper (via the axis-agnostic method), yet no plot of yaw angle or yaw error over time is provided. This significantly weakens the experimental validation of the claimed improvement.
+\end{revquote}
+
+\begin{revquote}
+In Figure 5, VALINOR exhibits larger variations in vertical translation (z-axis) compared to RI-EKF. This raises concerns that the improved orientation or tilt accuracy may come at the cost of position accuracy, particularly in vertical drift.
+\end{revquote}
+
+\subsubsection{Experimental Coverage}
+
+\begin{revquote}
+The proposed estimator appears to be an advanced method with efficiency and modularity benefits. It would be reasonable to expect greater generalization across various robot behaviors and environments.
+\end{revquote}
+
+\begin{revquote}
+However, the current experiments are confined to flat, short-range, structured lab environment, which limits the real-world relevance of the evaluation.
+\end{revquote}
+
+\begin{revquote}
+The test conditions can benefit from:
+      o Uneven or non-planar surfaces
+      o Inclines or stairs
+      o Long-distance walking (to test drift)
+\end{revquote}
+
+\subsubsection{Computation Time Analysis}
+
+\begin{revquote}
+The core runtime claim is strong:
+      o VALINOR = 2.547 µs
+      o RI-EKF = 19.315 µs
+However, this leads to some open questions as
+      o Is the timing consistent across all trials?
+      o How does performance vary with the number of contacts?
+    
+\end{revquote}

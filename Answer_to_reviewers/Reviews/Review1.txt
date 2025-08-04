@@ -1,0 +1,56 @@
+Reviewer #1: [Paper Summary]
+The manuscript presents VALINOR, a lightweight leg-inertial odometry estimator for humanoid robots. It combines:
+*       A previously developed Tilt Observer for tilt and linear velocity estimation,
+*       Contact-based leg odometry for yaw and position estimation,
+*       An axis-agnostic fusion strategy to merge tilt (from IMU) and yaw (from contacts),
+*       A contact weighting mechanism to reduce the impact of unreliable or slipping contacts.
+The authors report a 7.5x speedup over RI-EKF while maintaining or improving estimation accuracy, especially in tilt. The estimator is evaluated on two humanoid platforms.
+While the motivation is clear and some components are well executed, several technical and presentation weaknesses limit the paper's clarity, reproducibility, and novelty.
+
+[Major Strengths]
+*       Lightweight and certifiable estimation methods are needed in embedded humanoid platforms.
+*       System dynamics and contact-based kinematic fusion are explained clearly.
+*       The axis-agnostic tilt-yaw fusion is a conceptually novel alternative to Euler angle methods, avoiding singularities and arbitrary axis assumptions.
+*       A clean implementation on SO(3) avoids matrix inversion and improves runtime performance.
+*       Experiments are performed on two physical humanoid robots using real sensor data.
+*       Demonstrates a 7.5x computation speed improvement over RI-EKF.
+
+
+[Paper Weaknesses & Gaps]
+Claim of Tilt Observer
+*       The Tilt Observer and its convergence properties are not novel in this work; they originate from prior work ([19]). Where the overall claim is to "This article presents VALINOR (Velocity-Aided Leg Inertial Nonlinear Odometry and Registration), a method for Leg-Inertial odometry for humanoid robots addressing the challenge of lightweight yet accurate and certifiable state estimation.", this could be misleading. It is used as a tool.
+*       The observer dynamics uses a variable x̂'2, which is not defined in the current paper, despite playing a central role in the update laws.
+*       The observer relies on gains   1,   2,   , but no method or rationale is provided for how they are selected, or tilt observer defines them.
+
+IMU Bias and Noise Modeling
+*       IMU measurements (gyroscope and accelerometer) are used directly without modeling or compensating for sensor bias.
+*       Unlike RI-EKF, which includes IMU bias in the state vector, VALINOR assumes ideal IMU signals.
+*       This assumption should be acknowledged and tested for robustness, particularly in longer or more dynamic trials.
+
+End-to-End Pipeline and Description
+*       While experimental sections reference a combined system (estimator + control + humanoid), there is no detailed diagram or explanation of the full data flow.
+*       There is no formal SE(3), Lie group, or EKF-based structure defined for global pose fusion.
+*       Pose estimation is described in parts (e.g., contact anchoring, tilt fusion), but the overall architecture is fragmented and unclear.
+*       Though contact positions relative to the IMU are derived from encoder data, the process of estimating the anchor pose, its reference frame, and how it updates over time is not fully described.
+
+Quantitative Yaw Visualization
+*       Yaw fusion is one of the core contributions of the paper (via the axis-agnostic method), yet no plot of yaw angle or yaw error over time is provided.
+*       This significantly weakens the experimental validation of the claimed improvement.
+*       In Figure 5, VALINOR exhibits larger variations in vertical translation (z-axis) compared to RI-EKF. This raises concerns that the improved orientation or tilt accuracy may come at the cost of position accuracy, particularly in vertical drift.
+
+Experimental Coverage
+*       The proposed estimator appears to be an advanced method with efficiency and modularity benefits. It would be reasonable to expect greater generalization across various robot behaviors and environments.
+*       However, the current experiments are confined to flat, short-range, structured lab environment, which limits the real-world relevance of the evaluation.
+*       The test conditions can benefit from:
+      o Uneven or non-planar surfaces
+      o Inclines or stairs
+      o Long-distance walking (to test drift)
+
+Computation Time Analysis
+*       The core runtime claim is strong:
+      o VALINOR = 2.547 µs
+      o RI-EKF = 19.315 µs
+
+*       However, this leads to some open questions as
+      o Is the timing consistent across all trials?
+      o How does performance vary with the number of contacts?
