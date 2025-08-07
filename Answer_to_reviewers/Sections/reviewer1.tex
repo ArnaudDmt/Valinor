@@ -41,24 +41,25 @@ For these reasons, we did not insist on the inclusion of sensor biases.
 \subsubsection{End-to-End Pipeline and Description}
 
 
-\begin{revquote}
-While experimental sections reference a combined system (estimator + control + humanoid), there is no detailed diagram or explanation of the full data flow.
-\end{revquote}
+
 
 \begin{revquote}
 There is no formal SE(3), Lie group, or EKF-based structure defined for global pose fusion.
 \end{revquote}
 
-We thank the reviewer for this comment. The proposed estimator indeed doesn't use an EKF or the Lie Group SE(3) to perform fusion. In VALINOR, we ``directly'' build a pose from a position, a yaw, and a tilt coming from different sources (from contact positions, contact orientations, and the Tilt Observer, respectively), and we agree that this can be improved. However, doing that while keeping the philisophy of lightweight yet reliable estimation is not trivial. 
+\hypertarget{CommentSe3Fusion}{}
+We thank the reviewer for this comment. The proposed estimator indeed doesn't use an EKF or the Lie Group SE(3) to perform fusion. In VALINOR, we ``directly'' build a pose from a position, a yaw, and a tilt coming from different sources (from contact positions, contact orientations, and the Tilt Observer, respectively). We agree that this can be improved, and recognize it in the conclusion of the paper. However, doing that while keeping the philisophy of lightweight yet reliable estimation is not trivial. 
 As an example, we could indeed fuse the contact poses and the output of the Tilt Observer within an EKF. However, the matrix inversion and multiplications involved in the EKF would increase greatly the computation time of our estimator. Moreover, by using our tilt estimate $\hat{\boldsymbol{x}}_{2}$ as a measurement, we could not guarantee anymore the convergence properties of the tilt at the output.
 
-To remain consistent with our approach, we are thus working on extending this work by writing a proof of convergence similar to that of the Tilt Observer, for a complementary filter that would include the positions and orientations coming from contacts.  
+
+To remain consistent with our approach, we are thus working on extending our method by writing a proof of convergence similar to that of the Tilt Observer, for a complementary filter that would include the positions and orientations coming from contacts. 
 
 \begin{revquote}
-Pose estimation is described in parts (e.g., contact anchoring, tilt fusion), but the overall architecture is fragmented and unclear.
+- While experimental sections reference a combined system (estimator + control + humanoid), there is no detailed diagram or explanation of the full data flow. Pose estimation is described in parts (e.g., contact anchoring, tilt fusion), but the overall architecture is fragmented and unclear.
 \end{revquote}
 
-\io
+
+We thank the reviewer for these comments. We agree that the overall architecture of our estimate can be unclear. To clarify it, we added a block diagram \io at the beginning of the paper, providing an overview of the whole framework and the contribution of each block and section. We think this will enhance the readability of the paper.
 
 \begin{revquote}
 Though contact positions relative to the IMU are derived from encoder data, the process of estimating the anchor pose, its reference frame, and how it updates over time is not fully described.
@@ -71,6 +72,13 @@ We thank the reviewer for this comment. The anchor point is a point that belongs
 \begin{revquote}
 Yaw fusion is one of the core contributions of the paper (via the axis-agnostic method), yet no plot of yaw angle or yaw error over time is provided. This significantly weakens the experimental validation of the claimed improvement.
 \end{revquote}
+
+We thank the reviewer for this comment. The yaw estimation is indeed important in proprioceptive odometry, so we added a plot of the yaw angle. 
+However, we would like to highlight that our contribution here is a novel method for the fusion of a yaw and a tilt estimates coming from different sources. 
+This fusion allows us to construct an orientation matrix from the tilt coming from the Tilt Observer, and the yaw coming from the Leg odometry. 
+This fusion is important here since it allows to preserve the mathematical convergence guarantees provided by the Tilt Observer within our full orientation. 
+We have noticed that we did not insists on this enough in the paper, so we clarified it in our Abstract, and Section~\ref{sec:leg_odometry} and Section~\ref{sec:axisAgnostic}, which explain the leg odometry and the axis-agnostic fusion, respectively.
+In the proposed estimator, the yaw estimate comes solely from Leg odometry, it is therefore not expected to be more accurate than the yaw estimated by the RI-EKF, which also leverages the IMU measurements. As elaborated in \hyperlink{CommentSe3Fusion}{this response}, combining Leg odometry and IMU measurements in our framework is not trivial, but we are currently addressing it.
 
 \begin{revquote}
 In Figure 5, VALINOR exhibits larger variations in vertical translation (z-axis) compared to RI-EKF. This raises concerns that the improved orientation or tilt accuracy may come at the cost of position accuracy, particularly in vertical drift.

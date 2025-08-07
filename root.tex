@@ -54,7 +54,7 @@
 
 % the abstract environment
 \begin{abstract}
-This article presents {\scshape Valinor} (Velocity-Aided Leg Inertial Nonlinear Odometry and Registration), a method for Leg-Inertial odometry for humanoid robots addressing the challenge of lightweight yet accurate and certifiable state estimation. {\scshape Valinor} associates Leg odometry with the Tilt Observer, a computationally efficient complementary filter, which provides accurate estimates of the IMU's tilt and linear velocity with strong mathematical convergence guarantees. We introduce an axis-agnostic method for the fusion of the Leg odometry's yaw with the Tilt Observer's tilt estimate. We argue that this method is less arbitrary and more mathematically sound than those based on other orientation representations, especially on Euler angles.
+This article presents {\scshape Valinor} (Velocity-Aided Leg Inertial Nonlinear Odometry and Registration), a method for Leg-Inertial odometry for humanoid robots addressing the challenge of lightweight yet accurate and certifiable state estimation. {\scshape Valinor} associates Leg odometry with the Tilt Observer, a computationally efficient complementary filter, which provides accurate estimates of the IMU's tilt and linear velocity with strong mathematical convergence guarantees. We introduce an axis-agnostic method to fuse of yaw and tilt estimates derived from different sources. We argue that this method is less arbitrary and more mathematically sound than those based on other orientation representations, especially on Euler angles.
 We present an evaluation of the proposed estimator through real-world data on two humanoid robots. We show that, while being 7.5 times faster than the state-of-the-art method used for comparison, {\scshape Valinor} improves tilt estimation by over 25\%, making it a well-suited feedback for balance and walking controllers. 
 \end{abstract}
 
@@ -95,7 +95,7 @@ In this work we propose {\scshape Valinor} (Velocity-Aided Leg Inertial Nonlinea
 The main contributions introduced in this paper are as follows:
 \begin{itemize}
   \item The proposed state estimator is 7.5 times faster than the start-of-the-art method for proprioceptive odometry, while displaying on par odometry accuracy, and even improving significantly tilt estimation.
-  \item We present the axis-agnostic tilt and yaw fusion, which we show to be more mathematically sound than that based on Euler angle representations.
+  \item We introduce an axis-agnostic method to fuse of yaw and tilt estimates coming from different sources, which we show to be more mathematically sound than that based on Euler angle representations.
   \item We evaluate the proposed method on real experiments with two different humanoid robots.
   \item The code of the Tilt Observer is open source\footnote{\scriptsize \url{https://github.com/ArnaudDmt/state-observation}}, as well as a ROS wrapper\footnote{\scriptsize \url{https://github.com/ArnaudDmt/state_observation_ros.git}}.
 \end{itemize}
@@ -134,9 +134,9 @@ The contact's weighting coefficient $\lambda_{i}$ is then:
 Based on this definition, we give the position and linear velocity of the anchor point in the IMU's frame:
 \begin{align} 
 &{^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}} = \sum^{n_{c}}_{i} \lambda_{i}  {^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}, \label{eq:imuAnchorPos} \\
-&{^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}^{\prime}} = \sum^{n_{c}}_{i} \lambda_{i}  {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}, \label{eq:imuAnchorVel}
+&{^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}} = \sum^{n_{c}}_{i} \lambda_{i}  {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}, \label{eq:imuAnchorVel}
 \end{align} 
-with ${^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}$ the position and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}$ the linear velocity of the $i$-th contact in the IMU's frame, which are directly provided by the robot's joint encoders and geometrical model. \\As explained in Section~\ref{subsec:tiltMeas}, ${^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}}$ and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}^{\prime}}$ are updated at each iteration. Combined with the zero-velocity assumption of the anchor point in the world frame and the gyrometer measurement, they provide an algebraic estimate of the IMU velocity in the world frame.
+with ${^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}$ the position and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}$ the linear velocity of the $i$-th contact in the IMU's frame, which are directly provided by the robot's joint encoders and geometrical model. \\As explained in Section~\ref{subsec:tiltMeas}, ${^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}}$ and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}}$ are updated at each iteration. Combined with the zero-velocity assumption of the anchor point in the world frame and the gyrometer measurement, they provide an algebraic estimate of the IMU velocity in the world frame.
 
 It is important to note also that with this definition, although the anchor point is defined to have zero velocity in the world, its instantaneous position may still evolve over time.
 
@@ -229,7 +229,7 @@ exp and log are the \emph{exponential} and \emph{logarithm} maps of SO(3). We no
 \begin{equation}
 \text{log}\left(\tilde{\boldsymbol{R}}\right) \simeq \frac{1}{2} \left(\tilde{\boldsymbol{R}}-\tilde{\boldsymbol{R}}^{T}\right), \label{eq:log_small}
 \end{equation}
-Once the IMU's orientation $\hat{\boldsymbol{R}}_{\mathcal{I}}$ has been computed, we merge the corresponding yaw with the tilt estimated by the Tilt Observer using a new axis-agnostic fusion of tilt and yaw, that we describe in Section~\ref{sec:axisAgnostic}, which preserves the estimated tilt with little computations.
+Once the IMU's orientation $\hat{\boldsymbol{R}}_{\mathcal{I}}$ has been computed, we merge the corresponding yaw with the tilt estimated by the Tilt Observer using a new axis-agnostic fusion of tilt and yaw, that we describe in Section~\ref{sec:axisAgnostic}, which preserves the estimated tilt and its mathematical convergence guarantees with little computations.
 
 The position of the IMU's frame in the world frame is then obtained from the $n_{c}$ contact reference poses: 
 \begin{equation}
@@ -250,8 +250,8 @@ estimate of the IMU \emph{tilt} noted
 \)
 while the contact–based Leg odometry of
 Section~\ref{sec:leg_odometry} supplies an orientation \(\boldsymbol{R}_{2} = \hat{\boldsymbol{R}}_{\mathcal{I}}\), whose
-yaw reflects the robot's heading.  We now merge these two pieces into a
-single rotation \(\boldsymbol{R}\).
+yaw reflects the robot's heading.  We now want to merge these two pieces into a
+single rotation \(\boldsymbol{R}\), which would preserve our tilt estimate, especially its mathematical convergence guarantees.
 
 %.....................................................................
 \subsection{Why not Euler angles?}
@@ -505,7 +505,7 @@ The error $e_{\boldsymbol{\ell}}$ on the tilt estimate is computed with:
 \begin{equation}
     e_{\boldsymbol{\ell}} = \text{arccos}\left(\boldsymbol{\ell}_{gt}^{T} \hat{\boldsymbol{\ell}} \right),
 \end{equation}
-with $\boldsymbol{\ell}_{gt}$ the ground truth tilt, and $\hat{\boldsymbol{\ell}}^{T}$ the estimated one.\\
+with $\boldsymbol{\ell}_{gt}$ the ground truth tilt, and $\hat{\boldsymbol{\ell}}$ the estimated one.\\
 Finally, we also assess the estimation of the IMU's linear velocity in the world. This velocity is expressed in the frame of the IMU such that it is not affected by errors in the orientation estimate. The velocity error is also separated into lateral and vertical components.
 
 \subsection{Experimental Results}
