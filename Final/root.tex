@@ -21,6 +21,7 @@
 \usepackage{multicol} 
 \usepackage{multirow}
 \usepackage{subcaption}
+\usepackage{empheq}
 
 %%%% Editorial Information
 %% Authors do not have to modify this section.
@@ -112,9 +113,9 @@ The main contributions introduced in this paper are as follows:
 
 
 \section{DEFINITION OF THE ANCHOR POINT}\label{sec:anchor_point}
-We define here the notion of anchor point, since it will be used extensively in the following sections. The position of the anchor point can be merged with the robot's joint encoders and IMU signals to provide an algebraic estimate of the IMU velocity in the world frame. This will be explained in Section~\ref{subsec:tiltMeas} where we show that it is essential for the estimator design.
+We define here the notion of anchor point, since it will be used extensively in the following sections. It is notably essential for the design of the Tilt Observer, as explained in Section~\ref{subsec:tiltMeas}.
 
-The anchor point, denoted $\mathcal{A}$, is defined as a point attached to the robot and which is considered to have zero \emph{instantanous} linear velocity in the world frame. This point does not need to be fixed in the robot frame as well, the only requirement is that its instantaneous position and linear velocity in the frame of the robot's floating base are known. 
+The anchor point, denoted $\mathcal{A}$, is defined as a point attached to the robot and which is considered to have zero \emph{instantaneous} linear velocity in the world frame. This point does not need to be fixed in the robot frame as well, the only requirement is that its instantaneous position and linear velocity in the frame of the robot's floating base are known. 
 
 Contacts with the environment provide naturally good sets of points known to the robot and having zero world velocity. With the no-slippage hypothesis, any point of a contact body would thus be suitable to define an anchor point. However, we need an anchor point that remains always defined and whose position is as continuous as possible, even when contacts are created and broken, as long as there is at least one contact established. Also, the no-slippage hypothesis can hold better for some points than others. For instance, when the contact forces are closer to Coulomb's friction cones the contact is more likely to slip.
 
@@ -127,15 +128,15 @@ the ratio of the normal force to the tangential force at the contact $i$. The te
 
 The contact's weighting coefficient $\lambda_{i}$ is then:
 \begin{equation}
-    \lambda_{i}=\frac{u_{i}}{\sum^{n_{c}}_{j=1}u_{i}}. \label{eq:lambda_i}
+    \lambda_{i}=\frac{u_{i}}{\sum^{n_{c}}_{j=1}u_{i}}.
 \end{equation}
 
 Based on this definition, we give the position and linear velocity of the anchor point in the IMU's frame:
 \begin{align} 
 &{^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}} = \sum^{n_{c}}_{i} \lambda_{i}  {^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}, \label{eq:imuAnchorPos} \\
-&{^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}^{\prime}} = \sum^{n_{c}}_{i} \lambda_{i}  {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}, \label{eq:imuAnchorVel}
+&{^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}} = \sum^{n_{c}}_{i} \lambda_{i}  {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}, \label{eq:imuAnchorVel}
 \end{align} 
-with ${^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}$ the position and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}$ the linear velocity of the $i$-th contact in the IMU's frame, which are directly provided by the robot's joint encoders and geometrical model.
+with ${^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}$ the position and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}$ the linear velocity of the $i$-th contact in the IMU's frame, which are directly provided by the robot's joint encoders and geometrical model. \\As explained in Section~\ref{subsec:tiltMeas}, ${^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}}$ and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}}$ are updated at each iteration. Combined with the zero-velocity assumption of the anchor point in the world frame and the gyrometer measurement, they provide an algebraic estimate of the IMU velocity in the world frame.
 
 It is important to note also that with this definition, although the anchor point is defined to have zero velocity in the world, its instantaneous position may still evolve over time.
 
@@ -190,24 +191,18 @@ The state dynamics of our system can be written:
 &\dot{\boldsymbol{x}}_{2} = - \boldsymbol{y}_{g} \times  \boldsymbol{x}_{2}. \label{eq:x2_dot}
 \end{align} 
 with $g_{0}$ the gravitational acceleration constant. We write a complementary filter which uses the system's dynamics as a feed-forward, and corrects the estimated state using the velocity measurement $\boldsymbol{y}_{v}$:
-
-\begin{equation}
-    \left\{
-    \begin{aligned}
-        & \dot{\hat{\boldsymbol{x}}}_{1}  = - \boldsymbol{y}_{g} \times \hat{\boldsymbol{x}}_{1} - g_{0} \hat{\boldsymbol{x}}_{2}^{\prime} + \boldsymbol{y}_{a} + \alpha_{1} \left(\boldsymbol{y}_{v} - \hat{\boldsymbol{x}}_{1}\right), \\
-    & \dot{\hat{\boldsymbol{x}}}_{2}^{\prime} = -  \boldsymbol{y}_{g} \times \hat{\boldsymbol{x}}_{2} - \frac{\alpha_{2}}{g_{0}} \left(\boldsymbol{y}_{v} - \hat{\boldsymbol{x}}_{1}\right), \\
-    & \dot{\hat{\boldsymbol{x}}}_{2} = - \left(\boldsymbol{y}_{g} - \gamma  \hat{\boldsymbol{x}}_{2} \times \hat{\boldsymbol{x}}_{2}^{\prime}\right)\times \hat{\boldsymbol{x}}_{2}.
-    \end{aligned}
-    \right.
-    \label{eq:tilt_dynamics}
-\end{equation}
+\begin{empheq}[left= \empheqlbrace]{align}
+    \dot{\hat{\boldsymbol{x}}}_{1} &= - \boldsymbol{y}_{g} \times \hat{\boldsymbol{x}}_{1} - g_{0} \hat{\boldsymbol{x}}_{2}^{\prime} + \boldsymbol{y}_{a} + \alpha_{1} (\boldsymbol{y}_{v} - \hat{\boldsymbol{x}}_{1}) \label{eq:tilt_dynamics_1} \\
+    \dot{\hat{\boldsymbol{x}}}_{2}^{\prime} &= -  \boldsymbol{y}_{g} \times \hat{\boldsymbol{x}}_{2} - \frac{\alpha_{2}}{g_{0}} (\boldsymbol{y}_{v} - \hat{\boldsymbol{x}}_{1}) \label{eq:tilt_dynamics_2} \\
+    \dot{\hat{\boldsymbol{x}}}_{2} &= - (\boldsymbol{y}_{g} - \gamma \hat{\boldsymbol{x}}_{2} \times \hat{\boldsymbol{x}}_{2}^{\prime})\times \hat{\boldsymbol{x}}_{2} \label{eq:tilt_dynamics_3}
+\end{empheq}
 
 
-$\alpha_1$, $\alpha_2$ and $\gamma$ are positive scalar gains. $\hat{\boldsymbol{x}}_{1} $ and $\hat{\boldsymbol{x}}_{2} $ are estimates of $\boldsymbol{x}_{1} $ and $\boldsymbol{x}_{2} $, respectively.
-
+$\hat{\boldsymbol{x}}_{1} $ is the estimate of $\boldsymbol{x}_{1} $. $\hat{\boldsymbol{x}}_{2}^{\prime}$ is an intermediate estimate of $\boldsymbol{x}_{2} $, which converges exponentially but is not restricted to lie on the sphere $\mathbb{S}^{2}$. This estimate drives the convergence of the final estimate $\hat{\boldsymbol{x}}_{2} $, which is explicitly projected onto $\mathbb{S}^{2}$ so as to respect its Lie group structure.
+The positive scalar gains $\alpha_1$, $\alpha_2$ and $\gamma$ define the convergence rates of the three state estimates. Insights on their tuning are provided in~\cite{benallegue2023velocity}. Note that the filter's convergence guarantees hold regardless of the gains' tuning.
 
 \subsection{Advantages of the Tilt Observer}
-The use of a complementary filter for the Tilt Observer presents notable strengths in comparison to other methods like the commonly used Kalman Filter. First, it allows us to easily work in the frequency domain when determining the gains. This is particularly suitable for our model since the assumption of fixed contacts used to obtain the velocity measurement $\boldsymbol{y}_v$ is more valid in low frequency than in high frequency. In~\eqref{eq:x1_dot}, we thus use the IMU measurements for the high frequency variation of $\hat{\boldsymbol{x}}_{1}$, and $\boldsymbol{y}_v$ for its low frequency variation. Second, one iteration of the filter only consists in computing three equations, it also doesn't involve any matrix multiplication or inversion and is thus computationally extremely cheap, as will be shown in Section~\ref{subsec:computation_time}. Finally, the formulation as a complementary filter allows to conduct a convergence analysis of the estimation error, providing strong mathematical guarantees on the estimator's performances. Especially here, it has been shown in~\cite{benallegue2020LyapunovStableOrientationEstimatorHumanoids} that:
+The use of a complementary filter for the Tilt Observer presents notable strengths in comparison to other methods like the commonly used Kalman Filter. First, it allows us to easily work in the frequency domain when determining the gains. This is particularly suitable for our model since the assumption of fixed contacts used to obtain the velocity measurement $\boldsymbol{y}_v$ is more valid in low frequency than in high frequency. In~\eqref{eq:tilt_dynamics_1}, we thus use the IMU measurements for the high frequency feed-forward of $\hat{\boldsymbol{x}}_{1}$, and $\boldsymbol{y}_v$ for its low frequency correction. Second, one iteration of the filter only consists in computing three equations, it also doesn't involve any matrix multiplication or inversion and is thus computationally extremely cheap, as will be shown in Section~\ref{subsec:computation_time}. Finally, the formulation as a complementary filter allows to conduct a convergence analysis of the estimation error, providing strong mathematical guarantees on the estimator's performances. Especially here, it has been shown in~\cite{benallegue2020LyapunovStableOrientationEstimatorHumanoids} that:
 \begin{itemize}
     \item The dynamics of the estimation error is autonomous, and thus does not depend on the motion of the robot. 
     \item The intermediate estimator $\left\{\hat{\boldsymbol{x}}_{1}, \hat{\boldsymbol{x}}_{2}^{\prime} \right\}$ is \emph{globally exponentially stable}, with respect to the origin $\left(0,0\right)$.
@@ -239,7 +234,7 @@ exp and log are the \emph{exponential} and \emph{logarithm} maps of SO(3). We no
 \begin{equation}
 \text{log}\left(\tilde{\boldsymbol{R}}\right) \simeq \frac{1}{2} \left(\tilde{\boldsymbol{R}}-\tilde{\boldsymbol{R}}^{T}\right), \label{eq:log_small}
 \end{equation}
-Once the IMU's orientation $\hat{\boldsymbol{R}}_{\mathcal{I}}$ has been computed, we merge the corresponding yaw with the tilt estimated by the Tilt Observer using a new axis-agnostic fusion of tilt and yaw, that we describe in Section~\ref{sec:axisAgnostic}, which preserves the estimated tilt with little computations.
+Once the IMU's orientation $\hat{\boldsymbol{R}}_{\mathcal{I}}$ has been computed, we merge the corresponding yaw with the tilt estimated by the Tilt Observer using a new axis-agnostic fusion of tilt and yaw, that we describe in Section~\ref{sec:axisAgnostic}, which preserves the estimated tilt and its mathematical convergence guarantees with little computations.
 
 The position of the IMU's frame in the world frame is then obtained from the $n_{c}$ contact reference poses: 
 \begin{equation}
@@ -260,8 +255,7 @@ estimate of the IMU \emph{tilt} noted
 \)
 while the contact–based Leg odometry of
 Section~\ref{sec:leg_odometry} supplies an orientation \(\boldsymbol{R}_{2} = \hat{\boldsymbol{R}}_{\mathcal{I}}\), whose
-yaw reflects the robot's heading.  We now merge these two pieces into a
-single rotation \(\boldsymbol{R}\).
+yaw reflects the robot's heading.  We now merge these two pieces into a single rotation \(\boldsymbol{R}\), which would preserve our tilt estimate, especially its mathematical convergence guarantees.
 
 %.....................................................................
 \subsection{Why not Euler angles?}
@@ -475,10 +469,10 @@ The axis-agnostic fusion is therefore adopted as the default in {\scshape VALINO
 
 
 
-\section{Experimental Evaluation}
+\section{Experimental Evaluation}~\label{sec:exps}
 \subsection{Description of the experiments}
 
-The proposed estimator has been evaluated accross two experimental scenarios on two different humanoid robots\footnote{We used the dataset built to evaluate the Kinetics Observer in~\cite{Demont2024KineticsObserver}}:
+The proposed estimator has been evaluated across two experimental scenarios on two different humanoid robots\footnote{We used the dataset built to evaluate the Kinetics Observer in~\cite{Demont2024KineticsObserver}}:
 \begin{itemize}
     \item Experiment 1: A walk on a flat ground over about 18 meters with the robot RHP Friends~\cite{Benallegue2025RhpFriendsJRL}, as shown in Figure~\ref{fig:trajRhps1}. This experiment was repeated 5 times, for a total distance of about 90 meters.
     \item Experiment 2: A multi-contact motion over about 2 meters with the robot HRP-5P~\cite{Kaneko2019Hrp5}. This motion involved an additional contact at the robot's left hand, and non-coplanar contacts on tilted obstacles, as shown in Figure~\ref{fig:hrp5_multicontact}. This experiment was repeated 4 times for a total distance of about 8 meters.
@@ -515,7 +509,7 @@ The error $e_{\boldsymbol{\ell}}$ on the tilt estimate is computed with:
 \begin{equation}
     e_{\boldsymbol{\ell}} = \text{arccos}\left(\boldsymbol{\ell}_{gt}^{T} \hat{\boldsymbol{\ell}} \right),
 \end{equation}
-with $\boldsymbol{\ell}_{gt}$ the ground truth tilt, and $\hat{\boldsymbol{\ell}}^{T}$ the estimated one.\\
+with $\boldsymbol{\ell}_{gt}$ the ground truth tilt, and $\hat{\boldsymbol{\ell}}$ the estimated one.\\
 Finally, we also assess the estimation of the IMU's linear velocity in the world. This velocity is expressed in the frame of the IMU such that it is not affected by errors in the orientation estimate. The velocity error is also separated into lateral and vertical components.
 
 \subsection{Experimental Results}
@@ -524,7 +518,8 @@ Finally, we also assess the estimation of the IMU's linear velocity in the world
 
 To evaluate the computation speed performance of {\scshape Valinor}, we compared its average computation time per iteration over the four multi-contact experiments, to that of the RI-EKF. Both estimators were run on the same laptop, on an Intel Xeon E-2176M CPU (2.70GHz x 12). In average, an iteration of {\scshape Valinor} was computed in 2.547 \textmu s, against 19.315 \textmu s for the RI-EKF. The proposed method is thus more than 7.5 times faster than the state-of-the-art estimator, while proposing equivalent estimation accuracy, as shown below.
 
-\subsubsection{Estimation Accuracy Evaluation}
+
+\subsubsection{Estimation Accuracy Evaluation} ~\label{subsec:est_accur_eval}
 
 Table~\ref{tab:estimation_eval} regroups the evaluation results of {\scshape Valinor}'s estimation performance compared to those of the RI-EKF during the two experiments on real robots.
 The presented errors are computed over all the sequences of each scenario: 5 for the walk on flat ground, and 4 for the multi-contact motion.
@@ -567,14 +562,14 @@ The presented errors are computed over all the sequences of each scenario: 5 for
 \end{table*}
 
 
-We first note that the relative strengths of both estimators were consistent accross both experiments, and that overall, they both displayed satisfactory estimation performance. Indeed, without the use of any exteroceptive sensors, their errors in translation estimates remain of the order of the centimer per meter walked, those on orientation estimates remain around 1\textdegree \ per meter walked, and finally their error in velocity estimates remain below 2 cm.s$^{-1}$. Now we give more insights into the obtained results:
+We first note that the relative strengths of both estimators were consistent across both experiments, and that overall, they both displayed satisfactory estimation performance. Indeed, without the use of any exteroceptive sensors, their errors in translation estimates remain of the order of the centimer per meter walked, those on orientation estimates remain around 1\textdegree \ per meter walked, and finally their error in velocity estimates remain below 2 cm.s$^{-1}$. Now we give more insights into the obtained results:
 \begin{itemize}
     \item {\scshape Valinor} estimated more accurately lateral translations, improving the estimation by over 30\% and 40\% compared to the RI-EKF. Additionally, as visible in Figure~\ref{fig:tilt_rhps1} it improved the estimation of the tilt by about 28\% in Experiment 1 and by 60\% in Experiment 2, reaching an average error of only 0.23\textdegree. For both translations and tilt estimates, our method displayed a significantly lower standard deviation of the error, proving an improved estimation consistency. 
     \item The RI-EKF estimated lateral velocities more accurately than {\scshape Valinor}, with a 20\% smaller the error. But we believe this difference has lower significance due to the large value of the standard deviation.
     \item Both estimators showed similar performance for the estimation of the yaw and of vertical translation and velocity.
 \end{itemize}
 
-As shown in Figure~\ref{fig:trans_z_rhps1}, we noticed that both estimators drifted upwards during the walk on flat ground, which involved longer walks and many more steps than the multi-contact motion. One of the reasons, inherent to Leg odometry, is its reliance on the quality of the contact detection. For example, detecting contacts consistently too early (when they are not perfectly still yet), would cause the estimate to drift on each step. Conversely, drift can also occur when detecting contacts consistently too late, due to the robot's structural deformation under the contact force, etc. While investigating, we could indeed reduce the vertical drift by tuning the thresholds of the Schmitt Trigger used for contact detection. However, we decided to leave them changed to ensure a fair comparison. The other main factor explaining the vertical drift is the quality of the pitch estimate, which significantly affects vertical translation estimates during long forward walks.
+As shown in Figure~\ref{fig:trans_z_rhps1}, we noticed that both estimators drifted upwards during the walk on flat ground, which involved longer walks and many more steps than the multi-contact motion. One of the reasons, inherent to Leg odometry, is its reliance on the quality of the contact detection. For example, detecting contacts consistently too early (when they are not perfectly still yet), would cause the estimate to drift on each step. Conversely, drift can also occur when detecting contacts consistently too late, due to the robot's structural deformation under the contact force, etc. While investigating, we could indeed reduce the vertical drift by tuning the thresholds of the Schmitt Trigger used for contact detection. However, we decided not to change them to ensure a fair comparison. The other main factor explaining the vertical drift is the quality of the pitch estimate, which significantly affects vertical translation estimates during long forward walks.
 
 \begin{figure}[!ht]
 \begin{center}
