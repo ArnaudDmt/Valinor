@@ -382,7 +382,6 @@ as the nonlinear system, which is a prerequisite for accurate state
 estimation. The presented approach is implemented in simulation
 and validated experimentally on an actual quadrupedal robot.},
   file      = {:Articles/State estimation/StateEstimationforLeggedRobots-ConsistentFusionofLegKinematicsandIMU:},
-  priority  = {prio2},
   publisher = {MIT Press},
 }
 
@@ -973,14 +972,6 @@ excellent performance of the filter.},
   file    = {:Articles/OptiStateStateEstimationLeggedRobotsUsingGatedNetworksWithTransformerBasedVisionAndKalmanFiltering.pdf:PDF},
 }
 
-@Book{roston1991deadReckoning,
-  author    = {Roston, Gerald P and Krotkov, Eric P},
-  publisher = {Department of Computer Science, Carnegie-Mellon University},
-  title     = {Dead Reckoning Navigation For Walking Robots.},
-  year      = {1991},
-  file      = {:Articles/DeadReckoningNaviagtionForWalkingRobots.pdf:PDF},
-}
-
 @Article{beravs2014magnetometerCalib,
   author    = {Beravs, Tadej and Begu{\v{s}}, Samo and Podobnik, Janez and Munih, Marko},
   journal   = {IEEE transactions on instrumentation and measurement},
@@ -1550,10 +1541,10 @@ http://ndl.ethernet.edu.et/bitstream/123456789/38117/1/42.pdf},
   keywords  = {Legged locomotion;Costs;Uncertainty;Service robots;Humanoid robots;Real-time systems;Trajectory},
 }
 
-@Article{Dallard2024AdiosStabilizers,
+@Unpublished{Dallard2024AdiosStabilizers,
   author      = {Dallard, Antonin and Benallegue, Mehdi and Scianca, Nicola and Kanehiro, Fumio and Kheddar, Abderrahmane},
+  note        = {Media material :https://youtu.be/hfg7dTpuqu4},
   title       = {{Robust Bipedal Walking with Closed-Loop MPC: Adios Stabilizers}},
-  journal     = {hal preprint},
   month       = Feb,
   year        = {2024},
   file        = {:Articles/RobustBipedalWalkingClosedLoopMPCAdiosStabilizers.pdf:PDF},
@@ -1561,14 +1552,6 @@ http://ndl.ethernet.edu.et/bitstream/123456789/38117/1/42.pdf},
   hal_version = {v3},
   pdf         = {https://hal.science/hal-04147602v3/file/root.pdf},
 }
-
-@Book{chlipala2013CertifiedProgrammingCoq,
-  author    = {Chlipala, Adam},
-  publisher = {MIT Press},
-  title     = {Certified programming with dependent types: a pragmatic introduction to the Coq proof assistant},
-  year      = {2013},
-}
-
 
 @Article{Peters2003ReinforcmentLearningForHumanoid,
   author  = {Peters, Jan and Vijayakumar, Sethu and Schaal, Stefan},
@@ -1608,11 +1591,10 @@ http://ndl.ethernet.edu.et/bitstream/123456789/38117/1/42.pdf},
   file     = {:Articles/FoundationModelsInRobotics.pdf:PDF},
 }
 
-@Article{Bjorck2025GrootN1,
+@Misc{Bjorck2025GrootN1,
   author        = {NVIDIA and : and Johan Bjorck and Fernando Castañeda and Nikita Cherniadev and Xingye Da and Runyu Ding and Linxi "Jim" Fan and Yu Fang and Dieter Fox and Fengyuan Hu and Spencer Huang and Joel Jang and Zhenyu Jiang and Jan Kautz and Kaushil Kundalia and Lawrence Lao and Zhiqi Li and Zongyu Lin and Kevin Lin and Guilin Liu and Edith Llontop and Loic Magne and Ajay Mandlekar and Avnish Narayan and Soroush Nasiriany and Scott Reed and You Liang Tan and Guanzhi Wang and Zu Wang and Jing Wang and Qi Wang and Jiannan Xiang and Yuqi Xie and Yinzhen Xu and Zhenjia Xu and Seonghyeon Ye and Zhiding Yu and Ao Zhang and Hao Zhang and Yizhou Zhao and Ruijie Zheng and Yuke Zhu},
   title         = {GR00T N1: An Open Foundation Model for Generalist Humanoid Robots},
   year          = {2025},
-  journal       = {arXiv preprint},
   archiveprefix = {arXiv},
   eprint        = {2503.14734},
   file          = {:Articles/GrootN1.pdf:PDF},
@@ -1677,9 +1659,9 @@ http://ndl.ethernet.edu.et/bitstream/123456789/38117/1/42.pdf},
   file    = {:Articles/OnSafetyTestingLeggedRobots.pdf:PDF},
 }
 
-@Article{Demont2024KineticsObserver,
+@Unpublished{Demont2024KineticsObserver,
   author      = {Demont, Arnaud and Benallegue, Mehdi and Benallegue, Abdelaziz and Gergondet, Pierre and Dallard, Antonin and Cisneros, Rafael and Murooka, Masaki and Kanehiro, Fumio},
-  journal     = {hal preprint},
+  note        = {working paper or preprint},
   title       = {{The Kinetics Observer: A Tightly Coupled Estimator for Legged Robots}},
   month       = Dec,
   year        = {2024},
@@ -1797,6 +1779,77 @@ http://ndl.ethernet.edu.et/bitstream/123456789/38117/1/42.pdf},
   doi      = {10.1109/MRA.2024.3521995},
   file     = {:Articles/RhpFriends.pdf:PDF},
   keywords = {Humanoid robots;Motors;Medical services;Sensors;Robot vision systems;Cameras;Automation;Wheelchairs;Tracking;Social robots},
+}
+
+@Book{chlipala2013CertifiedProgrammingCoq,
+  author    = {Chlipala, Adam},
+  publisher = {MIT Press},
+  title     = {Certified programming with dependent types: a pragmatic introduction to the Coq proof assistant},
+  year      = {2013},
+}
+
+@InProceedings{roston1992deadReckoningWalkingRobots,
+  author       = {Roston, GP and Krotkov, EP},
+  booktitle    = {Proceedings of the IEEE/RSJ International Conference on Intelligent Robots and Systems},
+  title        = {Dead Reckoning Navigation For Walking Robots},
+  year         = {1992},
+  organization = {IEEE},
+  pages        = {607--612},
+  volume       = {1},
+  file         = {:Articles/DeadReckoningWalkingRobots.pdf:PDF},
+}
+
+@InProceedings{Varganay1993MobileRobotAttitudeEstimationInertial,
+  author    = {Vaganay, J. and Aldon, M.J. and Fournier, A.},
+  booktitle = {[1993] Proceedings IEEE International Conference on Robotics and Automation},
+  title     = {Mobile robot attitude estimation by fusion of inertial data},
+  year      = {1993},
+  month     = {May},
+  pages     = {277-282 vol.1},
+  abstract  = {An attitude estimation system based on inertial measurements for a mobile robot is described. Five low-cost inertial sensors are used: two accelerometers and three gyros. The robot's attitude, represented by its roll and pitch angles, can be obtained using two different methods. The first method is based on accelerometric measurements of gravity. The second one proceeds by integration of the differential equation relating the robot's attitude and its instantaneous angular velocity which is measured by the gyrometers. The results of these two methods are fused, using an extended Kalman filter. Experimental results show that the resulting system is very sensitive and accurate.<>},
+  doi       = {10.1109/ROBOT.1993.291995},
+  keywords  = {Mobile robots;Robot sensing systems;Accelerometers;Gravity;Navigation;Acceleration;Angular velocity;Velocity measurement;Remotely operated vehicles;Land vehicles},
+}
+
+@Article{zeid1998dynamicsRigidBodies,
+  author  = {Zeid, Ashraf A and Beck, RR},
+  journal = {Bruce Karnopp},
+  title   = {Dynamics of Rigid Bodies: Kinematics and Kinetics},
+  year    = {1998},
+}
+
+@Article{Lidec2024ContactModelsRobotics,
+  author  = {Lidec, Quentin and Jallet, Wilson and Montaut, Louis and Laptev, Ivan and Schmid, Cordelia and Carpentier, Justin},
+  journal = {IEEE Transactions on Robotics},
+  title   = {Contact Models in Robotics: A Comparative Analysis},
+  year    = {2024},
+  month   = {01},
+  pages   = {1-18},
+  volume  = {PP},
+  doi     = {10.1109/TRO.2024.3434208},
+  file    = {:Articles/ContactModelsInRoboticsAComparativeAnalysis.pdf:PDF},
+}
+
+@PhdThesis{Xinjilefu2015StateEstimationHumanoidRobots,
+  author  = {Ben Xinjilefu},
+  school  = {Carnegie Mellon University},
+  title   = {State Estimation for Humanoid Robots},
+  year    = {2015},
+  address = {Pittsburgh, PA},
+  month   = {August},
+  file    = {:Articles/StateEstimationHumanoidRobotsXinjilefu.pdf:PDF},
+  number  = {CMU-RI-TR-15-20},
+}
+
+@Article{Li2022NonLinearSEFrameWorkHumanoids,
+  author    = {Li, Jingchao and Yuan, Zhaohui and Dong, Sheng and Zhang, Jingqin and Zhang, Jianrui},
+  journal   = {Robotics and Autonomous Systems},
+  title     = {A nonlinear state estimation framework for humanoid robots},
+  year      = {2022},
+  pages     = {104100},
+  volume    = {153},
+  file      = {:Articles/NonlinearStateEstimationFrameworkHumanoidRobots.pdf:PDF},
+  publisher = {Elsevier},
 }
 
 @Comment{jabref-meta: databaseType:bibtex;}

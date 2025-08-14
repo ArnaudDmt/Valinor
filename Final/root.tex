@@ -22,6 +22,8 @@
 \usepackage{multirow}
 \usepackage{subcaption}
 \usepackage{empheq}
+\usepackage{enumitem}
+\usepackage{tikz}
 
 %%%% Editorial Information
 %% Authors do not have to modify this section.
@@ -37,11 +39,16 @@
 %The following command is needed for line break of long equations.
 \allowdisplaybreaks
 
+\newcommand{\critnum}[1]{\tikz[baseline=(char.base)]{
+            \node[shape=circle,draw,inner sep=1pt](char){\textbf{#1}};}}
+
+\newcommand{\getErrorResult}[5]{\csname#1#2#3#4#5\endcsname}
+
 
 \begin{document}
 
-\newcommand{\getErrorResult}[5]{\csname#1#2#3#4#5\endcsname}
 \input{metrics_results}
+
 
 
 % the \title command
@@ -87,7 +94,7 @@ State estimation for legged robots has also known notable improvements in the pa
 
 For this reason, there is still a need for lightweight state estimation methods, which rather than adding new sensors, focus on improving the estimation of key variables at high frequency using the proprioceptive sensors readily available on the robot. The most common sensors for humanoids are joint encoders, inertial measurement units (IMUs) and contact force sensors such as FSR or force/torque sensors. IMUs are able to measure angular velocities and linear accelerations, including the gravitational one. It can be used to estimate the vertical direction, which we call \emph{tilt}. This is done often under the assumption that accelerations are negligible compared to the gravitational acceleration (e.g.~\cite{mahony2008NonlinearComplementaryFiltersOnSO3}). Unfortunately, this assumption cannot hold in the case of humanoids, especially with impacts and dynamic motions, which significantly degrades the estimation. IMUs signals can also be integrated to provide estimations of the positions and orientation in which is called inertial odometry, but if done for extended periods of time this would produce fast drifts because of noise and initial estimation errors.
 
-Both issues, high accelerations and odometry drifts can be resolved thanks to a single consideration: legged robots are connected to a stable environment through their contacts. Meaning that we consider contacts to be fixed points in the environment, which provides a partial measurement of the robot's kinematics in the world using joint encoders. This consideration only makes the tilt fully observable, however dynamic the motion is~\cite{benallegue2020LyapunovStableOrientationEstimatorHumanoids}. The anchor with the environment and the kinematic data can be used also to perform legged odometry (also called ``Leg'' odometry) using the transformations between successive contacts to rebuild the world-trajectory~\cite{Lin2005ALegConfigurationMeasSystemHexapod}. This technique can be merged with IMU data and correct for the drift~\cite{bloesch2013FusionLegKineAndImu, Wawrzynski2015RobustEstVelocityTilt, masuya2015DeadReckoningAnchoringPivot}. This is called leg-inertial odometry.
+Both issues, high accelerations and odometry drifts can be resolved thanks to a single consideration: legged robots are connected to a stable environment through their contacts. Meaning that we consider contacts to be fixed points in the environment, which provides a partial measurement of the robot's kinematics in the world using joint encoders. This consideration only makes the tilt fully observable, however dynamic the motion is~\cite{benallegue2020LyapunovStableOrientationEstimatorHumanoids}. The anchor with the environment and the kinematic data can be used also to perform legged odometry (also called ``Leg'' odometry) using the transformations between successive contacts to rebuild the world-trajectory~\cite{Lin2005ALegConfigurationMeasSystemHexapod}. This technique can be merged with IMU data and correct for the drift~\cite{bloesch2013FusionLegKineAndImu, masuya2015DeadReckoningAnchoringPivot}. This is called leg-inertial odometry.
 
  Violations of slippage-free contact assumption can degrade the odometry performance~\cite{lin2021legged, maravgakis2023probabilistic}. Work has thus been done to address the problem of contact slippage, for example by discarding unreliable contacts~\cite{lin2021legged, maravgakis2023probabilistic,yoon2023InvariantSmootherDynamicContactEventInformation}, or by attempting to correct the contact reference position~\cite{bloesch2013FusionLegKineAndImu,Hartley2020RIEKF, Demont2024KineticsObserver}. Despite that, the position and yaw orientation of the robot in the world frame remain unobservable~\cite{bloesch2013FusionLegKineAndImu}. Nevertheless, the methods exploiting these contacts have proven to be more than enough in concrete use-cases when the pose needs to be reliable only locally, like for remotely controlled robots~\cite{Grandia2024DesignControlBipedalRoboticCharacter} or when task planning is also made in the robot's local environment~\cite{Tsuru2023OnlineMulticontactReplanningHumanoid}, which means that drifts due to slippage remain limited for these use-cases.
 
@@ -99,6 +106,16 @@ The main contributions introduced in this paper are as follows:
   \item We evaluate the proposed method on real experiments with two different humanoid robots.
   \item The code of the Tilt Observer is open source\footnote{\scriptsize \url{https://github.com/ArnaudDmt/state-observation}}, as well as a ROS wrapper\footnote{\scriptsize \url{https://github.com/ArnaudDmt/state_observation_ros.git}}.
 \end{itemize}
+
+\noindent Figure~\ref{fig:summary} provides a summary of {\scshape Valinor}'s pipeline, highlighting the contribution of each section of this paper.
+\begin{figure*}[!ht]
+\begin{center}
+\includegraphics[width=0.65\textwidth]{summary.jpg} 
+\vskip -0.5pc
+\caption{Summary of {\scshape Valinor}'s pipeline.}\label{fig:summary}
+\end{center}
+\vskip -1.5pc
+\end{figure*}
 
 \section{GENERAL NOTATIONS}
 \begin{itemize}
@@ -120,15 +137,15 @@ The anchor point, denoted $\mathcal{A}$, is defined as a point attached to the r
 Contacts with the environment provide naturally good sets of points known to the robot and having zero world velocity. With the no-slippage hypothesis, any point of a contact body would thus be suitable to define an anchor point. However, we need an anchor point that remains always defined and whose position is as continuous as possible, even when contacts are created and broken, as long as there is at least one contact established. Also, the no-slippage hypothesis can hold better for some points than others. For instance, when the contact forces are closer to Coulomb's friction cones the contact is more likely to slip.
 
 To address these two requirements we determine the kinematics of that point through a weighted average of the kinematics of the current contacts, as shown in Figure~\ref{fig:framesAndAnchor}.  \\
-The weighting coefficients are defined such that weaker contacts, which are prone to violate Coulomb's inequality and thus to slip, contribute less to the anchor point's kinematics computation. Given $mg_{0}$ the weight of the robot, we first compute 
+The weighting coefficients are defined such that weaker contacts, which are prone to violate Coulomb's inequality and thus to slip, contribute less to the anchor point's kinematics computation. Given $mg_{0}$ the weight of the robot, we first compute for each contact $i$
 \begin{equation}
     u_{i} = \frac{\boldsymbol{F}_{i,z}}{\sqrt{\boldsymbol{F}_{i,x}^2 + \boldsymbol{F}_{i,y}^2} + \epsilon mg_{0}}, \label{eq:ratio_ui}
 \end{equation}
-the ratio of the normal force to the tangential force at the contact $i$. The term $\epsilon$, arbitrarily small, allows to deal with the case where the tangential force is zero.
+the ratio of the normal force to the tangential force, measured by the force / torque sensor at the contact. The term $\epsilon$, arbitrarily small, allows to deal with the case where the tangential force is zero.
 
 The contact's weighting coefficient $\lambda_{i}$ is then:
 \begin{equation}
-    \lambda_{i}=\frac{u_{i}}{\sum^{n_{c}}_{j=1}u_{i}}.
+    \lambda_{i}=\frac{u_{i}}{\sum^{n_{c}}_{j=1}u_{i}}. \label{eq:lambda_i}
 \end{equation}
 
 Based on this definition, we give the position and linear velocity of the anchor point in the IMU's frame:
@@ -142,7 +159,7 @@ It is important to note also that with this definition, although the anchor poin
 
 \begin{figure}[!t]
 \begin{center}
-\includegraphics[width=0.5\columnwidth]{framesAndAnchor.pdf} 
+\includegraphics[width=0.4\columnwidth]{framesAndAnchor.pdf} 
 \vskip -0.5pc
 \caption{Illustration of the anchor point position computation and of the reference frames used in {\scshape Valinor}. $\mathcal{W}$: world frame; $\mathcal{I}$: IMU frame; $\mathcal{C}_{i}$: frame of the $i$-th contact. For clarity, only the weighted average of the contact positions is shown. In this example, $\boldsymbol{F}_{2} = 2\boldsymbol{F}_{1}$ and so $\lambda_{2} = \frac{2}{3}$.}\label{fig:framesAndAnchor}
 \end{center}
@@ -463,70 +480,79 @@ properties:
         compatible with real-time embedded execution.
 \end{itemize}
 
-The axis-agnostic fusion is therefore adopted as the default in {\scshape VALINOR}; it avoids the arbitrary preference for the body axis \(\boldsymbol{e}_{x}\), takes into account the difference of tilt and avoids the gimbal-lock issues of \eqref{eq:fusion_classic}. 
+The axis-agnostic fusion is therefore adopted as the default in {\scshape Valinor}; it avoids the arbitrary preference for the body axis \(\boldsymbol{e}_{x}\), takes into account the difference of tilt and avoids the gimbal-lock issues of \eqref{eq:fusion_classic}. 
 
 
 
 
 
 \section{Experimental Evaluation}~\label{sec:exps}
+
+We identified the following criteria that a state estimator should satisfy to serve in our intended use case, namely, providing feedback for remote control~(\cite{Grandia2024DesignControlBipedalRoboticCharacter}) or planning in the robot's local workspace~(\cite{Tsuru2023OnlineMulticontactReplanningHumanoid}):
+\begin{itemize}[label={}, leftmargin=1em]
+  \item \textbf{[Criterion 1]}\, High computation speed, to leave more processing time for the rest of the pipeline.
+  \item \textbf{[Criterion 2]}\, Accurate tilt and local lateral (horizontal) velocity estimation, which are crucial for stabilization.
+  \item \textbf{[Criterion 3]}\, Low local drift in translation and yaw. Absolute (global) drift, which is unavoidable with proprioceptive odometry, is of limited concern when tasks are planned in a local frame.
+\end{itemize}
+
+\noindent The experiments presented in this Section assess {\scshape Valinor} based on these criteria. We compare it with the Right-Invariant EKF (RI-EKF) from~\cite{Hartley2020RIEKF}, a state-of-the-art method for legged robot proprioceptive odometry. This estimator has demonstrated its effectiveness in practical applications, notably as real-time feedback for remote control~\cite{Grandia2024DesignControlBipedalRoboticCharacter}. It is therefore particularly relevant to compare ourselves to this method.
+
 \subsection{Description of the experiments}
 
-The proposed estimator has been evaluated across two experimental scenarios on two different humanoid robots\footnote{We used the dataset built to evaluate the Kinetics Observer in~\cite{Demont2024KineticsObserver}}:
+{\scshape Valinor} and the RI-EKF have been evaluated across two experimental scenarios on two different humanoid robots\footnote{We used the dataset built to evaluate the Kinetics Observer in~\cite{Demont2024KineticsObserver}}:
 \begin{itemize}
-    \item Experiment 1: A walk on a flat ground over about 18 meters with the robot RHP Friends~\cite{Benallegue2025RhpFriendsJRL}, as shown in Figure~\ref{fig:trajRhps1}. This experiment was repeated 5 times, for a total distance of about 90 meters.
-    \item Experiment 2: A multi-contact motion over about 2 meters with the robot HRP-5P~\cite{Kaneko2019Hrp5}. This motion involved an additional contact at the robot's left hand, and non-coplanar contacts on tilted obstacles, as shown in Figure~\ref{fig:hrp5_multicontact}. This experiment was repeated 4 times for a total distance of about 8 meters.
+    \item Experiment 1: A walk on a flat ground over about 18 meters with the robot RHP Friends~\cite{Benallegue2025RhpFriendsJRL}, as shown in Figure~\ref{fig:traj_friends}. This experiment was repeated 5 times, for a total distance of about 90 meters.
+    \item Experiment 2: A multi-contact motion over about 2 meters with the robot HRP-5P~\cite{Kaneko2019Hrp5}. This motion involved an additional contact at the robot's left hand, and non-coplanar contacts on tilted obstacles, as shown in Figures~\ref{fig:traj_hrp5} and~\ref{fig:hrp5_motion}. This experiment was repeated 4 times for a total distance of about 8 meters.
 \end{itemize}
 
 
-\begin{figure}[!ht]
-\begin{center}
-\includegraphics[width=\columnwidth]{trajectory_rhps1.pdf} 
-\vskip -0.5pc
-\caption{Ground truth and estimated RHP Friend's pelvis trajectory during the first experiment of walk on flat ground.}\label{fig:trajRhps1}
-\end{center}
-\vskip -1.5pc
-\end{figure}
+
 
 \begin{figure}[!ht]
-\begin{center}
-\includegraphics[width=0.6\columnwidth]{multiContactExpe.jpg} 
-\vskip -0.5pc
-\caption{Picture of HRP-5P during the multi-contact motion. The imprints of the successive contacts are represented by colored trapezoids: Red: Right foot; Green: Left foot; Blue: Left hand. Figure reused from~\cite{Demont2024KineticsObserver}.}\label{fig:hrp5_multicontact}
-\end{center}
-\vskip -1.5pc
+    \centering
+    \subfloat[]{
+        \includegraphics[width=0.85\columnwidth]{trajectory_rhps1.jpg}
+        \label{fig:traj_friends}
+    }\\[1ex]
+    \subfloat[]{
+        \includegraphics[width=0.85\columnwidth]{trajectory_hrp5.jpg}
+        \label{fig:traj_hrp5}
+    }\\[1ex]
+    \subfloat[]{
+        \includegraphics[width=0.45\columnwidth]{multiContactExpe.jpg}
+        \label{fig:hrp5_motion}
+    }
+    \caption{Top views of the ground truth / estimated trajectories of the robot's pelvis during: (a) the first walk on flat ground (b) the multi-contact motion. The robot starts at the point (0,0) and walks towards the $\boldsymbol{x}$ direction. (c) HRP-5P performing the multi-contact motion. Contact imprints are represented by colored trapezoids. In red: Right foot. In green: Left foot. In blue: Left hand.  }
+    \label{fig:flat-odom-rphs1}
 \end{figure}
 
-\noindent We compare {\scshape Valinor}, our proposed estimator, with the Right-Invariant EKF (RI-EKF) from~\cite{Hartley2020RIEKF}, a state-of-the-art method for legged robot proprioceptive odometry. This estimator has demonstrated its effectiveness in practical applications, notably as real-time feedback within a complex control pipeline~\cite{Grandia2024DesignControlBipedalRoboticCharacter}, which is the type of use case intended for {\scshape Valinor}. It is therefore particularly relevant to compare ourselves to this method.
-
-The comparison is made on both their computation and their estimation performance. For fairness, both estimators received the same contact state information, from a Schmitt Trigger on the Ground Reaction Force (with thresholds set to 10\% and 15\% of the robot's weight).
-Ground truth pose of the robot's pelvis (to which the IMU is fixed on both robots) is provided by a motion capture system (OptiTrack, 16 Prime\textsuperscript{X} with 13 cameras), and its ground truth velocity is obtained by finite differences from the ground truth position then filtered with a zero-phase low-pass filter. The pose of the IMU's frame, estimated by both {\scshape Valinor} and the RI-EKF, is transformed into that of the pelvis using simple rigid body transformation.
-
-The odometry performance of {\scshape Valinor} and the RI-EKF is evaluated against the ground truth trajectory using the Relative Error (RE), as defined in~\cite{Zhang2018QuantitativeTrajectoryEvaluation}. RE evaluates the estimation drift over segments of fixed distances. It is particularly relevant for proprioceptive odometry, as it is not affected by global drift, which is unavoidable without exteroceptive sensors. RE therefore provides valuable and easily interpretable insight into the expected local accuracy of the estimator over a given distance.
-
-We compute the Relative Error for lateral ($\boldsymbol{x}, \boldsymbol{y}$) and vertical ($\boldsymbol{z}$) translations separately, since these components are generally influenced by different factors. Accuracy in lateral translation would mainly rely on that of local displacements and of yaw estimation, whereas accuracy in vertical translations would be affected by the accuracy of the estimation of the vertical local displacement, of the tilt, and the reliability of the contact height initialization. Similarily, angular errors in tilt and yaw are also evaluated independently.
-The error $e_{\boldsymbol{\ell}}$ on the tilt estimate is computed with:
-\begin{equation}
-    e_{\boldsymbol{\ell}} = \text{arccos}\left(\boldsymbol{\ell}_{gt}^{T} \hat{\boldsymbol{\ell}} \right),
-\end{equation}
-with $\boldsymbol{\ell}_{gt}$ the ground truth tilt, and $\hat{\boldsymbol{\ell}}$ the estimated one.\\
-Finally, we also assess the estimation of the IMU's linear velocity in the world. This velocity is expressed in the frame of the IMU such that it is not affected by errors in the orientation estimate. The velocity error is also separated into lateral and vertical components.
 
 \subsection{Experimental Results}
 
 \subsubsection{Computational Performance Evaluation}\label{subsec:computation_time}
 
-To evaluate the computation speed performance of {\scshape Valinor}, we compared its average computation time per iteration over the four multi-contact experiments, to that of the RI-EKF. Both estimators were run on the same laptop, on an Intel Xeon E-2176M CPU (2.70GHz x 12). In average, an iteration of {\scshape Valinor} was computed in 2.547 \textmu s, against 19.315 \textmu s for the RI-EKF. The proposed method is thus more than 7.5 times faster than the state-of-the-art estimator, while proposing equivalent estimation accuracy, as shown below.
+To evaluate the computation speed performance of {\scshape Valinor}, we compared its average computation time per iteration over the four multi-contact experiments, to that of the RI-EKF. Both estimators were run on the same laptop, equipped with an Intel Xeon E-2176M CPU (2.70GHz x 12). In average, an iteration of {\scshape Valinor} was computed in 2.547 \textmu s, against 19.315 \textmu s for the RI-EKF. The proposed method is thus more than 7.5 times faster than the state-of-the-art estimator.
 
 
 \subsubsection{Estimation Accuracy Evaluation} ~\label{subsec:est_accur_eval}
 
-Table~\ref{tab:estimation_eval} regroups the evaluation results of {\scshape Valinor}'s estimation performance compared to those of the RI-EKF during the two experiments on real robots.
-The presented errors are computed over all the sequences of each scenario: 5 for the walk on flat ground, and 4 for the multi-contact motion.
+
+In both experiments, the odometry performance of {\scshape Valinor} and of the RI-EKF are evaluated using the ground truth trajectory of the robot's pelvis (to which the IMU is fixed on both robots), provided by a motion capture system (OptiTrack, 16 Prime\textsuperscript{X} with 13 cameras). The pose of the IMU's frame, estimated by both estimators, is transformed into that of the pelvis using simple rigid body transformation. For fairness in the comparison, both estimators receive the same contact state information, from a Schmitt Trigger on the Ground Reaction Force (with thresholds set to 10\% and 15\% of the robot's weight).
+Since the focus is on accuracy in local translations and yaw (Criterion 3), performance is assessed using the Relative Error (RE), as defined in~\cite{Zhang2018QuantitativeTrajectoryEvaluation}. The latter evaluates the estimation drift over segments of fixed distances. It is particularly relevant here, as it provides valuable and easily interpretable insight into the estimator's expected local accuracy without being affected by global drift. The error $e_{\boldsymbol{\ell}}$ on the tilt estimate is computed using $e_{\boldsymbol{\ell}} = \text{arccos}\left(\boldsymbol{\ell}_{gt}^{T} \hat{\boldsymbol{\ell}} \right)$, with $\boldsymbol{\ell}_{gt}$ the ground truth tilt, and $\hat{\boldsymbol{\ell}}$ the estimated one. 
+
+Finally, local linear velocity estimation is assessed using the Mean Absolute Error between the estimated velocity and the ground truth, the latter obtained by finite differences from the ground-truth position, filtered with a zero-phase low-pass filter.
+
+Table~\ref{tab:estimation_eval} regroups the evaluation results during the two experiments on real robots. The presented errors are computed over all sequences in each scenario: 5 for the walk on flat ground, and 4 for the multi-contact motion.
+
+
+% We compute the Relative Error for lateral ($\boldsymbol{x}, \boldsymbol{y}$) and vertical ($\boldsymbol{z}$) translations separately, since these components are generally influenced by different factors. Accuracy in lateral translation would mainly rely on that of local displacements and of local yaw estimation, whereas accuracy in vertical translations would be affected by the accuracy of the vertical local displacement estimation, of the tilt, and the reliability of the contact height initialization. Similarily, angular errors in tilt and yaw are also evaluated independently.
+
+
+
 
 \begin{table*}[h!] 
 \vskip -0.75pc
-\setlength{\extrarowheight}{0.6ex}
+\setlength{\extrarowheight}{1ex}
 \addtolength{\tabcolsep}{-0.4em}
 \caption{Mean and standard deviation (in parentheses) of the error on the estimations by {\scshape Valinor} and the RI-EKF, during the two experiments on real robots. The 1 m and the 0.3 m Relative Errors are presented for the walk on flat ground and the multi-contact motion, respectively. The best result for each metric is highlighted in bold.} \label{tab:estimation_eval}
 \begin{center}
@@ -537,22 +563,18 @@ The presented errors are computed over all the sequences of each scenario: 5 for
             \hline
             \multicolumn{2}{|c|}{}       &       \multicolumn{2}{c|}{RE Translation [m]}         &    \multicolumn{2}{c|}{RE Orientation [\textdegree] }  &    \multicolumn{2}{c|}{Linear velocity [$\text{m.s}^{-1}$]}     \\     
             \cline{3-8}
-            \multicolumn{2}{|c|}{}  &     Lateral    &      Vertical      &   \multirow{2}{*}{Tilt}      &     \multirow{2}{*}{Yaw}    &  Lateral  &  Vertical \\ 
-            \multicolumn{2}{|c|}{}  &    \{$\boldsymbol{x}, \boldsymbol{y}$\}    &     $\boldsymbol{z}$      &      &      &   \{$\boldsymbol{x}, \boldsymbol{y}$\}  &  $\boldsymbol{z}$ \\
+            \multicolumn{2}{|c|}{}  &     Lateral \{$\boldsymbol{x}, \boldsymbol{y}$\}   &      Vertical    $\boldsymbol{z}$      &    Tilt      &     Yaw    &  Lateral  \{$\boldsymbol{x}, \boldsymbol{y}$\}  &  Vertical  $\boldsymbol{z}$\\ 
             
             \tabucline[1.3pt]{-}
             
-            \multirow{2}{*}{Walk on}   & {\scshape Valinor}    &    \textbf{\getErrorResult{Flatodometry}{Tilt}{Relerror}{Transxy}{Meanabs}}  &   \getErrorResult{Flatodometry}{Tilt}{Relerror}{Transz}{Meanabs}   &     \textbf{\getErrorResult{Flatodometry}{Tilt}{Relerror}{Tilt}{Meanabs}}    &     \getErrorResult{Flatodometry}{Tilt}{Relerror}{Yaw}{Meanabs}     &  \getErrorResult{Flatodometry}{Tilt}{Velerror}{EstimateXy}{Meanabs}    &   \textbf{\getErrorResult{Flatodometry}{Tilt}{Velerror}{EstimateZ}{Meanabs}}  \\ 
-            & (Proposed)  & (\getErrorResult{Flatodometry}{Tilt}{Relerror}{Transxy}{Std})   &     (\getErrorResult{Flatodometry}{Tilt}{Relerror}{Transz}{Std})   &   (\getErrorResult{Flatodometry}{Tilt}{Relerror}{Tilt}{Std})   &    (\getErrorResult{Flatodometry}{Tilt}{Relerror}{Yaw}{Std})   &  (\getErrorResult{Flatodometry}{Tilt}{Velerror}{EstimateXy}{Std})   &   (\getErrorResult{Flatodometry}{Tilt}{Velerror}{EstimateZ}{Std})  \\ 
+            Walk on  & {\scshape Valinor}   &    \textbf{\getErrorResult{Flatodometry}{Tilt}{Relerror}{Transxy}{Meanabs}} (\getErrorResult{Flatodometry}{Tilt}{Relerror}{Transxy}{Std}) &   \getErrorResult{Flatodometry}{Tilt}{Relerror}{Transz}{Meanabs}  (\getErrorResult{Flatodometry}{Tilt}{Relerror}{Transz}{Std})   &     \textbf{\getErrorResult{Flatodometry}{Tilt}{Relerror}{Tilt}{Meanabs}}  (\getErrorResult{Flatodometry}{Tilt}{Relerror}{Tilt}{Std})    &     \getErrorResult{Flatodometry}{Tilt}{Relerror}{Yaw}{Meanabs}  (\getErrorResult{Flatodometry}{Tilt}{Relerror}{Yaw}{Std})    &  \getErrorResult{Flatodometry}{Tilt}{Velerror}{EstimateXy}{Meanabs}   (\getErrorResult{Flatodometry}{Tilt}{Velerror}{EstimateXy}{Std})   &   \textbf{\getErrorResult{Flatodometry}{Tilt}{Velerror}{EstimateZ}{Meanabs}}  (\getErrorResult{Flatodometry}{Tilt}{Velerror}{EstimateZ}{Std}) \\ 
             \cline{2-8}
-             \multirow{2}{*}{flat ground} &  RI-EKF & \getErrorResult{Flatodometry}{Hartley}{Relerror}{Transxy}{Meanabs}  & \textbf{\getErrorResult{Flatodometry}{Hartley}{Relerror}{Transz}{Meanabs}}      &  \getErrorResult{Flatodometry}{Hartley}{Relerror}{Tilt}{Meanabs}    &    \textbf{\getErrorResult{Flatodometry}{Hartley}{Relerror}{Yaw}{Meanabs}}   &  \textbf{\getErrorResult{Flatodometry}{Hartley}{Velerror}{EstimateXy}{Meanabs}}    &   \getErrorResult{Flatodometry}{Hartley}{Velerror}{EstimateZ}{Meanabs}  \\ 
-            &  \cite{Hartley2020RIEKF}  &   (\getErrorResult{Flatodometry}{Hartley}{Relerror}{Transxy}{Std})   &     (\getErrorResult{Flatodometry}{Hartley}{Relerror}{Transz}{Std})    &   (\getErrorResult{Flatodometry}{Hartley}{Relerror}{Tilt}{Std})   &   (\getErrorResult{Flatodometry}{Hartley}{Relerror}{Yaw}{Std})    &  (\getErrorResult{Flatodometry}{Hartley}{Velerror}{EstimateXy}{Std})    &   (\getErrorResult{Flatodometry}{Hartley}{Velerror}{EstimateZ}{Std})  \\ 
+            flat ground &  RI-EKF~\cite{Hartley2020RIEKF} & \getErrorResult{Flatodometry}{Hartley}{Relerror}{Transxy}{Meanabs} (\getErrorResult{Flatodometry}{Hartley}{Relerror}{Transxy}{Std}) & \textbf{\getErrorResult{Flatodometry}{Hartley}{Relerror}{Transz}{Meanabs}} (\getErrorResult{Flatodometry}{Hartley}{Relerror}{Transz}{Std})     &  \getErrorResult{Flatodometry}{Hartley}{Relerror}{Tilt}{Meanabs}  (\getErrorResult{Flatodometry}{Hartley}{Relerror}{Tilt}{Std})    &    \textbf{\getErrorResult{Flatodometry}{Hartley}{Relerror}{Yaw}{Meanabs}}  (\getErrorResult{Flatodometry}{Hartley}{Relerror}{Yaw}{Std})  &  \textbf{\getErrorResult{Flatodometry}{Hartley}{Velerror}{EstimateXy}{Meanabs}}   (\getErrorResult{Flatodometry}{Hartley}{Velerror}{EstimateXy}{Std})  &   \getErrorResult{Flatodometry}{Hartley}{Velerror}{EstimateZ}{Meanabs}  (\getErrorResult{Flatodometry}{Hartley}{Velerror}{EstimateZ}{Std}) \\
+
             \tabucline[1.3pt]{-}
-            \multirow{2}{*}{Multi-contact} &   {\scshape Valinor}  &  \textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Transxy}{Meanabs}}  &  \textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Transz}{Meanabs}}   &    \textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Tilt}{Meanabs}}    &    \textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Yaw}{Meanabs}}     &  \getErrorResult{Multicontact}{Tilt}{Velerror}{EstimateXy}{Meanabs}    &   \textbf{\getErrorResult{Multicontact}{Tilt}{Velerror}{EstimateZ}{Meanabs}}  \\ 
-             & (Proposed)  &  (\getErrorResult{Multicontact}{Tilt}{Relerror}{Transxy}{Std})   &      (\getErrorResult{Multicontact}{Tilt}{Relerror}{Transz}{Std})      &   (\getErrorResult{Multicontact}{Tilt}{Relerror}{Tilt}{Std})   &     (\getErrorResult{Multicontact}{Tilt}{Relerror}{Yaw}{Std})   &  (\getErrorResult{Multicontact}{Tilt}{Velerror}{EstimateXy}{Std})   &   (\getErrorResult{Multicontact}{Tilt}{Velerror}{EstimateZ}{Std})  \\ 
+            Multi-contact &   {\scshape Valinor}  &  \textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Transxy}{Meanabs}} (\getErrorResult{Multicontact}{Tilt}{Relerror}{Transxy}{Std})  &  \textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Transz}{Meanabs}}  (\getErrorResult{Multicontact}{Tilt}{Relerror}{Transz}{Std})  &    \textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Tilt}{Meanabs}}  (\getErrorResult{Multicontact}{Tilt}{Relerror}{Tilt}{Std})   &    \textbf{\getErrorResult{Multicontact}{Tilt}{Relerror}{Yaw}{Meanabs}}  (\getErrorResult{Multicontact}{Tilt}{Relerror}{Yaw}{Std})    &  \getErrorResult{Multicontact}{Tilt}{Velerror}{EstimateXy}{Meanabs}  (\getErrorResult{Multicontact}{Tilt}{Velerror}{EstimateXy}{Std})   &   \textbf{\getErrorResult{Multicontact}{Tilt}{Velerror}{EstimateZ}{Meanabs}}  (\getErrorResult{Multicontact}{Tilt}{Velerror}{EstimateZ}{Std}) \\ 
             \cline{2-8}     
-            \multirow{2}{*}{motion}   & RI-EKF  &  \getErrorResult{Multicontact}{Hartley}{Relerror}{Transxy}{Meanabs}  &   \getErrorResult{Multicontact}{Hartley}{Relerror}{Transz}{Meanabs}   &    \getErrorResult{Multicontact}{Hartley}{Relerror}{Tilt}{Meanabs}    &    \getErrorResult{Multicontact}{Hartley}{Relerror}{Yaw}{Meanabs}   &  \textbf{\getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateXy}{Meanabs}}    &   \getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateZ}{Meanabs}  \\ 
-            & \cite{Hartley2020RIEKF} & (\getErrorResult{Multicontact}{Hartley}{Relerror}{Transxy}{Std})    &     (\getErrorResult{Multicontact}{Hartley}{Relerror}{Transz}{Std})    &     (\getErrorResult{Multicontact}{Hartley}{Relerror}{Tilt}{Std})   &    (\getErrorResult{Multicontact}{Hartley}{Relerror}{Yaw}{Std})    &  (\getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateXy}{Std})    &   (\getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateZ}{Std})  \\ 
+            motion   & RI-EKF~\cite{Hartley2020RIEKF}  &  \getErrorResult{Multicontact}{Hartley}{Relerror}{Transxy}{Meanabs} (\getErrorResult{Multicontact}{Hartley}{Relerror}{Transxy}{Std})  &   \getErrorResult{Multicontact}{Hartley}{Relerror}{Transz}{Meanabs}  (\getErrorResult{Multicontact}{Hartley}{Relerror}{Transz}{Std})   &    \getErrorResult{Multicontact}{Hartley}{Relerror}{Tilt}{Meanabs}   (\getErrorResult{Multicontact}{Hartley}{Relerror}{Tilt}{Std})  &    \getErrorResult{Multicontact}{Hartley}{Relerror}{Yaw}{Meanabs}  (\getErrorResult{Multicontact}{Hartley}{Relerror}{Yaw}{Std})  &  \textbf{\getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateXy}{Meanabs}}  (\getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateXy}{Std})   &   \getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateZ}{Meanabs} (\getErrorResult{Multicontact}{Hartley}{Velerror}{EstimateZ}{Std}) \\
             \hline     
         \end{tabu}
     \end{center}
@@ -562,37 +584,31 @@ The presented errors are computed over all the sequences of each scenario: 5 for
 \end{table*}
 
 
-We first note that the relative strengths of both estimators were consistent across both experiments, and that overall, they both displayed satisfactory estimation performance. Indeed, without the use of any exteroceptive sensors, their errors in translation estimates remain of the order of the centimer per meter walked, those on orientation estimates remain around 1\textdegree \ per meter walked, and finally their error in velocity estimates remain below 2 cm.s$^{-1}$. Now we give more insights into the obtained results:
+Based on the obtained results, we observe that the relative strengths of both estimators were consistent across the two experiments. In the following, we detail these strengths, indicating the number of the criterion to which each is favorable in a circle.
 \begin{itemize}
-    \item {\scshape Valinor} estimated more accurately lateral translations, improving the estimation by over 30\% and 40\% compared to the RI-EKF. Additionally, as visible in Figure~\ref{fig:tilt_rhps1} it improved the estimation of the tilt by about 28\% in Experiment 1 and by 60\% in Experiment 2, reaching an average error of only 0.23\textdegree. For both translations and tilt estimates, our method displayed a significantly lower standard deviation of the error, proving an improved estimation consistency. 
-    \item The RI-EKF estimated lateral velocities more accurately than {\scshape Valinor}, with a 20\% smaller the error. But we believe this difference has lower significance due to the large value of the standard deviation.
-    \item Both estimators showed similar performance for the estimation of the yaw and of vertical translation and velocity.
+    \item {\scshape Valinor} estimated local lateral translations {\footnotesize\critnum{3}} more accurately than the RI-EKF in both experiments, improving the estimation by over 30\% and 40\%, respectively. Additionally, as visible in Figure~\ref{fig:pose_rhps1}, it improved the estimation of the tilt {\footnotesize\critnum{2}} by about 28\% in Experiment 1 and by 60\% in Experiment 2, reaching an average error of only 0.23\textdegree. For both translations and tilt estimates, our method displayed a significantly lower standard deviation of the error, proving an improved estimation consistency. 
+    \item The RI-EKF estimated local lateral velocities {\footnotesize\critnum{2}} and yaw {\footnotesize\critnum{3}} more accurately than {\scshape Valinor} during Experiment 1, with 20\% and 16\% smaller errors, but both estimators displayed comparable performance in both estimates during Experiment 2.
+    \item Both estimators showed similar performance in vertical translation {\footnotesize\critnum{3}} and velocity estimation. 
 \end{itemize}
+To elaborate on the vertical translation results, one can notice in Figure~\ref{fig:pose_rhps1} that both estimators drifted during the walk on flat ground, which involved a large number of steps. One contributing factor is the quality of the pitch estimation, an error in pitch estimation causing drift during forward walking. Another factor, inherent to Leg odometry, is its reliance on the quality of the contact detection. For example, systematically detecting contacts too early or too late can cause drift on each step, notably due to the robot's structural deformation under contact forces. In general use, this vertical drift could be reduced by tuning the contact detection threshold, which is arbitrarily set. However, to ensure a fair comparison, we kept the threshold unchanged and left this point for discussion. Moreover, absolute drift is not a critical concern in our intended use case (Criterion 3).
 
-As shown in Figure~\ref{fig:trans_z_rhps1}, we noticed that both estimators drifted upwards during the walk on flat ground, which involved longer walks and many more steps than the multi-contact motion. One of the reasons, inherent to Leg odometry, is its reliance on the quality of the contact detection. For example, detecting contacts consistently too early (when they are not perfectly still yet), would cause the estimate to drift on each step. Conversely, drift can also occur when detecting contacts consistently too late, due to the robot's structural deformation under the contact force, etc. While investigating, we could indeed reduce the vertical drift by tuning the thresholds of the Schmitt Trigger used for contact detection. However, we decided not to change them to ensure a fair comparison. The other main factor explaining the vertical drift is the quality of the pitch estimate, which significantly affects vertical translation estimates during long forward walks.
+To conclude, both {\scshape Valinor} and the RI-EKF displayed relative strengths with respect to heach other, with regard to the criteria we defined. Overall, they provided highly satisfactory estimation performance which makes them well suited for local task planning and execution. Without the use of any exteroceptive sensors, their errors in translation estimates remain of the order of the centimeter per meter walked, those in orientation estimates remain around 1\textdegree \ per meter walked, and finally those in velocity estimates remain below 2 cm.s$^{-1}$. 
+It is noteworthy that, while reducing the computation time by more than a factor 7.5, {\scshape Valinor} could consistently improve tilt and lateral translation estimation significantly.
 
-\begin{figure}[!ht]
+\begin{figure*}[!ht]
 \begin{center}
-\includegraphics[width=\columnwidth]{tilt.jpg} 
+\includegraphics[width=0.89\textwidth]{pose.jpg} 
 \vskip -0.5pc
-\caption{Estimated and ground truth roll and pitch angles of the robot's pelvis during the first trial of the walk on flat floor.}\label{fig:tilt_rhps1}
+\caption{Estimated and ground truth pose of RHP-Friends during the first walk on flat ground.}\label{fig:pose_rhps1}
 \end{center}
 \vskip -1.5pc
-\end{figure}
+\end{figure*}
 
-\begin{figure}[!ht]
-\begin{center}
-\includegraphics[width=\columnwidth]{trans_z.jpg} 
-\vskip -0.5pc
-\caption{Estimated and ground truth height of the robot's pelvis during the first trial of the walk on flat floor.}\label{fig:trans_z_rhps1}
-\end{center}
-\vskip -1.5pc
-\end{figure}
 
 \section{CONCLUSION}
 
-In this paper, we proposed {\scshape Valinor}, a lightweight estimator for humanoid robots. By combining Leg odometry with the Tilt Observer, we could perform accurate odometry whose accuracy rivalizes with the state-of-the-art method. We notably improved significantly the estimation of the lateral translations and of the tilt, while being over 7.5 times faster. Through this contribution, we aim to highlight the importance and the effectiveness of lightweight state estimation methods, especially in the current state of control for legged robots where computational efficiency is becoming a predominant challenge. We also seek to drive interest towards methods with mathematical guarantees, which we believe are essential for the safe industrial and societal deployment of legged robots. 
-Further work would aim at improving the coupling between the Inertial and the Leg odometry, notably such that the position and yaw estimates leverage better IMU measurements. Other extensions could investigate the incorporation of other sensors into the framework.
+In this paper, we proposed {\scshape Valinor}, a lightweight estimator for humanoid robots. By combining Leg odometry with the Tilt Observer, we could perform accurate odometry whose accuracy rivalizes with the state-of-the-art method, while being over 7.5 times faster. Through this contribution, we aim to highlight the importance and the effectiveness of lightweight state estimation methods, especially in the current state of control for legged robots where computational efficiency is becoming a predominant challenge. We also seek to drive interest towards methods with mathematical guarantees, which we believe are essential for the safe industrial and societal deployment of legged robots. 
+Further work would aim at improving the coupling between the Inertial and the Leg odometry, notably such that the position and yaw estimates leverage better IMU measurements, while preserving high computational efficiency. Other extensions could investigate the incorporation of other sensors into the framework.
 
 
 
@@ -611,23 +627,24 @@ This paper is based on results obtained from a project of Programs for Bridging 
 % \bibliographystyle{IJCAS}
 % \bibliography{Bibliography}
 
+
 \bibliographystyle{IEEEtran}
 \bibliography{IEEEabrv, Bibliography}
 
-% \biography{Arnaud.jpg}{Arnaud Demont}{received the M.S. degree in mechanical engineering with a specialization in mechatronics and systems from the National Institute of Applied Sciences of Lyon, France, and a second M.S. degree in automation and robotics in intelligent systems from the University of  Technology of Compiègne, France, in 2021 and 2023 respectively. He is currently pursuing the PhD degree of the Université Paris-Saclay, France, within the CRNS-AIST Joint Robotics Laboratory in Tsukuba, Japan. His research interests include state estimation for legged robots, multi-sensor fusion, and mobile robot perception and autonomous navigation.
-% }
+\biography{Arnaud.jpg}{Arnaud Demont}{received the M.S. degree in mechanical engineering with a specialization in mechatronics and systems from the National Institute of Applied Sciences of Lyon, France, and a second M.S. degree in automation and robotics in intelligent systems from the University of  Technology of Compiègne, France, in 2021 and 2023 respectively. He is currently pursuing the PhD degree of the Université Paris-Saclay, France, within the CRNS-AIST Joint Robotics Laboratory in Tsukuba, Japan. His research interests include state estimation for legged robots, multi-sensor fusion, and mobile robot perception and autonomous navigation.
+}
 
-% \biography{Mehdi.jpg}{Mehdi Benallegue}{holds an engineering degree from the National Institute of Computer Science (INI) in Algeria, obtained in 2007. He earned a master's degree from the University of Paris 7, France, in 2008, and a Ph.D. from the University of Montpellier 2, France, in 2011. His research took him to the Franco-Japanese Robotics Laboratory in Tsukuba, Japan, and to INRIA Grenoble, France. He also worked as a postdoctoral researcher at the Collège de France and at LAAS CNRS in Toulouse, France. Currently, he is a Research Associate with CNRS AIST Joint robotics Laboratory in Tsukuba, Japan. His research interests include robot estimation and control, legged locomotion, biomechanics, neuroscience, and computational geometry.
-% }
+\biography{Mehdi.jpg}{Mehdi Benallegue}{holds an engineering degree from the National Institute of Computer Science (INI) in Algeria, obtained in 2007. He earned a master's degree from the University of Paris 7, France, in 2008, and a Ph.D. from the University of Montpellier 2, France, in 2011. His research took him to the Franco-Japanese Robotics Laboratory in Tsukuba, Japan, and to INRIA Grenoble, France. He also worked as a postdoctoral researcher at the Collège de France and at LAAS CNRS in Toulouse, France. Currently, he is a Research Associate with CNRS AIST Joint robotics Laboratory in Tsukuba, Japan. His research interests include robot estimation and control, legged locomotion, biomechanics, neuroscience, and computational geometry.
+}
 
-% \biography{Thomas.jpg}{Thomas Duvinage}{received the M.S. degree in computer science with a specialization in robotics and computer vision from the University of Technology of Belfort-Montbéliard, France. He also holds a second M.S. degree in industrial and technology entrepreneurship from the same university. Since 2024, he has been serving as a CNRS delegate research engineer at the CNRS-AIST Joint Robotics Laboratory in Tsukuba, Japan. His work focuses on software integration for robotic systems, with research interests including robotics software architecture, system integration, and real-time robotic applications.
-% }
+\biography{Thomas.jpg}{Thomas Duvinage}{received the M.S. degree in computer science with a specialization in robotics and computer vision from the University of Technology of Belfort-Montbéliard, France. He also holds a second M.S. degree in industrial and technology entrepreneurship from the same university. Since 2024, he has been serving as a CNRS delegate research engineer at the CNRS-AIST Joint Robotics Laboratory in Tsukuba, Japan. His work focuses on software integration for robotic systems, with research interests including robotics software architecture, system integration, and real-time robotic applications.
+}
 
-% \biography{Aziz.jpg}{Prof. Abdelaziz Benallegue}{received the B.S. degree in electronics engineering from Algiers National Polytechnic School, Algeria in 1986 and both the M.S. and Ph.D. degrees in automatic control and robotics from University of Pierre and Marie Curie, Paris 6 (currently Sorbonne University), France in 1987 and 1991 respectively. He was Associate professor in Automatic Control and Robotics at the University Pierre et Marie Curie, Paris 6 (currently Sorbonne University) from 1992 to 2002. In September 2002, he joined the University of Versailles St Quentin as full Professor assigned. He was a CNRS delegate at JRL-AIST, Japan for three years, between 2016 and 2022. His research activities are mainly related to linear and non-linear estimation and control theory (adaptive control, robust control, neural learning control, observers, multi-sensor fusion, etc.) with applications in robotics (humanoid robots, aerial robots, manipulator robots, etc.).
-% }
+\biography{Aziz.jpg}{Prof. Abdelaziz Benallegue}{received the B.S. degree in electronics engineering from Algiers National Polytechnic School, Algeria in 1986 and both the M.S. and Ph.D. degrees in automatic control and robotics from University of Pierre and Marie Curie, Paris 6 (currently Sorbonne University), France in 1987 and 1991 respectively. He was Associate professor in Automatic Control and Robotics at the University Pierre et Marie Curie, Paris 6 (currently Sorbonne University) from 1992 to 2002. In September 2002, he joined the University of Versailles St Quentin as full Professor assigned. He was a CNRS delegate at JRL-AIST, Japan for three years, between 2016 and 2022. His research activities are mainly related to linear and non-linear estimation and control theory (adaptive control, robust control, neural learning control, observers, multi-sensor fusion, etc.) with applications in robotics (humanoid robots, aerial robots, manipulator robots, etc.).
+}
 
-% \clearafterbiography
-% \relax 
+\clearafterbiography
+\relax 
 
 \end{document}
 

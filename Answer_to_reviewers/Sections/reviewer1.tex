@@ -5,6 +5,8 @@
 The Tilt Observer and its convergence properties are not novel in this work; they originate from prior work ([19]). Where the overall claim is to "This article presents VALINOR (Velocity-Aided Leg Inertial Nonlinear Odometry and Registration), a method for Leg-Inertial odometry for humanoid robots addressing the challenge of lightweight yet accurate and certifiable state estimation.", this could be misleading. It is used as a tool.
 \end{revquote}
 
+\io
+
 \begin{revquote}
 The observer dynamics uses a variable $\hat{\boldsymbol{x}}_{2}^{\prime} $, which is not defined in the current paper, despite playing a central role in the update laws.
 \end{revquote}
@@ -17,7 +19,7 @@ The particularity of the Tilt Observer is that it estimates the IMU's tilt $\bol
 The observer relies on gains $\alpha_{1}$, $\alpha_{2}$, $\gamma$, but no method or rationale is provided for how they are selected, or tilt observer defines them.
 \end{revquote}
 
-We thank the reviewer for this comment. We indeed did not provide a method for the gains tuning. To correct this, we now refer to~\cite{benallegue2023velocity} when introducing the gains. Section IV C of this paper provides insights on how to tune them when working with real systems, notably based on the noisiness and reliability of the IMU and linear velocity measurements. For example in our implementation, we used the following tuning: $\alpha_{1} = 4, \alpha_{2} = 4, \gamma = 1$. HRP-5P and RHP Friends are equipped with high-end IMUs\footnote{Unfortunately only the model of the IMU used in HRP5-P (KVH Industries: 1750, according to~\cite{Kaneko2019Hrp5}) has been publicly disclosed.}, so we tuned our filter to leverage them. 
+We thank the reviewer for this comment. We indeed did not provide a method for the gains tuning. To correct this, we now refer to~\cite{benallegue2023velocity} when introducing the gains. Section IV C of that paper provides insights on how to tune them when working with real systems, notably based on the noisiness and reliability of the IMU and linear velocity measurements.  \alert{Lui coller le passage} For example in our implementation, we used the following tuning: $\alpha_{1} = 4, \alpha_{2} = 4, \gamma = 1$. HRP-5P and RHP Friends are equipped with high-end IMUs\footnote{Unfortunately only the model of the IMU used in HRP5-P (KVH Industries: 1750, according to~\cite{Kaneko2019Hrp5}) has been publicly disclosed.}, so we tuned our filter to leverage them. 
 To the paragraph, we also added the note that the convergence properties of the filter are independent of the gains tuning. 
 
 \subsubsection{IMU Bias and Noise Modeling}
@@ -43,16 +45,24 @@ For these reasons, we did not insist on the inclusion of sensor biases.
 
 
 
-\begin{revquote}
+\begin{revquote}\hypertarget{CommentSe3Fusion}{}
 There is no formal SE(3), Lie group, or EKF-based structure defined for global pose fusion.
 \end{revquote}
 
-\hypertarget{CommentSe3Fusion}{}
-We thank the reviewer for this comment. The proposed estimator indeed doesn't use an EKF or the Lie Group SE(3) to perform fusion. In VALINOR, we ``directly'' build a pose from a position, a yaw, and a tilt coming from different sources (from contact positions, contact orientations, and the Tilt Observer, respectively). We agree that this can be improved, and recognize it in the conclusion of the paper. However, doing that while keeping the philisophy of lightweight yet reliable estimation is not trivial. 
+
+We thank the reviewer for this comment. The proposed estimator indeed doesn't use an EKF or the Lie Group SE(3) to perform fusion. In VALINOR, we ``directly'' build a pose from a position, a yaw, and a tilt coming from different sources (from contact positions, contact orientations, and the Tilt Observer, respectively). We agree that this can be improved, and recognized it in the conclusion of the initial submission of the paper. We enhanced this conclusion by \alert{Add limitations section}. However, doing that while keeping the philisophy of lightweight yet reliable estimation is not trivial. 
 As an example, we could indeed fuse the contact poses and the output of the Tilt Observer within an EKF. However, the matrix inversion and multiplications involved in the EKF would increase greatly the computation time of our estimator. Moreover, by using our tilt estimate $\hat{\boldsymbol{x}}_{2}$ as a measurement, we could not guarantee anymore the convergence properties of the tilt at the output.
 
-
 To remain consistent with our approach, we are thus working on extending our method by writing a proof of convergence similar to that of the Tilt Observer, for a complementary filter that would include the positions and orientations coming from contacts. 
+
+\color{red}
+As explained in Section 4.2, I pA and I ˙pA are updated at
+each iteration. Combined with the zero-velocity assump-
+tion of the anchor point in the world frame and the gyrom-
+eter measurement, they provide an algebraic estimate of
+the IMU velocity in the world frame.
+\color{black}
+
 
 \begin{revquote}
 - While experimental sections reference a combined system (estimator + control + humanoid), there is no detailed diagram or explanation of the full data flow. Pose estimation is described in parts (e.g., contact anchoring, tilt fusion), but the overall architecture is fragmented and unclear.
@@ -73,33 +83,67 @@ We thank the reviewer for this comment. The anchor point is a point that belongs
 Yaw fusion is one of the core contributions of the paper (via the axis-agnostic method), yet no plot of yaw angle or yaw error over time is provided. This significantly weakens the experimental validation of the claimed improvement.
 \end{revquote}
 
-We thank the reviewer for this comment. The yaw estimation is indeed important in proprioceptive odometry, so we added a plot of the yaw angle. 
+We thank the reviewer for this comment. The yaw estimation is indeed important in proprioceptive odometry, so we added a plot of the yaw angle. \alert{We added the plot of the yaw}
+
 However, we would like to highlight that our contribution here is a novel method for the fusion of a yaw and a tilt estimates coming from different sources. 
 This fusion allows us to construct an orientation matrix from the tilt coming from the Tilt Observer, and the yaw coming from the Leg odometry. 
+\alert{Explain that we propose something robust to singularities}
 This fusion is important here since it allows to preserve the mathematical convergence guarantees provided by the Tilt Observer within our full orientation. 
 We have noticed that we did not insists on this enough in the paper, so we clarified it in our Abstract, and Section~\ref{sec:leg_odometry} and Section~\ref{sec:axisAgnostic}, which explain the leg odometry and the axis-agnostic fusion, respectively.
 In the proposed estimator, the yaw estimate comes solely from Leg odometry, it is therefore not expected to be more accurate than the yaw estimated by the RI-EKF, which also leverages the IMU measurements. As elaborated in \hyperlink{CommentSe3Fusion}{this response}, combining Leg odometry and IMU measurements in our framework is not trivial, but we are currently addressing it.
+
 
 \begin{revquote}
 In Figure 5, VALINOR exhibits larger variations in vertical translation (z-axis) compared to RI-EKF. This raises concerns that the improved orientation or tilt accuracy may come at the cost of position accuracy, particularly in vertical drift.
 \end{revquote}
 
+We thank the reviewer for this comment. You are right pointing out that we indeed drift slightly faster along the z axis than the RI-EKF.
+However, this drift is not due to the tilt estimate, in fact we believe it is beneficial to our odometry. 
+We explain the drift by the fact our position comes solely from Leg odometry, which as we explain at the end of Section~\ref{subsec:est_accur_eval}, drifts on each new step. Although the RI-EKF's tilt estimate is less accurate than ours, it leverages the IMU measurements too to correct the position. Also, they append feet positions to their state vector, allowing to correct them slightly over time. 
+This way, their estimation of the robot's height indeed drifts slightly slower than ours (by 4 mm per meter).  \alert{we explain that this is also due to the detection threshold}
+However, you can notice that the height estimated by the RI-EKF suddenly plunges at around 10s, to then suddenly increase at around 50s. Since we already used the RI-EKF as a comparison with a previous work (“The Kinetics Observer: A Tightly Coupled Estimator for Legged Robots,” preprint, 2024), on the same dataset, we already noticed this behavior, and explained it by the erroneous estimate of the robot's pitch angle by the RI-EKF at that time:
+
+\begin{quotepaper}
+`` ... we see that at about 10 seconds after
+the start, the RI-EKF’s estimate of this position suddenly and
+erroneously decreased, to then increase greatly at about 50
+seconds after the start. We verify that this translation error is
+mainly due to a misestimation of the pitch angle. Between
+10 seconds and 50 seconds, the robot walked 7.2 meters and
+the average error on the pitch estimated by the RI-EKF was
+1.5◦. The resulting error in elevation $\Delta z = tan(1.5) \times 7.2$
+would be about 19 cm, which roughly corresponds to the drift we can see ...''
+\end{quotepaper}
+
+This is to our point of view a very critical issue, that counterbalances the RI-EKS's slower drift. 
+What's more, we could observe this behaviour on each of the five trials of this walk experiment (Experiment 1), while our tilt estimate has been consistently relatively accurate throughout all experiments, as shown by its low standard deviation overall.
+Since both estimators have strengths and weaknesses in vertical translation estimation, we did not declare one superior in our evaluation.
+
+To conclude, our method indeed drifts slightly faster over each step. However, the better robustness provided by our reliable tilt estimate is a strenght that can be exploited to improve proprioceptive odometry further. We are confident that our method still has considerable room for improvement, which would notably come from leveraging IMU measurements in the position and yaw estimations. As explained in another response (\hyperlink{CommentSe3Fusion}{link}), we are working on the direct combination of the Tilt Observer and Leg odometry within a single complementary filter. We are also exploring ways to correct the contact reference poses over time, as performed by the RI-EKF.
+
+
+
 \subsubsection{Experimental Coverage}
 
 \begin{revquote}
 The proposed estimator appears to be an advanced method with efficiency and modularity benefits. It would be reasonable to expect greater generalization across various robot behaviors and environments.
-\end{revquote}
-
-\begin{revquote}
 However, the current experiments are confined to flat, short-range, structured lab environment, which limits the real-world relevance of the evaluation.
-\end{revquote}
-
-\begin{revquote}
 The test conditions can benefit from:
-      o Uneven or non-planar surfaces
-      o Inclines or stairs
-      o Long-distance walking (to test drift)
+    o Uneven or non-planar surfaces
+    o Inclines or stairs
+    o Long-distance walking (to test drift)
 \end{revquote}
+\alert{It is an advanced method, especially in terms of computation time, but we propose it in nominal cases.}
+We thank the reviewer for this comment and for believing in our work. We are indeed convinced that our method can be used in multiple scenarios. 
+\io 
+Proprioceptive odometry is bounded to drift over time and cannot recover the global pose after failure. For example, if the yaw comes to drift up to a -180 degree error, the translation would be estimated in the opposite direction to the actual one. It has thus been commonly acknowledged that the most relevant way to evaluate it is not by computing the estimation error over long distances, but by computing statistical errors over shorter distances with the Relative Error (e.g. "Legged robot state estimation with invariant extended kalman filter using neural measurement network.", by Youm, Donghoon, et al., ~\cite{yoon2023InvariantSmootherDynamicContactEventInformation}). We thus computed the Relative Error over 1 meter for Experiment 1 (walk on flat ground) and over 0.3 meters for Experiment 2 (multi-contact motion on tilted obstacles). Therefore, in total, the Relative Error was computed over about:
+\begin{itemize}
+    \item 90 independent sub-trajectories for the 'Odometry on Flat Ground' experiment (90 meters in total).
+    \item 26 independent sub-trajectories for the 'Multi-contact Motion with Tilted Obstacles' experiment (8 meters in total).
+\end{itemize}
+To increase the relevance of our results, we performed our experiments on two different robots and conducted every experiments in a motion capture environment, since precision over short translations matters the most. Experiment 2 involved contacts on both legs and on the left hand, at different heights and inclinations, in order to prove the adaptability of our estimator to non-flat environment.
+
+
 
 \subsubsection{Computation Time Analysis}
 
@@ -112,3 +156,30 @@ However, this leads to some open questions as
       o How does performance vary with the number of contacts?
     
 \end{revquote}
+
+We thank the reviewer for this comment and these very relevant questions. The provided 2.547 µs is an average between the mean computation times obtained throughout the four trials of Experiment 2 (multi-contact motion), which involved 3 contacts. In the table below, are regrouped the mean computation times by each estimator, obtained for each sequence, and their standard deviation. As you can notice, both estimators have consistent computation times accross all sequences. 
+
+Our method scales very well with respect to the number of contacts, since an additional contact only implies:
+\begin{itemize}
+  \item An additional computation of Eq.~\eqref{eq:ratio_ui} and Eq.~\eqref{eq:lambda_i}, hence negligible operations with floats.
+  \item An additional sum of 3x1 vectors in Eq.~\eqref{eq:imuAnchorPos} and Eq.~\eqref{eq:imuAnchorVel}.
+  \item The orientation average in Eq.~\eqref{eq:leg_odom_avg_ori} is computed between the two most reliable contacts, so over 2 contacts, no additional operation is involved. 
+  \item An additional product of a 3x1 vector by a 3x3 matrix and the difference between two 3x1 vectors in 
+  ~\eqref{eq:est_p_imu}.
+\end{itemize}
+
+\begin{table}[!h]
+  \begin{center}
+        \begin{tabu}to\linewidth{| X[c] | X[c] | X[c] | X[c] | X[c] | X[c] | X[c] | }
+            \hline
+              & Trial 1 & Trial 2 & Trial 3 & Trial 4 & Mean & Std \\
+            \hline
+             Valinor & 2.579 $\mu s$  & 2.567 $\mu s$  & 2.457 $\mu s$  & 2.556 $\mu s$  & 2.547 $\mu s$ & 0.043 $\mu s$ \\
+             \hline 
+             Hartley & 20.268 $\mu s$ & 18.642 $\mu s$ & 19.197 $\mu s$ & 19.154 $\mu s$ & 19.315 $\mu s$ & 0.529 $\mu s$ \\
+            \hline     
+        \end{tabu}
+    \end{center}
+\end{table}
+
+In comparison, the RI-EKF, \alert{CONTINUE}
