@@ -5,7 +5,7 @@
 The Tilt Observer and its convergence properties are not novel in this work; they originate from prior work ([19]). Where the overall claim is to "This article presents VALINOR (Velocity-Aided Leg Inertial Nonlinear Odometry and Registration), a method for Leg-Inertial odometry for humanoid robots addressing the challenge of lightweight yet accurate and certifiable state estimation.", this could be misleading. It is used as a tool.
 \end{revquote}
 
-\io
+We thank the reviewer for pointing that out. The Tilt Observer is indeed not a contribution of this paper itself, since the contribution is its combination with a Leg Odometry, that preserves its accuracy and guarantees.
 
 \begin{revquote}
 The observer dynamics uses a variable $\hat{\boldsymbol{x}}_{2}^{\prime} $, which is not defined in the current paper, despite playing a central role in the update laws.
@@ -157,16 +157,8 @@ However, this leads to some open questions as
     
 \end{revquote}
 
-We thank the reviewer for this comment and these very relevant questions. The provided 2.547 µs is an average between the mean computation times obtained throughout the four trials of Experiment 2 (multi-contact motion), which involved 3 contacts. In the table below, are regrouped the mean computation times by each estimator, obtained for each sequence, and their standard deviation. As you can notice, both estimators have consistent computation times accross all sequences. 
-
-Our method scales very well with respect to the number of contacts, since an additional contact only implies:
-\begin{itemize}
-  \item An additional computation of Eq.~\eqref{eq:ratio_ui} and Eq.~\eqref{eq:lambda_i}, hence negligible operations with floats.
-  \item An additional sum of 3x1 vectors in Eq.~\eqref{eq:imuAnchorPos} and Eq.~\eqref{eq:imuAnchorVel}.
-  \item The orientation average in Eq.~\eqref{eq:leg_odom_avg_ori} is computed between the two most reliable contacts, so over 2 contacts, no additional operation is involved. 
-  \item An additional product of a 3x1 vector by a 3x3 matrix and the difference between two 3x1 vectors in 
-  ~\eqref{eq:est_p_imu}.
-\end{itemize}
+We thank the reviewer for this comment and these very relevant questions. The provided 2.547 µs is an average between the mean computation times obtained throughout the four trials of Experiment 2 (multi-contact motion), which involved 3 contacts. In the table below, are regrouped the mean computation times by each estimator, obtained for each sequence, the standard deviation between them, and their average. As you can see through the very low standard deviation, both estimators have consistent computation times accross all sequences. 
+Building on your comment, we have added this standard deviation to our results to prove the consistency of our method.
 
 \begin{table}[!h]
   \begin{center}
@@ -182,4 +174,16 @@ Our method scales very well with respect to the number of contacts, since an add
     \end{center}
 \end{table}
 
-In comparison, the RI-EKF, \alert{CONTINUE}
+Our method scales very well with respect to the number of contacts, since an additional contact only implies:
+\begin{itemize}
+  \item An additional computation of Eq.~\eqref{eq:ratio_ui}, hence negligible operations with floats.
+  \item An additional sum of 3x1 vectors in Eq.~\eqref{eq:imuAnchorPos} and Eq.~\eqref{eq:imuAnchorVel}.
+  \item The orientation average in Eq.~\eqref{eq:leg_odom_avg_ori} is computed between the two most reliable contacts, so over 2 contacts, no additional operation is involved. 
+  \item An additional product of a 3x1 vector by a 3x3 matrix and the difference between two 3x1 vectors in~\eqref{eq:est_p_imu}.
+\end{itemize}
+
+These operations, in addition to being extremely fast, scale at most linearly with the number of contacts.
+
+
+In comparison, the RI-EKF, due to the matrix multiplications and inversion, would scale at least quadratically with the number of contacts.
+

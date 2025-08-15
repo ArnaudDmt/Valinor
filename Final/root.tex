@@ -61,8 +61,8 @@
 
 % the abstract environment
 \begin{abstract}
-This article presents {\scshape Valinor} (Velocity-Aided Leg Inertial Nonlinear Odometry and Registration), a method for Leg-Inertial odometry for humanoid robots addressing the challenge of lightweight yet accurate and certifiable state estimation. {\scshape Valinor} associates Leg odometry with the Tilt Observer, a computationally efficient complementary filter, which provides accurate estimates of the IMU's tilt and linear velocity with strong mathematical convergence guarantees. We introduce an axis-agnostic method for the fusion of the Leg odometry's yaw with the Tilt Observer's tilt estimate. We argue that this method is less arbitrary and more mathematically sound than those based on other orientation representations, especially on Euler angles.
-We present an evaluation of the proposed estimator through real-world data on two humanoid robots. We show that, while being 7.5 times faster than the state-of-the-art method used for comparison, {\scshape Valinor} improves tilt estimation by over 25\%, making it a well-suited feedback for balance and walking controllers. 
+This article presents {\scshape Valinor} (Velocity-Aided Leg Inertial Nonlinear Odometry and Registration), a method for lightweight yet accurate Leg-Inertial odometry for humanoid robots. {\scshape Valinor} builds upon the Tilt Observer, a computationally efficient complementary filter, which provides accurate estimates of the IMU's tilt and linear velocity with strong mathematical convergence guarantees, associating it with Leg odometry. We introduce an axis-agnostic method for the fusion of the Tilt Observer's tilt estimate with the Leg odometry's yaw. We argue that this method is less arbitrary and more mathematically sound than those based on other orientation representations, especially on Euler angles.
+We present an evaluation of the proposed estimator through real-world data on two humanoid robots. We show that, while being 7.5 times faster than the state-of-the-art method used for comparison, {\scshape Valinor} achieves estimation performance on par with it.\finir
 \end{abstract}
 
 \begin{keywords}
@@ -107,15 +107,29 @@ The main contributions introduced in this paper are as follows:
   \item The code of the Tilt Observer is open source\footnote{\scriptsize \url{https://github.com/ArnaudDmt/state-observation}}, as well as a ROS wrapper\footnote{\scriptsize \url{https://github.com/ArnaudDmt/state_observation_ros.git}}.
 \end{itemize}
 
-\noindent Figure~\ref{fig:summary} provides a summary of {\scshape Valinor}'s pipeline, highlighting the contribution of each section of this paper.
+% \noindent Figure~\ref{fig:summary} provides a summary of {\scshape Valinor}'s pipeline, highlighting the contribution of each section of this paper.
+% \begin{figure*}[!ht]
+% \begin{center}
+% \includegraphics[width=0.6\textwidth]{summary.jpg} 
+% \vskip -0.5pc
+% \caption{Summary of {\scshape Valinor}'s pipeline.}\label{fig:summary}
+% \end{center}
+% \vskip -1.5pc
+% \end{figure*}
+
 \begin{figure*}[!ht]
-\begin{center}
-\includegraphics[width=0.65\textwidth]{summary.jpg} 
-\vskip -0.5pc
-\caption{Summary of {\scshape Valinor}'s pipeline.}\label{fig:summary}
-\end{center}
-\vskip -1.5pc
+    \subfloat[]{
+        \includegraphics[width=0.65\textwidth]{summary.jpg}
+        \label{fig:summary}
+    }
+      \hfill
+    \subfloat[]{
+        \includegraphics[width=0.20\textwidth]{framesAndAnchor.pdf}
+        \label{fig:framesAndAnchor}
+    }
+    \caption{(a) Summary of {\scshape Valinor}'s pipeline. (b) Illustration of the anchor point position computation and of the reference frames used in {\scshape Valinor}. $\mathcal{W}$: world frame; $\mathcal{I}$: IMU frame; $\mathcal{C}_{i}$: frame of the $i$-th contact. For clarity, only the weighted average of the contact positions is shown. In this example, $\boldsymbol{F}_{2} = 2\boldsymbol{F}_{1}$ and so $\lambda_{2} = \frac{2}{3}$.}
 \end{figure*}
+
 
 \section{GENERAL NOTATIONS}
 \begin{itemize}
@@ -137,17 +151,10 @@ The anchor point, denoted $\mathcal{A}$, is defined as a point attached to the r
 Contacts with the environment provide naturally good sets of points known to the robot and having zero world velocity. With the no-slippage hypothesis, any point of a contact body would thus be suitable to define an anchor point. However, we need an anchor point that remains always defined and whose position is as continuous as possible, even when contacts are created and broken, as long as there is at least one contact established. Also, the no-slippage hypothesis can hold better for some points than others. For instance, when the contact forces are closer to Coulomb's friction cones the contact is more likely to slip.
 
 To address these two requirements we determine the kinematics of that point through a weighted average of the kinematics of the current contacts, as shown in Figure~\ref{fig:framesAndAnchor}.  \\
-The weighting coefficients are defined such that weaker contacts, which are prone to violate Coulomb's inequality and thus to slip, contribute less to the anchor point's kinematics computation. Given $mg_{0}$ the weight of the robot, we first compute for each contact $i$
+The weighting coefficients are defined such that weaker contacts, which are prone to violate Coulomb's inequality and thus to slip, contribute less to the anchor point's kinematics computation. Given $mg_{0}$ the weight of the robot, we first compute for each contact $i$ the ratio $u_{i}$ of the normal force to the tangential force, measured by the force / torque sensor at the contact. The term $\epsilon$, arbitrarily small, allows to deal with the case where the tangential force is zero. The weighting coefficient $\lambda_{i}$ of the contact in the average is then computed:
 \begin{equation}
-    u_{i} = \frac{\boldsymbol{F}_{i,z}}{\sqrt{\boldsymbol{F}_{i,x}^2 + \boldsymbol{F}_{i,y}^2} + \epsilon mg_{0}}, \label{eq:ratio_ui}
+    u_{i} = \frac{\boldsymbol{F}_{i,z}}{\sqrt{\boldsymbol{F}_{i,x}^2 + \boldsymbol{F}_{i,y}^2} + \epsilon mg_{0}}, \qquad \lambda_{i}=\frac{u_{i}}{\sum^{n_{c}}_{j=1}u_{i}}. \label{eq:ratio_ui}
 \end{equation}
-the ratio of the normal force to the tangential force, measured by the force / torque sensor at the contact. The term $\epsilon$, arbitrarily small, allows to deal with the case where the tangential force is zero.
-
-The contact's weighting coefficient $\lambda_{i}$ is then:
-\begin{equation}
-    \lambda_{i}=\frac{u_{i}}{\sum^{n_{c}}_{j=1}u_{i}}. \label{eq:lambda_i}
-\end{equation}
-
 Based on this definition, we give the position and linear velocity of the anchor point in the IMU's frame:
 \begin{align} 
 &{^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}} = \sum^{n_{c}}_{i} \lambda_{i}  {^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}, \label{eq:imuAnchorPos} \\
@@ -157,14 +164,14 @@ with ${^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}$ the position and ${^{
 
 It is important to note also that with this definition, although the anchor point is defined to have zero velocity in the world, its instantaneous position may still evolve over time.
 
-\begin{figure}[!t]
-\begin{center}
-\includegraphics[width=0.4\columnwidth]{framesAndAnchor.pdf} 
-\vskip -0.5pc
-\caption{Illustration of the anchor point position computation and of the reference frames used in {\scshape Valinor}. $\mathcal{W}$: world frame; $\mathcal{I}$: IMU frame; $\mathcal{C}_{i}$: frame of the $i$-th contact. For clarity, only the weighted average of the contact positions is shown. In this example, $\boldsymbol{F}_{2} = 2\boldsymbol{F}_{1}$ and so $\lambda_{2} = \frac{2}{3}$.}\label{fig:framesAndAnchor}
-\end{center}
-\vskip -1.5pc
-\end{figure}
+% \begin{figure}[!t]
+% \begin{center}
+% \includegraphics[width=0.4\columnwidth]{framesAndAnchor.pdf} 
+% \vskip -0.5pc
+% \caption{Illustration of the anchor point position computation and of the reference frames used in {\scshape Valinor}. $\mathcal{W}$: world frame; $\mathcal{I}$: IMU frame; $\mathcal{C}_{i}$: frame of the $i$-th contact. For clarity, only the weighted average of the contact positions is shown. In this example, $\boldsymbol{F}_{2} = 2\boldsymbol{F}_{1}$ and so $\lambda_{2} = \frac{2}{3}$.}\label{fig:framesAndAnchor}
+% \end{center}
+% \vskip -1.5pc
+% \end{figure}
 
 
 \section{Tilt Observer with proof of convergence}
@@ -488,11 +495,11 @@ The axis-agnostic fusion is therefore adopted as the default in {\scshape Valino
 
 \section{Experimental Evaluation}~\label{sec:exps}
 
-We identified the following criteria that a state estimator should satisfy to serve in our intended use case, namely, providing feedback for remote control~(\cite{Grandia2024DesignControlBipedalRoboticCharacter}) or planning in the robot's local workspace~(\cite{Tsuru2023OnlineMulticontactReplanningHumanoid}):
+We identified the following criteria that a state estimator should satisfy to serve in our intended use case, namely, providing feedback for remote control \cite{Grandia2024DesignControlBipedalRoboticCharacter} or task planning and execution in the robot's local workspace \cite{Tsuru2023OnlineMulticontactReplanningHumanoid}:
 \begin{itemize}[label={}, leftmargin=1em]
-  \item \textbf{[Criterion 1]}\, High computation speed, to leave more processing time for the rest of the pipeline.
-  \item \textbf{[Criterion 2]}\, Accurate tilt and local lateral (horizontal) velocity estimation, which are crucial for stabilization.
-  \item \textbf{[Criterion 3]}\, Low local drift in translation and yaw. Absolute (global) drift, which is unavoidable with proprioceptive odometry, is of limited concern when tasks are planned in a local frame.
+  \item \textbf{Criterion}\,\critnum{1}\, High computation speed, to leave more processing time for the rest of the pipeline.
+  \item \textbf{Criterion}\,\critnum{2}\, Accurate tilt and local lateral (horizontal) velocity estimation, which are crucial for stabilization.
+  \item \textbf{Criterion}\,\critnum{3}\, Low local drift (over small displacements) in translation and yaw. This would correlate with lower asbolute drift, but the latter cannot be used as a metric because of its lower determinism by proprioceptive odometry.
 \end{itemize}
 
 \noindent The experiments presented in this Section assess {\scshape Valinor} based on these criteria. We compare it with the Right-Invariant EKF (RI-EKF) from~\cite{Hartley2020RIEKF}, a state-of-the-art method for legged robot proprioceptive odometry. This estimator has demonstrated its effectiveness in practical applications, notably as real-time feedback for remote control~\cite{Grandia2024DesignControlBipedalRoboticCharacter}. It is therefore particularly relevant to compare ourselves to this method.
@@ -513,11 +520,11 @@ We identified the following criteria that a state estimator should satisfy to se
     \subfloat[]{
         \includegraphics[width=0.85\columnwidth]{trajectory_rhps1.jpg}
         \label{fig:traj_friends}
-    }\\[1ex]
+    }\\[-1ex]
     \subfloat[]{
         \includegraphics[width=0.85\columnwidth]{trajectory_hrp5.jpg}
         \label{fig:traj_hrp5}
-    }\\[1ex]
+    }\\[-1ex]
     \subfloat[]{
         \includegraphics[width=0.45\columnwidth]{multiContactExpe.jpg}
         \label{fig:hrp5_motion}
@@ -531,14 +538,14 @@ We identified the following criteria that a state estimator should satisfy to se
 
 \subsubsection{Computational Performance Evaluation}\label{subsec:computation_time}
 
-To evaluate the computation speed performance of {\scshape Valinor}, we compared its average computation time per iteration over the four multi-contact experiments, to that of the RI-EKF. Both estimators were run on the same laptop, equipped with an Intel Xeon E-2176M CPU (2.70GHz x 12). In average, an iteration of {\scshape Valinor} was computed in 2.547 \textmu s, against 19.315 \textmu s for the RI-EKF. The proposed method is thus more than 7.5 times faster than the state-of-the-art estimator.
+To evaluate the computation speed performance of {\scshape Valinor}, we compared its average computation time per iteration over the four multi-contact experiments (involving three contacts), to that of the RI-EKF. Both estimators were run on the same laptop, equipped with an Intel Xeon E-2176M CPU (2.70GHz x 12). In average, an iteration of {\scshape Valinor} was computed in 2.547 \textmu s, against 19.315 \textmu s for the RI-EKF. The proposed method is thus more than 7.5 times faster than the state-of-the-art estimator. Across all sequences, the average computation times had a standard deviation of 0.043 \textmu s, indicating consistency from one sequence to another. We note that an additional contact in {\scshape Valinor} implies only minor additional computations in Eqs.~\eqref{eq:ratio_ui}, \eqref{eq:imuAnchorPos},\eqref{eq:imuAnchorVel}, and \eqref{eq:est_p_imu}, making our method highly scalable with respect to the number of contacts.
 
 
 \subsubsection{Estimation Accuracy Evaluation} ~\label{subsec:est_accur_eval}
 
 
 In both experiments, the odometry performance of {\scshape Valinor} and of the RI-EKF are evaluated using the ground truth trajectory of the robot's pelvis (to which the IMU is fixed on both robots), provided by a motion capture system (OptiTrack, 16 Prime\textsuperscript{X} with 13 cameras). The pose of the IMU's frame, estimated by both estimators, is transformed into that of the pelvis using simple rigid body transformation. For fairness in the comparison, both estimators receive the same contact state information, from a Schmitt Trigger on the Ground Reaction Force (with thresholds set to 10\% and 15\% of the robot's weight).
-Since the focus is on accuracy in local translations and yaw (Criterion 3), performance is assessed using the Relative Error (RE), as defined in~\cite{Zhang2018QuantitativeTrajectoryEvaluation}. The latter evaluates the estimation drift over segments of fixed distances. It is particularly relevant here, as it provides valuable and easily interpretable insight into the estimator's expected local accuracy without being affected by global drift. The error $e_{\boldsymbol{\ell}}$ on the tilt estimate is computed using $e_{\boldsymbol{\ell}} = \text{arccos}\left(\boldsymbol{\ell}_{gt}^{T} \hat{\boldsymbol{\ell}} \right)$, with $\boldsymbol{\ell}_{gt}$ the ground truth tilt, and $\hat{\boldsymbol{\ell}}$ the estimated one. 
+Since the focus is on accuracy in local translations and yaw (Criterion \critnum{3}), performance is assessed using the Relative Error (RE), as defined in~\cite{Zhang2018QuantitativeTrajectoryEvaluation}. The latter evaluates the estimation drift over segments of fixed distances. It is particularly relevant here, as it provides valuable and easily interpretable insight into the estimator's expected local accuracy without being affected by global drift. The error $e_{\boldsymbol{\ell}}$ on the tilt estimate is computed using $e_{\boldsymbol{\ell}} = \text{arccos}\left(\boldsymbol{\ell}_{gt}^{T} \hat{\boldsymbol{\ell}} \right)$, with $\boldsymbol{\ell}_{gt}$ the ground truth tilt, and $\hat{\boldsymbol{\ell}}$ the estimated one. 
 
 Finally, local linear velocity estimation is assessed using the Mean Absolute Error between the estimated velocity and the ground truth, the latter obtained by finite differences from the ground-truth position, filtered with a zero-phase low-pass filter.
 
@@ -590,16 +597,16 @@ Based on the obtained results, we observe that the relative strengths of both es
     \item The RI-EKF estimated local lateral velocities {\footnotesize\critnum{2}} and yaw {\footnotesize\critnum{3}} more accurately than {\scshape Valinor} during Experiment 1, with 20\% and 16\% smaller errors, but both estimators displayed comparable performance in both estimates during Experiment 2.
     \item Both estimators showed similar performance in vertical translation {\footnotesize\critnum{3}} and velocity estimation. 
 \end{itemize}
-To elaborate on the vertical translation results, one can notice in Figure~\ref{fig:pose_rhps1} that both estimators drifted during the walk on flat ground, which involved a large number of steps. One contributing factor is the quality of the pitch estimation, an error in pitch estimation causing drift during forward walking. Another factor, inherent to Leg odometry, is its reliance on the quality of the contact detection. For example, systematically detecting contacts too early or too late can cause drift on each step, notably due to the robot's structural deformation under contact forces. In general use, this vertical drift could be reduced by tuning the contact detection threshold, which is arbitrarily set. However, to ensure a fair comparison, we kept the threshold unchanged and left this point for discussion. Moreover, absolute drift is not a critical concern in our intended use case (Criterion 3).
+To elaborate on the vertical translation results, one can notice in Figure~\ref{fig:pose_rhps1} that both estimators drifted during the walk on flat ground, which involved a large number of steps. One contributing factor is the quality of the pitch estimation, an error in pitch estimation causing drift during forward walking. Another factor, inherent to Leg odometry, is its reliance on the quality of the contact detection. For example, systematically detecting contacts too early or too late can cause drift on each step, notably due to the robot's structural deformation under contact forces. In general use, this vertical drift could be reduced by tuning the contact detection threshold, which is arbitrarily set. However, to ensure a fair comparison, we kept the threshold unchanged and left this point for discussion. Moreover, absolute drift is not a reliable metrics for proprioceptive odometry (see Criterion \critnum{3}).
 
-To conclude, both {\scshape Valinor} and the RI-EKF displayed relative strengths with respect to heach other, with regard to the criteria we defined. Overall, they provided highly satisfactory estimation performance which makes them well suited for local task planning and execution. Without the use of any exteroceptive sensors, their errors in translation estimates remain of the order of the centimeter per meter walked, those in orientation estimates remain around 1\textdegree \ per meter walked, and finally those in velocity estimates remain below 2 cm.s$^{-1}$. 
+To conclude, both {\scshape Valinor} and the RI-EKF displayed relative strengths with respect to heach other, with regard to the criteria we defined. Overall, they provided highly satisfactory estimation performance which makes them well suited for local task planning and execution. Without the use of any exteroceptive sensors, their errors in translation estimates remain of the order of the centimeter per meter walked, those in orientation estimates remain around 1\textdegree \ per meter walked, and finally those in velocity estimates remain below 2 cm.s$^{-1}$. \\
 It is noteworthy that, while reducing the computation time by more than a factor 7.5, {\scshape Valinor} could consistently improve tilt and lateral translation estimation significantly.
 
 \begin{figure*}[!ht]
 \begin{center}
 \includegraphics[width=0.89\textwidth]{pose.jpg} 
 \vskip -0.5pc
-\caption{Estimated and ground truth pose of RHP-Friends during the first walk on flat ground.}\label{fig:pose_rhps1}
+\caption{Estimated and ground truth pose of RHP-Friends during the first walk on flat ground. Zoomed-in views are provided for the dense tilt plots, with a black rectangle indicating the corresponding area in the original plot.}\label{fig:pose_rhps1}
 \end{center}
 \vskip -1.5pc
 \end{figure*}
@@ -607,8 +614,10 @@ It is noteworthy that, while reducing the computation time by more than a factor
 
 \section{CONCLUSION}
 
-In this paper, we proposed {\scshape Valinor}, a lightweight estimator for humanoid robots. By combining Leg odometry with the Tilt Observer, we could perform accurate odometry whose accuracy rivalizes with the state-of-the-art method, while being over 7.5 times faster. Through this contribution, we aim to highlight the importance and the effectiveness of lightweight state estimation methods, especially in the current state of control for legged robots where computational efficiency is becoming a predominant challenge. We also seek to drive interest towards methods with mathematical guarantees, which we believe are essential for the safe industrial and societal deployment of legged robots. 
-Further work would aim at improving the coupling between the Inertial and the Leg odometry, notably such that the position and yaw estimates leverage better IMU measurements, while preserving high computational efficiency. Other extensions could investigate the incorporation of other sensors into the framework.
+In this paper, we proposed {\scshape Valinor}, a lightweight estimator for humanoid robots. By combining Leg odometry with the Tilt Observer, we could perform proprioceptive odometry whose accuracy rivalizes with the state-of-the-art method, while being over 7.5 times faster. Through this contribution, we aim to highlight the importance and the effectiveness of lightweight state estimation methods, especially in the current state of control for legged robots where computational efficiency is becoming a predominant challenge. We also seek to drive interest towards methods with mathematical guarantees, which we believe are essential for the safe industrial and societal deployment of legged robots. 
+
+We note that by relying on Leg odometry and thus on the assumption of fixed contacts in the world, position and yaw estimation would drift from the actual ones in case of contact slippage~\cite{bloesch2013FusionLegKineAndImu}, as visible in Figure~\ref{fig:traj_friends}. Our method is particularly well suited to our intended use case of high-speed feedback for control in a local task space, but for tasks requiring minimal drift in absolute pose, methods using exteroceptive measurements~\cite{wisth2022vilens, fallon2018AccRobLocWalkRobotsImuVisLidar, Kuang2024TightlyCoupledLidarImuUwb}, although slower, would of course be more appropriate.
+Further work would aim at reducing the sensitivity to slippage and other failure by improving the coupling between the Inertial and the Leg odometry, while preserving high computational efficiency. Other extensions could investigate the incorporation of other sensors into the framework.
 
 
 
@@ -618,7 +627,7 @@ Further work would aim at improving the coupling between the Inertial and the Le
 The authors declare that there is no competing financial interest or personal relationship that could have appeared to influence the work reported in this paper.
 
 \subsection*{Authors' Contributions}
-Arnaud Demont and Mehdi Benallegue conceived the study and developed its theoretical foundations. Abdelaziz Benallegue supervised the study and validated the theoretical framework. Arnaud Demont and Thomas Duvinage conducted the experiments. Arnaud Demont implemented the work in C++ and processed the experimental results. Arnaud Demont and Mehdi Benallegue wrote the manuscript in consultation with Thomas Duvinage and Abdelaziz Benallegue.
+Arnaud Demont and Mehdi Benallegue developed the proposed estimator's theoretical foundations. Abdelaziz Benallegue supervised the study and validated the theoretical framework. Arnaud Demont and Thomas Duvinage conducted the experiments. Arnaud Demont implemented the estimator and processed the experimental results. Arnaud Demont and Mehdi Benallegue wrote the manuscript in consultation with Thomas Duvinage and Abdelaziz Benallegue.
 
 \subsection*{Funding }
 This paper is based on results obtained from a project of Programs for Bridging the gap between R\&D and the IDeal society (society 5.0) and Generating Economic and social value (BRIDGE)/Practical Global Research in the AI x Robotics Services, implemented by the Cabinet Office, Government of Japan, and partially funded by the Japan Science and Technology Agency (JST) with the JST-Mirai Program, grant number JPMJMI21H4.
