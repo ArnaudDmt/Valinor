@@ -61,8 +61,9 @@
 
 % the abstract environment
 \begin{abstract}
-This article presents {\scshape Valinor} (Velocity-Aided Leg Inertial Nonlinear Odometry and Registration), a method for lightweight yet accurate Leg-Inertial odometry for humanoid robots. {\scshape Valinor} builds upon the Tilt Observer, a computationally efficient complementary filter, which provides accurate estimates of the IMU's tilt and linear velocity with strong mathematical convergence guarantees, associating it with Leg odometry. We introduce an axis-agnostic method for the fusion of the Tilt Observer's tilt estimate with the Leg odometry's yaw. We argue that this method is less arbitrary and more mathematically sound than those based on other orientation representations, especially on Euler angles.
-We present an evaluation of the proposed estimator through real-world data on two humanoid robots. We show that, while being 7.5 times faster than the state-of-the-art method used for comparison, {\scshape Valinor} achieves estimation performance on par with it.\finir
+This article presents {\scshape Valinor} (Velocity-Aided Leg Inertial Nonlinear Odometry and Registration), a method for lightweight yet accurate Leg-Inertial odometry for humanoid robots. {\scshape Valinor} builds upon the Tilt Observer, a complementary filter that estimates the IMU's tilt and linear velocity with strong mathematical convergence guarantees, associating it with Leg odometry. We introduce an axis-agnostic fusion method that coherently combines the Tilt Observer's tilt estimate with the Leg odometry's yaw. We argue that this method is less arbitrary and more mathematically sound than those based on other orientation representations, especially on Euler angles.
+We validate {\scshape Valinor} on real-world experiments with two humanoid robots. Results show that, while being 7.5 times faster than the state-of-the-art method used for comparison, {\scshape Valinor} achieves estimation performance on par with it. This makes {\scshape Valinor} a strong candidate for feedback in balance control, as well as for task planning and execution within the robot's local workspace. 
+Beyond this contribution, we hope to highlight the broader need for estimation methods that are not only accurate and efficient, but also grounded in strong mathematical guarantees, towards their safe deployment around humans.
 \end{abstract}
 
 \begin{keywords}
@@ -160,7 +161,7 @@ Based on this definition, we give the position and linear velocity of the anchor
 &{^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}} = \sum^{n_{c}}_{i} \lambda_{i}  {^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}, \label{eq:imuAnchorPos} \\
 &{^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}} = \sum^{n_{c}}_{i} \lambda_{i}  {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}, \label{eq:imuAnchorVel}
 \end{align} 
-with ${^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}$ the position and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}$ the linear velocity of the $i$-th contact in the IMU's frame, which are directly provided by the robot's joint encoders and geometrical model. \\As explained in Section~\ref{subsec:tiltMeas}, ${^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}}$ and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}}$ are updated at each iteration. Combined with the zero-velocity assumption of the anchor point in the world frame and the gyrometer measurement, they provide an algebraic estimate of the IMU velocity in the world frame.
+with ${^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}$ the position and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}$ the linear velocity of the $i$-th contact in the IMU's frame, which are directly provided by the robot's joint encoders and geometrical model. \\${^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}}$ and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}}$ are updated at each iteration. As explained in Section~\ref{subsec:tiltMeas}, by combining them with the zero-velocity assumption of the anchor point in the world frame and the gyrometer measurement, we obtain an algebraic estimate of the IMU velocity in the world frame.
 
 It is important to note also that with this definition, although the anchor point is defined to have zero velocity in the world, its instantaneous position may still evolve over time.
 
@@ -208,7 +209,7 @@ and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}}$ from~\eqref{eq:imuAnch
     \boldsymbol{y}_v = - \boldsymbol{y}_{g} \times {^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}} - {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}} \label{eq:yv}
 \end{equation}
 
-\subsection{Definition of the Filter}
+\subsection{Definition of the Filter} \label{subsec:tilt_def}
 The state dynamics of our system can be written:
 \begin{align} 
 &\dot{\boldsymbol{x}}_{1} = - \boldsymbol{y}_{g} \times \boldsymbol{x}_{1} - g_{0}\boldsymbol{x}_{2} + \boldsymbol{y}_{a} , \label{eq:x1_dot} \\

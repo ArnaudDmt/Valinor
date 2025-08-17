@@ -7,7 +7,7 @@ The paper states that VALINOR is as accurate or more accurate than the RI-EKF, a
 
 We thank the reviewer for this comment and agree that our explanations required greater detail to avoid ambiguity. We have revised the text to clarify where our method outperforms and underperforms compared to the RI-EKF, and to more clearly state the criteria an estimator must meet for our intended use case (remote control / local task planning and execution). This revision highlights that each approach has its own relative strengths with regard to these criteria. As it is difficult to judge which strengths are more valuable, we conclude that both estimators are well suited to our use case, as each demonstrates strong estimation performance. Since the improvements brought by {\scshape Valinor} were significant and consistent, we reiterated them in the conclusion without claiming overall superiority in estimation accuracy.
 
-\begin{revquote}
+\begin{revquote} \hypertarget{Comment 2 Rev 3}{}
 2. Experiment scope and discussion of general cases
 The experiments were done on two humanoid robots with tasks like walking on flat ground and multi-contact motion. This shows that the method works in practice. Still, it would help to briefly discuss how the method might behave in more difficult cases, like when foot contact is missed or the surface is slippery. This isn't critical to the paper, but adding a few sentences about assumptions and possible failure cases would make the paper feel more complete.
 \end{revquote}
@@ -42,4 +42,4 @@ We thank the reviewer for correcting us, and apologize for these typos, which we
 3. Figures like Fig. 4 and 5 should include clear axis labels and units (e.g., seconds, degrees).
 \end{revquote}
 
-We thank the reviewer for this comment and agree that we should have used the commonly used notations in the figures. Following your comment, we are now using [seconds] for the Time label. Since labels would overlap in Figure~\ref{fig:pose_rhps1} if we used the [degrees] and [meters] notations, we have adopted the [deg] and [m] notations, which has been used in well-known works on odometry for legged robots~\cite{e.g. wisth2022vilens, Lin2005ALegConfigurationMeasSystemHexapod}. 
+We thank the reviewer for this comment and agree that we should have used the commonly used notations in the figures. Following your comment, we are now using [seconds] for the Time label. Since labels would overlap in Figure~\ref{fig:pose_rhps1} if we used the [degrees] and [meters] notations, we have adopted the [deg] and [m] notations, which has been used in well-known works on odometry for legged robots~\cite{wisth2022vilens, Lin2005ALegConfigurationMeasSystemHexapod}. 
