@@ -9,14 +9,14 @@ $\sqrt{\boldsymbol{F}_{i,x}^2 + \boldsymbol{F}_{i,y}^2}$. We have clarified this
 2. If the forces were measured using sensors, detailed information about the sensors should be provided in Section of 7.1 (Description of the experiments).
 \end{revquote}
 
-We thank the reviewer for this comment. We agree that this information might interest the reader. However, the models of the force sensors used in both HRP-5P and RHP Friends have not been publicly disclosed so we were not able to provide them. Concerning IMUS, only the model used in HRP5-P has been disclosed (KVH Industries: 1750, according to~\cite{Kaneko2019Hrp5}). 
+We thank the reviewer for this comment. We agree that this information might interest the reader. However, the models of the force sensors used in both HRP-5P and RHP Friends have not been publicly disclosed so we were not able to provide them. Concerning IMUs, only the model used in HRP5-P has been disclosed (KVH Industries: 1750, according to~\cite{Kaneko2019Hrp5}). 
 If you want more information about RHP Friends, you can read "Humanoid Robot RHP Friends: Seamless Combination of Autonomous and Teleoperated Tasks in a Nursing Context", by Benallegue et al, 2025, IEEE Robotics and Automation Magazine.
 
 \begin{revquote}
 3. Should $\lambda_1$ be used instead of $\lambda_2$ in equation (14) for the interpolation? Please clarify.
 \end{revquote}
 
-We thank the reviewer for this comment. The weighting coefficient to use in equation (14) should be $\lambda_2$, but we indeed did not clarify enough why. The average should take more into account the contact which is the most reliable, which, as we explained in Section~\label{sec:anchor_point}, we consider to be the contact with the highest coefficient $\lambda_{i}$.
+We thank the reviewer for this comment. The weighting coefficient to use in equation (14) should be $\lambda_2$, but we indeed did not clarify enough why. The average should take more into account the contact which is the most reliable, which, as we explained in Section~\ref{sec:anchor_point}, we consider to be the contact with the highest coefficient $\lambda_{i}$.
 To understand better why $\lambda_{2}$ is used here, you can imagine the case where the contact 2 is extremely unreliable ($\lambda_{2} \approx 0$) and should be disregarded. In that case:
 \begin{align}
     \hat{\boldsymbol{R}}_{\mathcal{I}}& = \boldsymbol{R}_{\mathcal{I}, 1} \text{exp} \left( \boldsymbol{0}_{3\times3}  \right) \\ 
@@ -37,4 +37,4 @@ The average orientation would thus be equal to the orientation coming from the c
 4. The authors should include figures for Experiment 2, similar to Figs. 2 and 4. Additionally, presenting tilt and yaw estimation results over time (as in Fig. 4) would improve clarity and help readers better understand the results.
 \end{revquote}
 
-We thank the reviewer for this comment, which indeed improves the clarity of our explanations. We have added the trajectory performed during Experiment 2, along that of Experiment 1, and modified Figure 4 to now represent the evolution of the full estimated / ground-truth pose (translation and orientation) of the floating base over time. Rather than the roll and pitch provided in Fig. 4, we now plot the $x$ and $y$ components of the tilt (the $z$ is very close to 1 by construction as explain in Section~\ref{sec:axisAgnostic}). As precised in the y axis labels, these components are actually almost identical to the roll and pitch, but plotting them is more consistent with our previous explanation.
+We thank the reviewer for this comment, which indeed improves the clarity of our explanations. We have added the trajectory performed during Experiment 2, along that of Experiment 1, and modified Figure 4 to now represent the evolution of the full estimated / ground-truth pose (translation and orientation) of the floating base over time. Rather than the roll and pitch provided in Fig. 4, we now plot the $x$ and $y$ components of the tilt (the $z$ is very close to 1 by construction as explained in Section~\ref{sec:axisAgnostic}). As specified in the y axis labels, these components are actually almost identical to the roll and pitch, but plotting them is more consistent with our previous explanation.
