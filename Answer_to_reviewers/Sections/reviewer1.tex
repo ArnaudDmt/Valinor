@@ -69,9 +69,16 @@ To the paragraph, we also added the note that the convergence properties of the 
 \end{revquote}
 
 We thank the reviewer for this comment. The biases on the gyrometer and accelerometer measurements were indeed not considered in the Tilt Observer. These biases are one of the core challenges of proprioceptive estimation, since they are not observable with no global position and orientation measurement. In RI-EKF, the authors explain that by simply adding biases to the state, most of their theoretical properties (for example their observability analysis) no longer hold. The complementary filter used for the Tilt Observer is no exception, and adding the biases would prevent from writing a proof of convergence.
-\alert{
-But we would like here to provide more insights on the impact of the biases on the estimator:}
-Also, adding the gyrometer may indeed improve the estimation, but from our experience working with estimators using only proprioceptive measurements, the estimated gyrometer bias generally doesn't converge towards the actual one but to totally different values. It may even reach non-negligible erroneous estimate that lead to the drift of the robot. To give an example, Figure~\ref{fig:bias} below shows the gyrometer bias along the z axis estimated by the RI-EKF during Experiment 1, against an approximation of its actual value at the end of the experiment, obtained by computing the average of the gyrometer measurement over the last 3 seconds while the robot was standing still. We can observe that while the gyrometer bias was almost zero at the end of the walk, the RI-EKF estimated a non-negligible bias, leading to an error of about $5.5 10e^{-4}$ rad/s (so 0.03 deg/s) and to a progressive in yaw over time, which can actually be observed in Figure~\ref{fig:traj_friends}
+But we would like to try and provide more insights on the impact of biases on the estimator, focusing on Eqs.~\eqref{eq:tilt_dynamics_1} and~\eqref{eq:tilt_dynamics_2}. 
+The estimator will deviate (but  not diverge) due to the biases. In static, it gives the following static errors:
+\begin{align}
+  \tilde{\boldsymbol{x}}_{1}&=-\left(\frac{\alpha_{2}}{g_{0}}\boldsymbol{I}+\frac{1}{g_{o}}S\left(\boldsymbol{b}_{g}\right)\left(\alpha_{1}\boldsymbol{I}+S\left(\boldsymbol{b}_{g}\right)\right)\right)^{-1}\left(S\left(\boldsymbol{b}_{g}\right)\boldsymbol{x}_{2}+\frac{1}{g_{o}}S\left(\boldsymbol{b}_{g}\right)\boldsymbol{b}_{a}\right) \\
+  \tilde{\boldsymbol{x}}_{2}&=\frac{1}{g_{o}}\left(S\left(\boldsymbol{b}_{g}\right)-\alpha_{1}\boldsymbol{I}\right)\tilde{\boldsymbol{x}}_{1}+\frac{1}{g_{o}}\boldsymbol{b}_{a}
+\end{align}
+with $\tilde{\boldsymbol{x}}_{1} = \boldsymbol{x}_{1} - \hat{\boldsymbol{x}}_{1}$ and $\tilde{\boldsymbol{x}}_{2} = \boldsymbol{x}_{2} - \hat{\boldsymbol{x}}_{2}$ the errors on the IMU's linear velocity and tilt, respectively. $\boldsymbol{b}_{g}$ and $\boldsymbol{b}_{a}$ the biases on the gyrometer and accelerometer measurements, respectively, and $S\left(\boldsymbol{x}\right)$ the skew-symmetric (cross-product) matrix of the vector $\boldsymbol{x}$. 
+
+
+To conclude on this response, adding the gyrometer bias to the estimation (which is the most common case, the accelerometer bias is generally not considered in proprioceptive methods) may indeed improve the estimation, but from our experience working with estimators using only proprioceptive measurements, the estimated gyrometer bias generally doesn't converge towards the actual one but to totally unrelated values. It may even reach non-negligible erroneous values that lead to the drift of the robot's estimated state. To give an example, Figure~\ref{fig:bias} below shows the gyrometer bias along the z axis estimated by the RI-EKF during Experiment 1, against an approximation of its actual value at the end of the experiment, obtained by computing the average of the gyrometer measurement over the last 3 seconds while the robot was standing still. We can observe that while the gyrometer bias was low at the end of the walk, the RI-EKF estimated a non-negligible bias, leading to an error of about $5.5 10e^{-4}$ rad/s (so 0.03 deg/s) and to a progressive drift in yaw over time, which can actually be observed in Figure~\ref{fig:traj_friends}.
 
 \begin{figure*}[!ht]
 \begin{center}
@@ -82,10 +89,8 @@ Also, adding the gyrometer may indeed improve the estimation, but from our exper
 \vskip -1.5pc
 \end{figure*}
 
-For these reasons, we did not insist on the inclusion of sensor biases.
+For these reasons, we did not insist on the inclusion of sensor biases, but we have added a discussion on this point to the conclusion of the revised version.
 
-
-\alert{Say clearly in the text that we don't estimate the bias?}
 
  
 
@@ -118,8 +123,8 @@ We thank the reviewer for these comments. We agree that the overall architecture
 Though contact positions relative to the IMU are derived from encoder data, the process of estimating the anchor pose, its reference frame, and how it updates over time is not fully described.
 \end{revquote}
 
-We thank the reviewer for this comment. The anchor point is a point that belongs to the robot, but we consider its position and velocity in both the world and the IMU's frame. By assuming this point has a zero linear velocity in the world, we can obtain an estimate of the IMU's velocity in the world with Eq.~\eqref{eq:yv}. To compute this velocity, we don't need to compute the position and linear velocity of the anchor point in the world frame, but only its position and linear velocity in the IMU's frame. The latter can be computed directly from the position and linear velocity of contacts in the IMU (thus using encoder data) using~\eqref{eq:imuAnchorPos} and \eqref{eq:imuAnchorVel}. 
-We revised Section~\ref{sec:anchor_point} to improve the flow of this explanation of the computation of the anchor point kinematics, in order to make it clearer. We now also explicit the fact we compute~\eqref{eq:imuAnchorPos} and \eqref{eq:imuAnchorVel} on each iteration, and that they are the ones that will be used later to compute ~\eqref{eq:yv}:
+We thank the reviewer for this comment. The anchor point is a point that belongs to the robot, but we consider its position and velocity in both the world and the IMU's frame. By assuming this point has a zero linear velocity in the world, we can obtain an estimate of the IMU's velocity in the world with Eq.~\eqref{eq:yv}. To compute this velocity, we don't need to compute the position and linear velocity of the anchor point in the world frame, but only its position and linear velocity in the IMU's frame. The latter can be computed directly from the position and linear velocity of contacts in the IMU (thus using encoder data) using Eq.~\eqref{eq:imuAnchorKine}. 
+We revised Section~\ref{sec:anchor_point} to improve the flow of this explanation of the computation of the anchor point kinematics, in order to make it clearer. We now also explicit the fact we compute ${^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}}$ and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}}$ using Eq.~\eqref{eq:imuAnchorKine} on each iteration, and that they are the ones that will be used later to compute Eq.~\eqref{eq:yv}:
 \begin{quote}
   ``${^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}}$ and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}}$ are updated at each iteration. As explained in Section~\ref{subsec:tiltMeas}, by combining them with the zero-velocity assumption of the anchor point in the world frame and the gyrometer measurement, we obtain an algebraic estimate of the IMU velocity in the world frame.''
 \end{quote}
@@ -232,9 +237,9 @@ Building on your comment, we have added this standard deviation to our results t
 Our method scales very well with respect to the number of contacts, since an additional contact only implies:
 \begin{itemize}
   \item An additional computation of Eq.~\eqref{eq:ratio_ui}, hence negligible operations with floats.
-  \item An additional sum of 3x1 vectors in Eq.~\eqref{eq:imuAnchorPos} and Eq.~\eqref{eq:imuAnchorVel}.
+  \item Two additional sums of 3x1 vectors in Eq.~\eqref{eq:imuAnchorKine}.
   \item The orientation average in Eq.~\eqref{eq:leg_odom_avg_ori} is computed between the two most reliable contacts, so over 2 contacts, no additional operation is involved. 
-  \item An additional product of a 3x1 vector by a 3x3 matrix and the difference between two 3x1 vectors in~\eqref{eq:est_p_imu}.
+  \item An additional product of a 3x1 vector by a 3x3 matrix and the difference between two 3x1 vectors in Eq.~\eqref{eq:est_p_imu}.
 \end{itemize}
 
 These operations, in addition to being extremely fast, scale at most linearly with the number of contacts.
