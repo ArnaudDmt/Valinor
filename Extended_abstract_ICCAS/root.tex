@@ -16,6 +16,9 @@
 \usepackage{array,tabularx}
 \usepackage{multicol} 
 \usepackage{multirow}
+\usepackage{empheq}
+
+\usepackage{amsmath, amssymb}
 
 \begin{document}
 
@@ -69,9 +72,70 @@ The main contributions introduced in this paper are as follows:
   \item We evaluate the proposed method on real experiments with two different humanoid robots.
   \item The code of the Tilt Observer is open source\footnote{\scriptsize \url{https://github.com/ArnaudDmt/state-observation}}, as well as a ROS wrapper\footnote{\scriptsize \url{https://github.com/ArnaudDmt/state_observation_ros.git}}.
 \end{itemize}
+\noindent Figure~\ref{fig:summary} provides an overview of the Valinor's pipeline, outlining the contribution of each block and section.
+
+\begin{figure*}[thb]
+\begin{center}
+\includegraphics[width=0.90\textwidth]{Uploaded/summary.jpg}
+\caption{\label{fig:summary}Summary of {\scshape Valinor}'s pipeline.}
+\end{center}
+\end{figure*}
+ 
+
 
 \section{Tilt Observer with Proof of Convergence} \label{sec:Tilt}
-The robot's tilt is estimated by the \emph{Tilt Observer}, which relies on the signals from an IMU and on a linear velocity measurement. We obtain the latter from the \emph{anchor point}, an approximation of the point attached to the robot with the velocity the closest to zero. We compute this point with a weighted average between the contact positions, taking more into account contacts which are the least prone to slip. By using this information coming from contacts, the Tilt Observer provides an accurate tilt estimate whose convergence is mathematically proven, providing strong accuracy guarantees.
+The robot's tilt is estimated by the \emph{Tilt Observer}, which relies on the signals from an IMU and on a linear velocity measurement. Since humanoid robots are generally not equipped with a direct sensor for linear velocity, we first explain how such a measurement can be reconstructed in the case of legged robot.
+
+\subsection{Linear velocity pseudo-measurement}
+The pseudo-measurement is obtained using the so-called \emph{anchor point}, a point rigidly attached to the robot whose velocity in the world frame is assumed to be zero. Under the common assumption that legged robot contacts remain fixed in the world, any point on a contact surface could serve as an anchor point. However, this assumption may be violated in the presence of slippage. To make the zero-velocity assumption as robust as possible, we compute the anchor point as a weighted average of all contact positions, assigning greater weight to those less prone to slip. Specifically, for each contact $i$, we calculate a coefficient $u_i$ from the measured contact force $\boldsymbol{F}_{i}$, quantifying its slip susceptibility according to Coulomb's law: 
+\begin{equation}
+    u_{i} = \frac{F_{i,z}}{\sqrt{F_{i,x}^2 + F_{i,y}^2} + \epsilon mg_{0}},\label{eq:ratio_ui}
+\end{equation}
+with $mg_{0}$ the weight of the robot, and $\epsilon$, an arbitrarily small term, which allows to deal with the case where the tangential force is zero. \\
+We then normalize the coefficients to obtain $\lambda_i$ for each contact, which are subsequently used to weight their contributions in the average:
+\begin{equation}
+    \lambda_{i}=\frac{u_{i}}{\sum^{n_{c}}_{j=1}u_{j}}. \label{eq:lambda_i}
+\end{equation}
+Based on the definition of the anchor point, we give its position and linear velocity in the IMU's frame:
+\begin{equation} 
+{^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}} = \sum^{n_{c}}_{i} \lambda_{i}  {^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}} , \qquad \qquad {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}} = \sum^{n_{c}}_{i} \lambda_{i}  {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}, \label{eq:imuAnchorKine} 
+\end{equation} 
+with ${^{\mathcal{I}}} \boldsymbol{p}_{{\mathcal{C}}_{i}}$ the position and ${^{\mathcal{I}}} \dot{\boldsymbol{p}}_{{\mathcal{C}}_{i}}$ the linear velocity of the $i$-th contact in the IMU's frame, which are directly provided by the robot's joint encoders and geometrical model.
+
+Finally, we construct a pseudo-measurement $\boldsymbol{y}_v$ of the IMU's linear velocity in the world (expressed in the IMU frame) from the gyrometer signal $\boldsymbol{y}_g$, together with the anchor point's position and velocity in the IMU frame and its assumed zero velocity in the world:
+\begin{equation}
+    \boldsymbol{y}_v = - \boldsymbol{y}_{g} \times {^{\mathcal{I}}}\boldsymbol{p}_{\mathcal{A}} - {^{\mathcal{I}}} \dot{\boldsymbol{p}}_{\mathcal{A}} \label{eq:yv}
+\end{equation}
+
+
+\subsection{Definition of the Tilt Observer}
+The Tilt Observer provides estimates of: 
+\begin{itemize}
+    \item $\boldsymbol{v}_{\mathcal{I}, \text{l}} \triangleq \boldsymbol{R}^{T}_{\mathcal{I}} \boldsymbol{v}_{\mathcal{I}} $ the linear velocity of the IMU's frame in the world frame, expressed in the frame of the IMU.
+    \item $\boldsymbol{R}^{T}_{\mathcal{I}} \boldsymbol{e}_z$ the tilt of the IMU.
+\end{itemize}
+We thus define the state variables: 
+\begin{alignat}{2}
+&\boldsymbol{x}_{1} \triangleq \boldsymbol{v}_{\mathcal{I}, \text{l}} \quad &&, \boldsymbol{x}_{1} \in \mathbb{R}^{\text{3}}, \label{eq:x1} \\
+&\boldsymbol{x}_{2} \triangleq \boldsymbol{R}^{T}_{\mathcal{I}} \boldsymbol{e}_z \quad &&, \boldsymbol{x}_{2} \in \mathbb{S}^{\text{2}}. \label{eq:x2}
+\end{alignat} 
+The set $\mathbb{S}^{\text{2}} \subset \mathbb{R}^{\text{3}}$ is the unit sphere centered at the origin, and defined as $\mathbb{S}^{\text{2}} = \left\{ \boldsymbol{x} \in \mathbb{R}^{\text{3}} \vert \lVert \boldsymbol{x} \rVert=\text{1} \right\}$.
+The Tilt Observer consists in a complementary filter, which uses the system's dynamics as a feed-forward, and corrects the estimated state using the velocity measurement $\boldsymbol{y}_{v}$:
+\begin{empheq}[left= \empheqlbrace]{align}
+    \dot{\hat{\boldsymbol{x}}}_{1} &= - \boldsymbol{y}_{g} \times \hat{\boldsymbol{x}}_{1} - g_{0} \hat{\boldsymbol{x}}_{2}^{\prime} + \boldsymbol{y}_{a} + \alpha_{1} (\boldsymbol{y}_{v} - \hat{\boldsymbol{x}}_{1}) \text{, }\label{eq:tilt_dynamics_1} \\
+    \dot{\hat{\boldsymbol{x}}}_{2}^{\prime} &= -  \boldsymbol{y}_{g} \times \hat{\boldsymbol{x}}_{2} - \frac{\alpha_{2}}{g_{0}} (\boldsymbol{y}_{v} - \hat{\boldsymbol{x}}_{1}) \text{, }\label{eq:tilt_dynamics_2} \\
+    \dot{\hat{\boldsymbol{x}}}_{2} &= - (\boldsymbol{y}_{g} - \gamma \hat{\boldsymbol{x}}_{2} \times \hat{\boldsymbol{x}}_{2}^{\prime})\times \hat{\boldsymbol{x}}_{2} \text{. } \label{eq:tilt_dynamics_3}
+\end{empheq}
+$\hat{\boldsymbol{x}}_{1} $ is the estimate of $\boldsymbol{x}_{1} $ and $\hat{\boldsymbol{x}}_{2}^{\prime}$ is an intermediate estimate of $\boldsymbol{x}_{2} $, which converges exponentially, but is not restricted to lie on the sphere $\mathbb{S}^{\text{2}}$. This estimate drives the convergence of the tilt's final estimate $\hat{\boldsymbol{x}}_{2} $, which is explicitly projected onto $\mathbb{S}^{\text{2}}$ so as to respect its Lie group structure.
+The positive scalar gains $\alpha_1$, $\alpha_2$ and $\gamma$ define the convergence rates of the three state estimates. Insights on their tuning are provided in~\cite{benallegue2023velocity}. 
+
+The formulation as a complementary filter allows to conduct a convergence analysis of the estimation error, providing strong mathematical guarantees on the estimator's performances. Especially here, it has been shown in~\cite{benallegue2020LyapunovStableOrientationEstimatorHumanoids} that:
+\begin{itemize}
+    \item The dynamics of the estimation error is autonomous, and thus does not depend on the motion of the robot. 
+    \item The intermediate estimator $\left\{\hat{\boldsymbol{x}}_{1}, \hat{\boldsymbol{x}}_{2}^{\prime} \right\}$ is \emph{globally exponentially stable}, with respect to the origin $\left(0,0\right)$.
+    \item The full estimator is \emph{almost globally asymptotically stable}, and locally \emph{exponentially stable}. It provides a good filtering of noise and guarantees to respect the normality constraint.
+\end{itemize}
+Note that the filter's convergence guarantees hold regardless of the gains' tuning.
 
 \section{Leg Odometry for Position and Yaw Estimation}\label{sec:Leg_odom}
 
@@ -124,8 +188,12 @@ The proposed estimator has been compared to the state-of-the-art RI-EKF~\cite{Ha
     \item Experiment 1: A walk on a flat ground over about 18 meters with the robot RHP Friends. This experiment was repeated 5 times, for a total distance of about 90 meters.
     \item Experiment 2: A multi-contact motion over about 2 meters with the robot HRP-5P. This motion involved an additional contact at the robot's left hand, and non-coplanar contacts on tilted obstacles. This experiment was repeated 4 times for a total distance of about 8 meters.
 \end{itemize}
+\subsection{Computational Performance Evaluation}\label{subsec:computation_time}
 
 We first evaluated the computation speed performance of the proposed estimator on a laptop with an Intel Xeon E-2176M CPU (2.70GHz x 12), over the four multi-contact experiments. In average, an iteration of {\scshape Valinor} was computed in 2.547 \textmu s, against 19.315 \textmu s for the RI-EKF. It is thus more than 7.5 times faster, while proposing equivalent estimation accuracy, or even improving the estimation of key variables, as shown in Table~\ref{tab:estimation_eval}.
+
+\subsection{Estimation Accuracy Evaluation} ~\label{subsec:est_accur_eval}
+
 \begin{table}[h!] 
 \setlength{\extrarowheight}{0.6ex}
 \addtolength{\tabcolsep}{-0.4em}
@@ -136,7 +204,7 @@ We first evaluated the computation speed performance of the proposed estimator o
             \hline
                   &       \multicolumn{2}{c|}{RE Translation}         &    \multicolumn{2}{c|}{RE Orientation}  &    \multicolumn{2}{c|}{Linear velocity}     \\     
 
-            &       \multicolumn{2}{c|}{[m]}         &    \multicolumn{2}{c|}{ [\textdegree] }  &    \multicolumn{2}{c|}{[$\text{m.s}^{-1}$]}     \\     
+            &       \multicolumn{2}{c|}{[m]}         &    \multicolumn{2}{c|}{ [\textdegree] }  &    \multicolumn{2}{c|}{[$\text{m/s}$]}     \\     
                   
             \cline{2-7}
               &     Lateral    &      Vertical      &   \multirow{2}{*}{Tilt}      &     \multirow{2}{*}{Yaw}    &  Lateral  &  Vertical \\ 
