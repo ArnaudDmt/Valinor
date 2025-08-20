@@ -143,30 +143,62 @@ While the tilt of the IMU's frame in the world frame is estimated by the Tilt Ob
 With the proposed pipeline, we thus leverage both the accuracy and mathematical guarantees provided by the Tilt Observer, and the robustness to drift provided by the Leg odometry. Similarly to the computation of the anchor point, the contribution of contacts to the Leg odometry is weighted to trust more contacts which are the least prone to slippage, in order to mitigate its effect.
 
 \section{Tilt--Yaw Fusion}
-The Tilt Observer provides an accurate
-estimate of the IMU \emph{tilt}
+\label{sec:axisAgnostic}
+%=====================================================================
+
+The Tilt Observer of Section~\ref{sec:Tilt} provides $\hat{\boldsymbol{x}}_{2}$,  an accurate
+estimate of the IMU \emph{tilt} noted
 \(
   \boldsymbol{\ell}=\boldsymbol{R}_{1}^{\top}\boldsymbol{e}_{z},
 \)
-while the contact–based Leg odometry supplies an orientation \(\boldsymbol{R}_{2}\) whose
-yaw reflects the robot heading.  We now merge these two pieces into a
-single rotation \(\boldsymbol{R}\).
+while the contact–based Leg odometry of
+Section~\ref{sec:Leg_odom} supplies an orientation \(\boldsymbol{R}_{2} = \hat{\boldsymbol{R}}_{\mathcal{I}}\), whose
+yaw reflects the robot's heading.  We now merge these two pieces into a single rotation \(\boldsymbol{R}\), which would preserve our tilt estimate, especially its mathematical convergence guarantees.
 
-Classically in these situations, the Euler angles representation of the rotations would be used. 
-Despite the simplicity of this method, its rests on two tacit assumptions that are seldom met in the Leg–Inertial setting considered
+%.....................................................................
+\subsection{Why not Euler angles?}
+%.....................................................................
+
+Classically in these situations, we use the Euler angles representation of the rotations,
+\(\boldsymbol{R}_{1}=R_{z}(\psi_{1})R_{y}(\theta_{1})R_{x}(\phi_{1})\) and
+\(\boldsymbol{R}_{2}=R_{z}(\psi_{2})R_{y}(\theta_{2})R_{x}(\phi_{2})\),
+the textbook fusion is
+\begin{equation}
+  \boldsymbol{R}_{\mathrm{cl}}
+  =R_{z}(\psi_{2})\,R_{y}(\theta_{1})\,R_{x}(\phi_{1}).
+  \label{eq:fusion_classic}
+\end{equation}
+This solution has two properties
+\begin{itemize} 
+\item tilt is conserved, i.e. 
+\(\boldsymbol{R}_{\mathrm{cl}}^{\top}\boldsymbol{e}_{z}=\boldsymbol{\ell}\).
+\item among all rotations \(\hat{\boldsymbol{R}}\) such that
+\(\hat{\boldsymbol{R}}^{\top}\boldsymbol{e}_{z}=\boldsymbol{\ell}\),
+\(R_{\mathrm{cl}}\) minimises the horizontal error
+\(
+  \|
+    \hat{\boldsymbol{R}}^{\top}\boldsymbol{e}_{x}-\boldsymbol{R}_{2}^{\top}\boldsymbol{e}_{x}
+  \|^{2}.
+\)
+\end{itemize}
+
+
+Despite its simplicity, Eq.~\eqref{eq:fusion_classic} rests on two tacit
+assumptions that are seldom met in the leg–inertial setting considered
 here:
 
-\begin{itemize}
-\item The optimality of this fusion is defined with
+\begin{itemize} 
+\item The optimality of \eqref{eq:fusion_classic} is defined with
       respect to the IMU axis $\boldsymbol{e}_{x}$ only.  
       This makes sense when $\boldsymbol{e}_{x}$ \emph{is} the heading
       carrier, for example with a GPS-based heading for wheeled vehicles.  
       In practice the IMU can be installed with an arbitrary yaw
-      offset, and our yaw information actually comes from Leg odometry (average contact frames), not from
+      offset, as in {\scshape{Valinor}} where yaw information comes from Leg odometry
+      (Section~\ref{sec:Leg_odom}), not from
       that axis.  Treating $\boldsymbol{e}_{x}$ as ``special'' therefore
       introduces a systematic bias.
 
-\item Because this fusion uses a ZYX decomposition of
+\item Because \eqref{eq:fusion_classic} uses a ZYX decomposition of
       $\boldsymbol{R}_{1}$, it inherits the Euler-angle singularity at
       $\theta_{1}= \pm 90^{\circ}$.  
       Exactly there the pitch axis aligns with
@@ -176,10 +208,159 @@ here:
       Such attitudes are frequent in humanoids that perform
       multicontact motions.
 \end{itemize}
+To avoid these two issues we adopt an \emph{axis-agnostic} fusion that
+uses solely the measured tilt $\boldsymbol{\ell}$, allows any horizontal
+vector to encode yaw, and remains regular for all configurations except
+the physically undefined case $\boldsymbol{\ell}=-\boldsymbol{e}_{z}$.\\
+The construction is detailed next.
 
-To avoid these two issues we adopt an \emph{axis-agnostic} fusion of tilt and yaw that
-uses solely the measured tilt $\boldsymbol{\ell}$ and allows any horizontal
-vector to encode yaw.
+%---------------------------------------------------------------------
+\subsection{Yaw without Euler angles}
+\label{sec:yaw_no_euler}
+%---------------------------------------------------------------------
+
+The yaw contained in $\boldsymbol{R}_{2}$ can be extracted without decomposing the
+matrix into Euler angles.  Let $\boldsymbol{r}_{2}$ denote the third column of $\boldsymbol{R}_{2}$.
+This column describes the world coordinates of the body $\boldsymbol{z}$-axis, i.e $\boldsymbol{r}_{2}=\boldsymbol{R}_{2}\boldsymbol{e}_z$, which is not the tilt of $\boldsymbol{R}_{2}$. 
+It is used to build the horizontal vector $\boldsymbol{m}_2$:
+\begin{equation}
+  \scriptstyle{
+  \boldsymbol{m}_2
+  =
+  \begin{cases}
+    \boldsymbol{e}_x, &
+    \text{if } {r}_{2,x}^{2}+{r}_{2,y}^{2}\simeq0,\\[6pt]
+      \dfrac{1}{\sqrt{{r}_{2,x}^{2}+{r}_{2,y}^{2}}} [{r}_{2,y}\;-{r}_{2,x}\;0]^{\top},
+    & \text{otherwise.}
+  \end{cases}
+  }
+\end{equation}
+where ${r}_{2,x}$ and ${r}_{2,y}$ are the first and second components of $\boldsymbol{r}_{2}$. 
+The condition ${r}_{2,x}^{2}+{r}_{2,y}^{2}\simeq0$ occurs when the tilt $\boldsymbol{R}_{2}^T \boldsymbol{e}_z$ is vertical (upward or downward), so we take $\boldsymbol{m}=\boldsymbol{e_x}$ to avoid the singularity.
+Otherwise, the vector $\boldsymbol{m}_2$ always exists and is unique.
+
+Rotating $\boldsymbol{m}_2$ by $\boldsymbol{R}_{2}^T$
+results in another vector
+$\tilde{\boldsymbol{m}}_2=\boldsymbol{R}_{2}^T\boldsymbol{m}_2$, which is horizontal as well.
+This means that  $\boldsymbol{m}_2$ is an invariant horizontal vector. 
+
+We define the yaw of~$\boldsymbol{R}_{2}$, as the angle between these two vectors $\boldsymbol{m}_2$ and $\tilde{\boldsymbol{m}}_2$, which is computed as
+\begin{equation}
+  \theta
+  =
+  \operatorname{atan2}\Bigl(
+     {m}_{2,x}\tilde{{m}}_{2,y}
+    -{m}_{2,y}\tilde{{m}}_{2,x},\;
+     {m}_{2,x}\tilde{{m}}_{2,x}
+    +{m}_{2,y}\tilde{{m}}_{2,y}
+  \Bigr),
+  \label{eq:yaw_theta}
+\end{equation}
+where the $x$ and $y$ subscripts denote the first and second components of the corresponding vector. 
+The use of horizontal invariant vectors to define the yaw angle guarantees that we only consider rotations around the vertical axis, giving the most sound definition of yaw.
+
+When the tilt $\boldsymbol{R}_{2}^T \boldsymbol{e}_z$ is vertical, any horizontal vector is invariant. In such a case, taking $\boldsymbol{m}=\boldsymbol{e_x}$ amounts at mimicking Euler yaw angle. 
+When this tilt is downward, meaning $\boldsymbol{R}_{2}$ is a rotation of $\pi$ around a horizontal axis, the concept of yaw itself is ill-defined. When the tilt is upward, any horizontal vector gives the same yaw, so using Euler's yaw angle by taking  $\boldsymbol{m}_2=\boldsymbol{e_x}$ is a valid choice.
+
+ Fortunately we don't have to compute this angle explicitly to perform the merge. It can be done directly using the tilt $\boldsymbol{\ell}$ and the second matrix $\boldsymbol{R}_{2}$.
+
+%---------------------------------------------------------------------
+\subsection{Axis-agnostic triad fusion}
+\label{sec:triad_fusion}
+%---------------------------------------------------------------------
+
+\subsubsection{Select a proper reference vector}
+Similarly to the yaw computation above, we start with the selection of the reference vector. However, the fusion makes this step slightly more subtile than just identifying the yaw of a single matrix, because the two rotations could have a very different tilt. This could lead the tilt vector $\boldsymbol{\ell}$ to be nearly colinear with the rotated horizontal invariant vector $\boldsymbol{R}_{2}^T\boldsymbol{m}_2$. This would make the fusion singular. 
+
+The solution is to find a reference vector that is both horizontal and orthogonal to the real up direction $\boldsymbol{r}=\boldsymbol{R}_{2}\boldsymbol{\ell}=[v_{x}\;v_{y}\;v_{z}]^{\top}$.
+Consequently, a proper reference vector can be defined as
+\begin{equation}
+  \scriptstyle{
+  \boldsymbol{m}
+  =
+  \begin{cases}
+    \boldsymbol{m}_2, &
+      \text{if } v_{x}^{2}+v_{y}^{2}\simeq0,\\[6pt]
+    \dfrac{1}{\sqrt{v_{x}^{2}+v_{y}^{2}}}\,[v_{y}\;-v_{x}\;0]^{\top},
+    & \text{otherwise.}
+  \end{cases}
+  }
+\end{equation}
+The degenerate case occurs only when $\boldsymbol{r}$ is vertical, corresponding to $\boldsymbol{R}_{2}^{T}\boldsymbol{e}_{z} = \boldsymbol{\ell}$, which means the rotations nearly have the same tilt. In this situation we know that $\boldsymbol{\ell}$ and $\boldsymbol{R}_{2}^T\boldsymbol{m}_2$ are nearly orthogonal. We thus safely use the yaw angle definition of the previous section. We define the vector $\boldsymbol{m}$ expressed in the frame of $\boldsymbol{R}_{2}$ as 
+$\boldsymbol{m}_{l}=R_{2}^{\top}\boldsymbol{m}$.
+
+
+\subsubsection{ Build two right-handed bases.}
+Using cross products, form
+\begin{align}
+  \boldsymbol{B}_{1}
+  &=
+  \left[
+    \boldsymbol{m}\times\boldsymbol{e}_{z}\quad
+    \boldsymbol{e}_{z}\times\boldsymbol{m}\times\boldsymbol{e}_{z}\quad
+    \boldsymbol{e}_{z}
+  \right],\\
+  \boldsymbol{B}_{2}
+  &=
+  \left[
+    \frac{\boldsymbol{m}_{l}\times\boldsymbol{\ell}}
+         {\|\boldsymbol{m}_{l}\times\boldsymbol{\ell}\|}\quad
+    \frac{\boldsymbol{\ell}\times\boldsymbol{m}_{l}\times\boldsymbol{\ell}}
+         {\|\boldsymbol{m}_{l}\times\boldsymbol{\ell}\|}\quad
+    \boldsymbol{\ell}
+  \right].
+\end{align}
+Each matrix is orthonormal: the first column is the chosen horizontal
+vector, the third column is the vertical direction, and the second
+column completes a right-handed frame.
+
+\subsubsection{ Fuse tilt and yaw.}
+The desired rotation is obtained by rotating from the basis
+$\{\boldsymbol{m}_{2},\cdot,\boldsymbol{\ell}\}$ to
+$\{\boldsymbol{m},\cdot,\boldsymbol{e}_{z}\}$:
+\begin{equation}
+  \boldsymbol{R} = \boldsymbol{B}_{1}\,\boldsymbol{B}_{2}^{\top}.
+  \label{eq:fused_R}
+\end{equation}
+
+
+
+%.....................................................................
+\subsection{Properties}
+%.....................................................................
+
+The rotation obtained with Eq.~\eqref{eq:fused_R} has the following
+properties:
+
+\begin{itemize} 
+  \item \emph{Tilt preservation}:  
+        \(\boldsymbol{R}^{\top}\boldsymbol{e}_{z}=\boldsymbol{\ell}\).
+
+  \item \emph{Optimal horizontal alignment}:  
+        for any rotation \(\hat{\boldsymbol{R}}\) satisfying
+        \(\hat{\boldsymbol{R}}^{\top}\boldsymbol{e}_{z}=\boldsymbol{\ell}\),
+        the choice \eqref{eq:fused_R} minimises $\bigl\|
+             \hat{\boldsymbol{R}}^{\top}\boldsymbol{m}-\boldsymbol{m}_{l}
+          \bigr\|^{2}$.
+        The proof follows exactly the one–parameter maximisation used
+        for the Euler fusion, but with the task-specific direction
+        \(\boldsymbol{m}\) in place of the body axis
+        \(\boldsymbol{e}_{x}\).
+
+  \item \emph{Singularity}:  
+        the construction is undefined only when
+        \(\boldsymbol{\ell}=-\boldsymbol{e}_{z}\); at that upside-down
+        pose, yaw itself has no meaning.
+
+  \item \emph{Computation}:  
+        implementation requires only vector cross products and
+        normalisations, with no Euler-angle extraction, keeping the cost
+        compatible with real-time embedded execution.
+\end{itemize}
+
+The axis-agnostic fusion is therefore adopted as the default in {\scshape Valinor}; it avoids the arbitrary preference for the body axis \(\boldsymbol{e}_{x}\), takes into account the difference of tilt and avoids the gimbal-lock issues of Eq.~\eqref{eq:fusion_classic}. 
+
+
 
 \section{Experimental Evaluation}
 
